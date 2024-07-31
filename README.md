@@ -1,4 +1,6 @@
 # minimessage-js
+[Online Demo](https://wasabithumb.github.io/minimessage-js/) &bull; [NPM](https://www.npmjs.com/package/minimessage-js) &bull; [GitHub](https://github.com/WasabiThumb/minimessage-js) &bull; [Spec](https://docs.advntr.dev/minimessage/format.html)
+
 A deserializer mirroring the [MiniMessage API](https://docs.advntr.dev/minimessage/api.html),
 combined with an HTML renderer, in pure JS. 
 Compare to [minimessage-2-html](https://www.npmjs.com/package/minimessage-2-html), which works by
