@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>MiniMessage JS Demo</title>
+        <meta charset="UTF-8">
+        <script src="./umd/minimessage.js" type="text/javascript"></script>
+        <style>
+            /* Sorry Kezz :) */
+            /* https://github.com/KyoriPowered/adventure-webui/tree/ab4a2c092a04425407955a26671805c60bc32d62/src/commonMain/resources/web/font */
+
+            @font-face {
+                font-family: "Minecraft";
+                src: url("./doc/font/1_Minecraft-Regular.woff") format("woff");
+                font-weight: normal;
+                font-style: normal;
+                font-display: swap;
+            }
+            @font-face {
+                font-family: "Minecraft";
+                src: url("./doc/font/2_Minecraft-Italic.woff") format("woff");
+                font-weight: normal;
+                font-style: italic;
+                font-display: swap;
+            }
+            @font-face {
+                font-family: "Minecraft";
+                src: url("./doc/font/3_Minecraft-Bold.woff") format("woff");
+                font-weight: bold;
+                font-style: normal;
+                font-display: swap;
+            }
+            @font-face {
+                font-family: "Minecraft";
+                src: url("./doc/font/4_Minecraft-BoldItalic.woff") format("woff");
+                font-weight: bold;
+                font-style: italic;
+                font-display: swap;
+            }
+
+            :root {
+                text-rendering: optimizeLegibility;
+                font-synthesis: none;
+                font-family: 'Minecraft', monospace;
+            }
+
+            h1 {
+                text-align: center;
+                font-size: min(4vw, 4vh);
+            }
+
+            textarea, div.output.json {
+                font-family: monospace;
+            }
+
+            textarea, div.output {
+                font-size: min(2vw, 2vh);
+                width: 100%;
+                min-height: 6em;
+                display: block;
+                margin-bottom: 4em;
+                box-sizing: border-box;
+                border: 0.15em solid black;
+                padding: 0.2em;
+            }
+
+            div.output {
+                overflow-y: auto;
+            }
+
+            div.output.plain {
+                background-color: black;
+                color: white;
+                line-height: 1;
+                -webkit-text-size-adjust: none;
+                -moz-text-size-adjust: none;
+                -webkit-font-smoothing: none;
+                -moz-osx-font-smoothing: grayscale;
+            }
+
+            div.output span {
+                font-family: inherit;
+                font-size: inherit;
+            }
+
+            label {
+                display: block;
+                font-size: min(3vw, 3vh);
+                text-align: left;
+            }
+
+            nav {
+                display: block;
+                text-align: center;
+                font-size: min(2vw, 2vh);
+            }
+        </style>
+    </head>
+    <body>
+        <h1>MiniMessage JS Demo</h1>
+        <nav>
+            <a href="https://www.npmjs.com/package/minimessage-js">NPM</a>
+            &bull;
+            <a href="https://github.com/WasabiThumb/minimessage-js">GitHub</a>
+            &bull;
+            <a href="https://docs.advntr.dev/minimessage/format.html">Spec</a>
+        </nav>
+        <br>
+
+        <label for="input">Input</label>
+        <textarea id="input" autocomplete="off"></textarea>
+        <label for="output">Output</label>
+        <div id="output" class="output plain"></div>
+        <label for="json">Output (JSON)</label>
+        <div id="json" class="output json" style="height: 30vh"></div>
+
+        <script>
+            // noinspection JSUnresolvedVariable
+            const { miniMessage, toHTML } = MiniMessage;
+            const mm = miniMessage();
+
+            const inp = document.querySelector("#input");
+            const out = document.querySelector("#output");
+            const jsn = document.querySelector("#json");
+
+            inp.addEventListener("input", () => {
+                out.innerHTML = "";
+                let component;
+                try {
+                    component = mm.deserialize(inp.value);
+                } catch (e) {
+                    console.trace(e);
+                    return;
+                }
+                console.log(toHTML(component, out));
+                jsn.innerText = JSON.stringify(component.toJSON(), null, '\xa0');
+            });
+        </script>
+    </body>
+</html>

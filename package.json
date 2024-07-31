@@ -1,0 +1,43 @@
+{
+  "name": "minimessage-js",
+  "description": "Lenient MiniMessage parser and HTML serializer made in TypeScript",
+  "version": "1.0.0",
+  "author": "wasabithumbs",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "types": "types/index.d.ts",
+  "browser": "umd/minimessage.min.js",
+  "unpkg": "umd/minimessage.min.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WasabiThumb/minimessage-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/WasabiThumb/minimessage-js/issues",
+    "email": "wasabithumbs@gmail.com"
+  },
+  "scripts": {
+    "prepare": "npm run build-node && npm run build-umd",
+    "build-node": "npx tsc",
+    "build-umd": "npx webpack -- --env=mode=dev && npx webpack -- --env=mode=prod",
+    "test": "npx jest",
+    "update-mojang-resources": "node buildSrc/mojangResources.js"
+  },
+  "keywords": [
+    "minimessage",
+    "minecraft",
+    "adventure",
+    "component",
+    "html"
+  ],
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/unzip-stream": "^0.3.4",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.3",
+    "ts-loader": "^9.5.1",
+    "unzip-stream": "^0.3.4",
+    "webpack": "^5.93.0",
+    "webpack-cli": "^5.1.4"
+  }
+}

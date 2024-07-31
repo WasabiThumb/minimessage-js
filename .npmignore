@@ -1,0 +1,5 @@
+.idea
+node_modules
+doc
+buildSrc
+index.html
