@@ -3,9 +3,14 @@
  */
 
 const { getAssetsFromLatestIndex, getAssetsFromLatestClientJAR } = require("./lib/mojangResources");
+const path = require("node:path");
+const stream = require("node:stream");
+const { pipeline } = require("node:stream/promises");
+const { createWriteStream } = require("node:fs");
+const { writeFile, open } = require("node:fs/promises");
 
 /**
- * @return {Promise<{ name: string, size: number, get(): Promise<Buffer> }[]>}
+ * @return {Promise<{ name: string, size: number, get(): Promise<Readable> }[]>}
  */
 async function getLangs() {
     let ret = [];
@@ -22,7 +27,7 @@ async function getLangs() {
         name: "en_us",
         size: english.byteLength,
         get() {
-            return Promise.resolve(english);
+            return Promise.resolve(stream.Readable.from(english));
         }
     });
 
@@ -38,5 +43,65 @@ async function getLangs() {
     return ret;
 }
 
-// TODO
-getLangs().then(console.log).catch(console.error);
+async function main() {
+    const packageDir = path.join(path.resolve(__dirname, ".."), "packages/translations");
+
+    console.log("Updating lang files...");
+    const translationDataDir = path.join(packageDir, "data");
+    const langs = await getLangs();
+
+    console.log("Found " + (langs.length) + " lang files");
+    const names = langs.map((lang) => lang.name).sort();
+
+    console.log("Writing list.json");
+    const listFile = path.join(translationDataDir, "list.json");
+    await writeFile(listFile, JSON.stringify(names), { flag: "w", encoding: "utf-8" });
+
+    console.log("Writing locales.d.ts");
+    const localesFile = path.join(packageDir, "types/locales.d.ts");
+    const fh = await open(localesFile, "w");
+    await fh.writeFile(
+        "/*\n * THIS IS AN AUTOMATICALLY GENERATED FILE!\n" +
+        " * DO NOT EDIT MANUALLY!\n" +
+        " * SEE buildSrc/updateLang.js\n" +
+        "*/\n" +
+        "export type Locale = ",
+        { encoding: "utf-8" }
+    );
+    for (let i=0; i < names.length; i++) {
+        const name = names[i];
+        if (i !== 0) await fh.writeFile(" | ", { encoding: "utf-8" });
+        await fh.writeFile(`\"${name}\"`, { encoding: "utf-8" });
+    }
+    await fh.writeFile(";\n", { encoding: "utf-8" });
+    await fh.close();
+
+    const allDir = path.join(translationDataDir, "all");
+    for (let lang of langs) {
+        console.log(`Writing all/${lang.name}.json`);
+
+        const size = lang.size;
+        const dest = path.join(allDir, `${lang.name}.json`);
+        const input = await lang.get();
+        const output = createWriteStream(dest, { flags: "w" });
+        let read = 0;
+
+        await pipeline(
+            input,
+            new stream.Transform({
+                transform(chunk, encoding, callback) {
+                    read += chunk.length;
+                    console.log(` - ${read} / ${size} (${((read / size) * 100).toFixed(1)}%)`);
+
+                    this.push(chunk);
+                    callback();
+                }
+            }),
+            output
+        );
+    }
+}
+
+if (require.main === module) {
+    main().catch(console.error);
+}

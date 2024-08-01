@@ -127,7 +127,7 @@ async function getAssetsFromLatestClientJAR(assets) {
  * Traverses the asset index for the latest version, finding assets that match the pattern and providing a Blob getter
  * for each.
  * @param pattern { RegExp }
- * @return {Promise<{ match: RegExpExecArray, size: number, hash: string, get(): Promise<Buffer> }[]>}
+ * @return {Promise<{ match: RegExpExecArray, size: number, hash: string, get(): Promise<Readable> }[]>}
  */
 async function getAssetsFromLatestIndex(pattern) {
     const manifest = await getLatestReleaseManifest();
@@ -145,13 +145,7 @@ async function getAssetsFromLatestIndex(pattern) {
         ret.push({
             match, size, hash,
             get() {
-                return fetch(downloadURL, {
-                    method: "GET",
-                    headers: {
-                        "User-Agent": USER_AGENT
-                    }
-                }).then((r) => r.arrayBuffer())
-                    .then((ab) => Buffer.from(ab));
+                return fetchStream(downloadURL, { "User-Agent": USER_AGENT });
             }
         });
     }
