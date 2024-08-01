@@ -1,7 +1,7 @@
 {
   "name": "minimessage-js",
   "description": "Lenient MiniMessage parser and HTML serializer made in TypeScript",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "wasabithumbs",
   "license": "Apache-2.0",
   "main": "dist/index.js",
@@ -21,8 +21,9 @@
     "build-node": "npx tsc",
     "build-umd": "npx webpack -- --env=mode=dev && npx webpack -- --env=mode=prod",
     "test": "npx jest",
-    "on-new-mc-release": "npm run update-obfuscated-font",
-    "update-obfuscated-font": "node buildSrc/updateObfuscatedFont.js"
+    "on-new-mc-release": "npm run update-obfuscated-font && npm run update-lang",
+    "update-obfuscated-font": "node buildSrc/updateObfuscatedFont.js",
+    "update-lang": "node buildSrc/updateLang.js"
   },
   "keywords": [
     "minimessage",

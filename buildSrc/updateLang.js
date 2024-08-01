@@ -43,6 +43,35 @@ async function getLangs() {
     return ret;
 }
 
+async function writeLocales(localesFile, names, andConstants) {
+    const writeOps = { encoding: "utf-8" };
+    const fh = await open(localesFile, "w");
+    await fh.writeFile(
+        "/*\n * THIS IS AN AUTOMATICALLY GENERATED FILE!\n" +
+        " * DO NOT EDIT MANUALLY!\n" +
+        " * SEE buildSrc/updateLang.js\n" +
+        "*/\n" +
+        "export type Locale = ",
+        { encoding: "utf-8" }
+    );
+    for (let i=0; i < names.length; i++) {
+        const name = names[i];
+        if (i !== 0) await fh.writeFile(" | ", writeOps);
+        await fh.writeFile(`\"${name}\"`, writeOps);
+    }
+    await fh.writeFile(";\n", writeOps);
+    if (andConstants) {
+        await fh.writeFile("export const Locales: Locale[] = [ ", writeOps);
+        for (let i=0; i < names.length; i++) {
+            const name = names[i];
+            if (i !== 0) await fh.writeFile(", ", writeOps);
+            await fh.writeFile(`\"${name}\"`, writeOps);
+        }
+        await fh.writeFile(" ];\n", writeOps);
+    }
+    await fh.close();
+}
+
 async function main() {
     const packageDir = path.join(path.resolve(__dirname, ".."), "packages/translations");
 
@@ -59,22 +88,11 @@ async function main() {
 
     console.log("Writing locales.d.ts");
     const localesFile = path.join(packageDir, "types/locales.d.ts");
-    const fh = await open(localesFile, "w");
-    await fh.writeFile(
-        "/*\n * THIS IS AN AUTOMATICALLY GENERATED FILE!\n" +
-        " * DO NOT EDIT MANUALLY!\n" +
-        " * SEE buildSrc/updateLang.js\n" +
-        "*/\n" +
-        "export type Locale = ",
-        { encoding: "utf-8" }
-    );
-    for (let i=0; i < names.length; i++) {
-        const name = names[i];
-        if (i !== 0) await fh.writeFile(" | ", { encoding: "utf-8" });
-        await fh.writeFile(`\"${name}\"`, { encoding: "utf-8" });
-    }
-    await fh.writeFile(";\n", { encoding: "utf-8" });
-    await fh.close();
+    await writeLocales(localesFile, names, false);
+
+    console.log("Writing locales.ts");
+    const localesFile2 = path.join(path.resolve(__dirname, ".."), "packages/fetch-translations/src/locales.ts");
+    await writeLocales(localesFile2, names, true);
 
     const allDir = path.join(translationDataDir, "all");
     for (let lang of langs) {
