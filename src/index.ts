@@ -14,12 +14,12 @@
    limitations under the License.
  */
 
-import {MiniMessage, MiniMessageBuilder, MiniMessageInstance} from "./spec";
+import {MiniMessage, MiniMessageBuilder, MiniMessageInstance, CreateElementFn} from "./spec";
 import {StandardTags} from "./tag/standard";
 import {Component} from "./component/spec";
 import {ModifyTag, TagDirective, TagResolver, TagType} from "./tag/spec";
 import {MarkupParser, MarkupStack} from "./markup/parser";
-import {componentToHTML, CreateElementFn} from "./component/html";
+import {componentToHTML} from "./component/html";
 
 
 class MiniMessageInstanceImpl implements MiniMessageInstance {
@@ -29,18 +29,21 @@ class MiniMessageInstanceImpl implements MiniMessageInstance {
     private readonly preProcessor: MiniMessage.PreProcessor;
     private readonly strict: boolean;
     private readonly tags: TagResolver;
+    readonly translations: MiniMessage.Translations;
     constructor(
         debugCallback: MiniMessage.DebugCallback,
         postProcessor: MiniMessage.PostProcessor,
         preProcessor: MiniMessage.PreProcessor,
         strict: boolean,
-        tags: TagResolver
+        tags: TagResolver,
+        translations: MiniMessage.Translations
     ) {
         this.debugCallback = debugCallback;
         this.postProcessor = postProcessor;
         this.preProcessor = preProcessor;
         this.strict = strict;
         this.tags = tags;
+        this.translations = translations;
     }
 
     serialize(component: Component): string {
@@ -169,6 +172,7 @@ class MiniMessageBuilderImpl implements MiniMessageBuilder {
     private _preProcessor: MiniMessage.PreProcessor = (b) => b;
     private _strict: boolean = false;
     private _tags: TagResolver = StandardTags.defaults();
+    private _translations: MiniMessage.Translations = {};
 
     build(): MiniMessageInstance {
         return new MiniMessageInstanceImpl(
@@ -176,7 +180,8 @@ class MiniMessageBuilderImpl implements MiniMessageBuilder {
             this._postProcessor,
             this._preProcessor,
             this._strict,
-            this._tags
+            this._tags,
+            this._translations
         );
     }
 
@@ -205,6 +210,11 @@ class MiniMessageBuilderImpl implements MiniMessageBuilder {
         return this;
     }
 
+    translations(translations: MiniMessage.Translations): this {
+        Object.assign(this._translations, translations);
+        return this;
+    }
+
 }
 
 
@@ -225,7 +235,13 @@ const MiniMessage: MiniMessage = {
         return new MiniMessageBuilderImpl();
     },
     toHTML(component: Component, output?: HTMLElement, createElementFn?: CreateElementFn): string {
-        return componentToHTML(component.getContext()!, component, output, createElementFn);
+        return componentToHTML(
+            // this bullshit is why the method is deprecated LOL
+            component.getContext()! as unknown as MiniMessageInstance,
+            component,
+            output,
+            createElementFn
+        );
     }
 };
 

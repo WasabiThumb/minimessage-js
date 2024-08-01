@@ -2,7 +2,10 @@ import {TagResolver} from "./tag/spec";
 import {Component} from "./component/spec";
 import {StandardTags, StandardTagsT} from "./tag/standard";
 import {TagResolverContext} from "./tag/context";
-import {CreateElementFn} from "./component/html";
+import Translations = MiniMessage.Translations;
+
+/** Method used by the HTML serializer to create child elements */
+export type CreateElementFn = (tagName: "span") => HTMLElement;
 
 export namespace MiniMessage {
 
@@ -12,6 +15,8 @@ export namespace MiniMessage {
 
     export type PreProcessor = ((markup: string) => string);
 
+    export type Translations = { [key: string]: string };
+
 }
 
 /**
@@ -20,6 +25,8 @@ export namespace MiniMessage {
  * @see deserialize
  */
 export interface MiniMessageInstance extends TagResolverContext {
+
+    readonly translations: Translations;
 
     /**
      * Serializes a {@link Component}. At the moment there is no sane way for you to construct
@@ -78,6 +85,11 @@ export interface MiniMessageBuilder {
      * Sets the tag resolver(s) to use.
      */
     tags(resolver: TagResolver): this;
+
+    /**
+     * Adds the given translation map to the instance translations.
+     */
+    translations(translations: MiniMessage.Translations): this;
 
     /**
      * Builds a MiniMessage instance using the state collected by the builder.

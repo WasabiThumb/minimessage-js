@@ -137,7 +137,7 @@ export const StandardTags = new class {
                 // score is excluded because we can't currently HTML-ify that info
                 // selector is excluded because we can't currently HTML-ify that info
                 this.transition(),
-                // translatable is excluded because we can't currently HTML-ify that info
+                this.translatable(),
                 // translatableFallback is TODO
             )
             .build();

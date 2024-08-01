@@ -89,11 +89,16 @@ export class Component implements IComponent {
     private static SYMBOL_CONTEXT = Symbol("MiniMessageInstance");
 
     private static setContextFor(primitive: IComponent, context: object) {
+        if (this.SYMBOL_CONTEXT in primitive) {
+            // @ts-ignore
+            primitive[this.SYMBOL_CONTEXT] = context;
+            return;
+        }
         Object.defineProperty(primitive, this.SYMBOL_CONTEXT, {
             value: context,
-            configurable: false,
+            configurable: true,
             enumerable: false,
-            writable: false
+            writable: true
         });
     }
 
