@@ -1,5 +1,12 @@
 # minimessage-js
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/WasabiThumb/minimessage-js/node.js.yml)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/WasabiThumb/minimessage-js)
+![Website](https://img.shields.io/website?url=https%3A%2F%2Fwasabithumb.github.io%2Fminimessage-js%2F&label=demo)
+![npm bundle size](https://img.shields.io/bundlephobia/min/minimessage-js)
+
 [Online Demo](https://wasabithumb.github.io/minimessage-js/) &bull; [NPM](https://www.npmjs.com/package/minimessage-js) &bull; [GitHub](https://github.com/WasabiThumb/minimessage-js) &bull; [Spec](https://docs.advntr.dev/minimessage/format.html)
+
+![Demo GIF](https://raw.githubusercontent.com/WasabiThumb/minimessage-js/master/doc/demo.gif)
 
 A deserializer mirroring the [MiniMessage API](https://docs.advntr.dev/minimessage/api.html),
 combined with an HTML renderer, in pure JS. 
