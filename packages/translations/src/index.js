@@ -12,7 +12,6 @@ class Accessor {
      */
     constructor(key) {
         this.key = key;
-        this.path = `../data/all/${key}.json`;
         this.state = 0;
         this.value = null;
     }
@@ -24,9 +23,9 @@ class Accessor {
         if (this.state !== 0) return this.value;
         if (typeof process !== "object") return this.getSync(); // Browser
 
-        const fs = require("node:fs/promises");
-        const path = require("node:path");
-        const abs = path.resolve(__dirname, this.path);
+        const fs = require("fs/promises");
+        const path = require("path");
+        const abs = path.resolve(__dirname, `../data/all/${this.key}.json`);
 
         /** @type { Promise<import('../types/index').TranslationMap> } */
         const promise = fs.readFile(abs, { encoding: "utf-8" })
@@ -50,7 +49,7 @@ class Accessor {
         if (this.state === 2) {
             return this.value;
         }
-        const data = require(this.path);
+        const data = require("../data/all/" + this.key + ".json");
         this.value = data;
         this.state = 2;
         return data;
