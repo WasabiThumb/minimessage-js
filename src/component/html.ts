@@ -2,10 +2,17 @@ import {Component, ComponentDecoration, IComponent} from "./spec";
 import {StringBuilder} from "../util/string";
 import {ColorTagResolver} from "../tag/impl/color";
 import {bindObfuscatedText} from "../font/obf";
+import {MiniMessageInstance, CreateElementFn} from "../spec";
 
-export type CreateElementFn = (tagName: "span") => HTMLElement;
+// RegExp used to identify lang placeholders
+const LANG_PLACEHOLDER_REGEX = /%(%|(?:(\d+)\$)?s)/g;
 
-export function componentToHTML(component: Component, output?: HTMLElement, createElementFn?: CreateElementFn): string {
+export function componentToHTML(
+    context: MiniMessageInstance,
+    component: Component,
+    output?: HTMLElement,
+    createElementFn?: CreateElementFn
+): string {
     let doOutput: boolean = false;
     if (typeof output !== "undefined") {
         doOutput = true;
@@ -24,11 +31,12 @@ export function componentToHTML(component: Component, output?: HTMLElement, crea
     }
 
     const sb = new StringBuilder();
-    componentToHTML0(component, sb, doOutput, output!, createElementFn!);
+    componentToHTML0(context, component, sb, doOutput, output!, createElementFn!);
     return sb.toString();
 }
 
 function componentToHTML0(
+    context: MiniMessageInstance,
     component: Component,
     sb: StringBuilder,
     doOutput: boolean,
@@ -60,6 +68,35 @@ function componentToHTML0(
         sb.appendString(text);
     }
 
+    // START Translatable
+    const translate = component.getProperty("translate");
+    if (!!translate) {
+        let substitutions = component.getProperty("with");
+        if (typeof substitutions === "undefined") substitutions = [];
+
+        let translated: string = context.translations[translate];
+        if (!!translated) {
+            // Handle placeholders
+            translated = translated.replace(
+                LANG_PLACEHOLDER_REGEX,
+                (match: string, arg: string, num: string) => {
+                    if (arg === "%") return "%";
+                    let index: number = 0;
+                    if (arg.length > 1) {
+                        index = parseInt(num) - 1;
+                    }
+                    if (index < 0 || index >= substitutions!.length) return match;
+                    return substitutions![index];
+                }
+            );
+
+            // May have contained MiniMessage tags, so parsing again is required
+            const parsed = context.deserialize(translated);
+            componentToHTML0(context, parsed, sb, doOutput, el, createElementFn);
+        }
+    }
+    // END Translatable
+
     const extra = component.getProperty("extra");
     if (!!extra) {
         for (let child of extra) {
@@ -69,7 +106,7 @@ function componentToHTML0(
                 el.appendChild(sub);
                 sb.appendString(child);
             } else {
-                componentToHTML0(new Component(child), sb, doOutput, el, createElementFn);
+                componentToHTML0(context, new Component(child), sb, doOutput, el, createElementFn);
             }
         }
     }

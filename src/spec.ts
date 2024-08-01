@@ -2,7 +2,10 @@ import {TagResolver} from "./tag/spec";
 import {Component} from "./component/spec";
 import {StandardTags, StandardTagsT} from "./tag/standard";
 import {TagResolverContext} from "./tag/context";
-import {CreateElementFn} from "./component/html";
+import Translations = MiniMessage.Translations;
+
+/** Method used by the HTML serializer to create child elements */
+export type CreateElementFn = (tagName: "span") => HTMLElement;
 
 export namespace MiniMessage {
 
@@ -12,6 +15,8 @@ export namespace MiniMessage {
 
     export type PreProcessor = ((markup: string) => string);
 
+    export type Translations = { [key: string]: string };
+
 }
 
 /**
@@ -20,6 +25,8 @@ export namespace MiniMessage {
  * @see deserialize
  */
 export interface MiniMessageInstance extends TagResolverContext {
+
+    readonly translations: Translations;
 
     /**
      * Serializes a {@link Component}. At the moment there is no sane way for you to construct
@@ -34,6 +41,17 @@ export interface MiniMessageInstance extends TagResolverContext {
      * @param miniMessage
      */
     deserialize(miniMessage: string): Component;
+
+    /**
+     * Converts a parsed {@link Component} to HTML.
+     * @param component The {@link Component} to convert.
+     * @param output If set, the HTML will also be written to specified DOM element. This is mainly for use in browsers,
+     * but passing an object from a polyfill library like jsdom would probably work too.
+     * @param createElementFn When not in browser, and passing a DOM polyfill element to ``output``, use this argument
+     * to pass a replacement for ``document.createElement``
+     * @return The HTML code.
+     */
+    toHTML(component: Component, output?: HTMLElement, createElementFn?: CreateElementFn): string;
 
 }
 
@@ -69,6 +87,11 @@ export interface MiniMessageBuilder {
     tags(resolver: TagResolver): this;
 
     /**
+     * Adds the given translation map to the instance translations.
+     */
+    translations(translations: MiniMessage.Translations): this;
+
+    /**
      * Builds a MiniMessage instance using the state collected by the builder.
      */
     build(): MiniMessageInstance;
@@ -100,6 +123,8 @@ export interface MiniMessage {
     builder(): MiniMessageBuilder;
 
     /**
+     * @deprecated This method is being relocated to {@link MiniMessageInstance.toHTML}.
+     *
      * Converts a parsed {@link Component} to HTML.
      * @param component The {@link Component} to convert.
      * @param output If set, the HTML will also be written to specified DOM element. This is mainly for use in browsers,

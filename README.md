@@ -49,6 +49,39 @@ This package includes a browser build. Add ``minimessage.min.js`` to your docume
 </script>
 ```
 
+## Translations
+Translations can be registered, which will take effect when [rendering to HTML](#html-rendering).
+You can add your own translations or optionally require the [vanilla translations](https://www.npmjs.com/package/@minimessage-js/translations)
+(warning: it's quite big).
+
+```js
+const Translations = require("@minimessage-js/translations");
+
+const mm = MiniMessage.builder()
+    // Add American English translations
+    .translations(Translations.get("en-us"))
+    // Add custom translations
+    .translations({ "greeting": "Hello %s!" })
+    .build();
+
+const component = mm.deserialize("<lang:greeting:Paul> You are " +
+        "holding a <lang:block.minecraft.diamond_block>!");
+
+const html = MiniMessage.toHTML(component);
+/*
+<span>
+    <span data-mm-translate="greeting" data-mm-with="[\"Paul\"]">
+        Hello Paul!
+    </span>
+    <span> You are holding a </span>
+    <span data-mm-translate="block.minecraft.diamond_block">
+        Block of Diamond
+    </span>
+    <span>!</span>
+</span>
+*/
+```
+
 ## HTML Rendering
 As mentioned above, this package has an extra method not found in the original API:
 ``MiniMessage.toHTML``. This converts the parsed Component object into nested ``<span>`` tags,
