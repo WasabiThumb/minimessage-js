@@ -82,6 +82,29 @@ function contentLength(component: IComponent, noChildren: boolean): number {
 
 export class Component implements IComponent {
 
+    /**
+     * Magic symbol used to extract the context (MiniMessage instance) that created this Component.
+     * For internal use.
+     */
+    private static SYMBOL_CONTEXT = Symbol("MiniMessageInstance");
+
+    private static setContextFor(primitive: IComponent, context: object) {
+        Object.defineProperty(primitive, this.SYMBOL_CONTEXT, {
+            value: context,
+            configurable: false,
+            enumerable: false,
+            writable: false
+        });
+    }
+
+    private static getContextFor(primitive: IComponent): object | null {
+        if (!(this.SYMBOL_CONTEXT in primitive)) return null;
+        // @ts-ignore
+        return primitive[this.SYMBOL_CONTEXT] as object;
+    }
+
+    //
+
     static text(content: string): Component {
         return new Component({ text: content });
     }
@@ -252,6 +275,21 @@ export class Component implements IComponent {
             const comp = (new Component(child));
             comp.collapseUnnecessaryEnclosures();
             this.primitive = comp.primitive;
+        }
+    }
+
+    /** @protected */
+    getContext(): object | null {
+        return Component.getContextFor(this.primitive);
+    }
+
+    /** @protected */
+    setContext(context: object): void {
+        Component.setContextFor(this.primitive, context);
+        const extra = this.getProperty("extra");
+        if (!extra) return;
+        for (let child of extra) {
+            if (typeof child === "object") Component.setContextFor(child, context);
         }
     }
 

@@ -77,6 +77,7 @@ const html = MiniMessage.toHTML(component);
     <span data-mm-translate="block.minecraft.diamond_block">
         Block of Diamond
     </span>
+    <span>!</span>
 </span>
 */
 ```

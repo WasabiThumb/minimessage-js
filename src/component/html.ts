@@ -3,9 +3,15 @@ import {StringBuilder} from "../util/string";
 import {ColorTagResolver} from "../tag/impl/color";
 import {bindObfuscatedText} from "../font/obf";
 
+export type ToHTMLContext = {};
 export type CreateElementFn = (tagName: "span") => HTMLElement;
 
-export function componentToHTML(component: Component, output?: HTMLElement, createElementFn?: CreateElementFn): string {
+export function componentToHTML(
+    context: ToHTMLContext,
+    component: Component,
+    output?: HTMLElement,
+    createElementFn?: CreateElementFn
+): string {
     let doOutput: boolean = false;
     if (typeof output !== "undefined") {
         doOutput = true;

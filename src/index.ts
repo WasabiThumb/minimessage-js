@@ -140,8 +140,13 @@ class MiniMessageInstanceImpl implements MiniMessageInstance {
         }
 
         root.collapseUnnecessaryEnclosures();
+        root.setContext(this);
 
         return this.postProcessor(root);
+    }
+
+    toHTML(component: Component, output?: HTMLElement, createElementFn?: CreateElementFn): string {
+        return componentToHTML(this, component, output, createElementFn);
     }
 
     private debug(message: string): void {
@@ -220,7 +225,7 @@ const MiniMessage: MiniMessage = {
         return new MiniMessageBuilderImpl();
     },
     toHTML(component: Component, output?: HTMLElement, createElementFn?: CreateElementFn): string {
-        return componentToHTML(component, output, createElementFn);
+        return componentToHTML(component.getContext()!, component, output, createElementFn);
     }
 };
 

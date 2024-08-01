@@ -35,6 +35,17 @@ export interface MiniMessageInstance extends TagResolverContext {
      */
     deserialize(miniMessage: string): Component;
 
+    /**
+     * Converts a parsed {@link Component} to HTML.
+     * @param component The {@link Component} to convert.
+     * @param output If set, the HTML will also be written to specified DOM element. This is mainly for use in browsers,
+     * but passing an object from a polyfill library like jsdom would probably work too.
+     * @param createElementFn When not in browser, and passing a DOM polyfill element to ``output``, use this argument
+     * to pass a replacement for ``document.createElement``
+     * @return The HTML code.
+     */
+    toHTML(component: Component, output?: HTMLElement, createElementFn?: CreateElementFn): string;
+
 }
 
 /**
@@ -100,6 +111,8 @@ export interface MiniMessage {
     builder(): MiniMessageBuilder;
 
     /**
+     * @deprecated This method is being relocated to {@link MiniMessageInstance.toHTML}.
+     *
      * Converts a parsed {@link Component} to HTML.
      * @param component The {@link Component} to convert.
      * @param output If set, the HTML will also be written to specified DOM element. This is mainly for use in browsers,
