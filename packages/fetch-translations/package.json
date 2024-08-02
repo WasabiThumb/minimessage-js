@@ -29,7 +29,6 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "sync-request": "^6.1.0",
-    "unzipit": "^1.4.3"
+    "sync-request": "^6.1.0"
   }
 }

@@ -1,7 +1,7 @@
 # @minimessage-js/fetch-translations
 
 Provides vanilla translations for use in [minimessage-js](https://www.npmjs.com/package/minimessage-js)
-by sending web requests to the Mojang assets API as needed. This is unlike [@minimessage-js/translations](https://www.npmjs.com/package/@minimessage-js/translations),
+by using HTTP requests as needed. This is unlike [@minimessage-js/translations](https://www.npmjs.com/package/@minimessage-js/translations),
 which comes bundled with *every* translation. They are designed to be
 API compatible, with the main difference being that ``get`` will heavily block.
 ``getAsync`` is highly preferred.
@@ -10,6 +10,10 @@ Unlike ``@minimessage-js/translations``, this package offers a UMD build. The ot
 package does not offer one because the idea of using it in a browser is repulsive.
 When using in a browser, you can access the library using the global constant
 ``MiniMessageTranslations``.
+
+Another difference is that ``get``/``getAsync`` is not guaranteed to throw if you provide
+an unrecognized lang string. It will attempt to fetch the data from the API anyways, and throw
+only if it is not found. ``has``/``list`` can still be used for basic validation.
 
 ## Usage
 ```js
@@ -36,8 +40,6 @@ const MiniMessageTranslations = require("@minimessage-js/fetch-translations");
 ```
 
 ## Dependencies
-- ``unzipit`` : For extracting ``en_us`` from the latest client JAR. 
-  Unlike every other lang, this one cannot be obtained from the asset index.
 - ``sync-request`` : To allow ``get`` to work on Node. Browsers use sync
   ``XMLHttpRequest`` and this dependency is excluded from the browser build. Both
   platforms support ``getAsync`` without blocking.

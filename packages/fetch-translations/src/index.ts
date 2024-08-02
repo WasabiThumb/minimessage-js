@@ -1,5 +1,6 @@
 import {ITranslations, TranslationMap} from "./spec";
 import {Locale, Locales} from "./locales";
+import {TranslationAccessor} from "./accessor";
 const LOCALE_MAX_LENGTH = Locales.reduce((a, b) => Math.max(a, b.length), 0);
 
 function tryNormalize(key: string): Locale | null {
@@ -35,6 +36,18 @@ function normalize(key: string): Locale {
     return out;
 }
 
+const ACCESSORS: { [key: string]: TranslationAccessor } = {};
+
+function getAccessor(key: Locale): TranslationAccessor {
+    let accessor: TranslationAccessor;
+    if (key in ACCESSORS) {
+        accessor = ACCESSORS[key];
+    } else {
+        accessor = (ACCESSORS[key] = new TranslationAccessor(key));
+    }
+    return accessor;
+}
+
 const Translations: ITranslations = {
     list(): Locale[] {
         return [...Locales];
@@ -43,12 +56,10 @@ const Translations: ITranslations = {
         return tryNormalize(key) !== null;
     },
     get(key: Locale | string): TranslationMap {
-        // TODO
-        throw new Error("Not implemented");
+        return getAccessor(normalize(key)).get();
     },
     getAsync(key: Locale | string): Promise<TranslationMap> {
-        // TODO
-        throw new Error("Not implemented");
+        return getAccessor(normalize(key)).getAsync();
     }
 };
 

@@ -9,7 +9,7 @@ export type TranslationMap = {
 };
 
 /**
- * @see get
+ * @see getAsync
  * @see list
  * @see has
  */

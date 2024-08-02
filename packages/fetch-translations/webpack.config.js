@@ -24,7 +24,10 @@ module.exports = ((env) => {
             ]
         },
         resolve: {
-            extensions: [".tsx", ".ts"]
+            extensions: [".tsx", ".ts"],
+            alias: {
+                "sync-request": false
+            }
         },
         output: {
             path: path.resolve(__dirname, "umd"),
