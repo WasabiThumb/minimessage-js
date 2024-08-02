@@ -67,13 +67,13 @@ You can add your own translations or optionally require the vanilla translations
 - [@minimessage-js/fetch-translations](https://www.npmjs.com/package/@minimessage-js/fetch-translations) : Contains methods to fetch translations from the Mojang API at runtime
 
 ```js
-const Translations = require("@minimessage-js/translations");
+const MiniMessageTranslations =
+        require("@minimessage-js/translations");
 
 const mm = MiniMessage.builder()
     // Add American English translations
     .translations(
-        require("@minimessage-js/translations")
-                .get("en-us")
+        MiniMessageTranslations.get("en-us")
     )
     // Add custom translations
     .translations({ "greeting": "Hello %s!" })

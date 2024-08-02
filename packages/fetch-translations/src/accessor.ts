@@ -6,8 +6,8 @@ const USER_AGENT: string = `minimessage-js; wasabithumbs@gmail.com`;
 const STANDARD_HEADERS = {
     "user-agent": USER_AGENT
 };
-const FETCH_URL_A: string = `https://cdn.jsdelivr.net/gh/WasabiThumb/minimessage-js/packages/translations/data/all/`;
-const FETCH_URL_B: string = `https://unpkg.com/@minimessage-js/translations/data/all/`;
+const FETCH_URL_A: string = `https://unpkg.com/@minimessage-js/translations/data/all/`;
+const FETCH_URL_B: string = `https://cdn.jsdelivr.net/gh/WasabiThumb/minimessage-js/packages/translations/data/all/`;
 
 function getJSONAsync(url: string): Promise<TranslationMap> {
     return fetch(url, {

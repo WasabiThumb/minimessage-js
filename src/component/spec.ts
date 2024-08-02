@@ -180,9 +180,9 @@ export class Component implements IComponent {
         for (let i=0; i < children.length; i++) {
             child = children[i];
             size = sizes[i];
-            if (size === 0) continue;
 
             if (child.isOnlyText()) {
+                if (size === 0) continue;
                 const chars = (child.primitive.text || "").split("");
                 let counter: number = 0;
                 for (let char of chars) {
@@ -193,7 +193,7 @@ export class Component implements IComponent {
             } else {
                 if (!("color" in child.primitive)) {
                     child.color = fn((offset + head) / totalLength);
-                    child.setColorByPlacement0(fn, offset + head, totalLength);
+                    if (size !== 0) child.setColorByPlacement0(fn, offset + head, totalLength);
                 }
                 splitChildren.push(child);
             }
@@ -201,7 +201,8 @@ export class Component implements IComponent {
             head += size;
         }
 
-        this.primitive.extra = splitChildren.map<IComponent>((c) => c.primitive);
+        if (splitChildren.length > 0)
+            this.primitive.extra = splitChildren.map<IComponent>((c) => c.primitive);
     }
 
     decoration(decoration: ComponentDecoration): ComponentDecorationState {
