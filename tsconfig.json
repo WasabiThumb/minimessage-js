@@ -14,6 +14,6 @@
     "skipLibCheck": true,
   },
   "exclude": [
-    "node_modules", "tests", "types", "dist"
+    "node_modules", "tests", "types", "dist", "packages"
   ]
 }
