@@ -118,11 +118,28 @@
             const { miniMessage, builder, toHTML } = MiniMessage;
             let mm = miniMessage();
 
-            // Load English translations asynchronously
-            MiniMessageTranslations.getAsync("en_us").then((english) => {
-                console.log("Loaded english translations!");
-                mm = builder().translations(english).build();
+            // START Load translations asynchronously
+            const userLangs = ((navigator) => {
+                return navigator.languages || ((!!navigator.language) && [ navigator.language ]) || [];
+            })(typeof navigator === "object" ? navigator : window["navigator"]);
+
+            console.log("Available translations", MiniMessageTranslations.list());
+            console.log("User languages", userLangs);
+
+            let targetLang = "en_us";
+            for (let lang of userLangs) {
+                if (MiniMessageTranslations.has(lang)) {
+                    targetLang = lang;
+                    break;
+                }
+            }
+
+            console.log(`Loading ${targetLang} translations...`)
+            MiniMessageTranslations.getAsync(targetLang).then((translations) => {
+                console.log(`Loaded ${targetLang} translations!`);
+                mm = builder().translations(translations).build();
             }).catch(console.error);
+            // END Load translations asynchronously
 
             const inp = document.querySelector("#input");
             const out = document.querySelector("#output");
