@@ -6,8 +6,11 @@
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/packages/translations/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/packages/translations/types" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/packages/fetch-translations/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />
       <excludeFolder url="file://$MODULE_DIR$/types" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/fetch-translations/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/fetch-translations/types" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

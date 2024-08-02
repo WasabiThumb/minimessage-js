@@ -21,9 +21,16 @@ import MiniMessage from "minimessage-js";
 // cjs
 const MiniMessage = require("minimessage-js");
 
-const component = MiniMessage.miniMessage().deserialize(`<rainbow>hello world!</rainbow>`);
-component.getProperty("extra"); // [ { text: "h", color: "#ff0000" }, ... ]
-const htmlCode = MiniMessage.toHTML(component); // string containing HTML code
+const component = MiniMessage
+        .miniMessage()
+        .deserialize(`<rainbow>hello world!</rainbow>`);
+
+component.getProperty("extra");
+// [ { text: "h", color: "#ff0000" }, ... ]
+
+const htmlCode = MiniMessage
+        .toHTML(component);
+// string containing HTML code
 ```
 The API is also designed to be able to theoretically support DOM polyfills like [JSDOM](https://www.npmjs.com/package/jsdom):
 ```js
@@ -39,27 +46,35 @@ This package includes a browser build. Add ``minimessage.min.js`` to your docume
 ``MiniMessage`` will be exposed as a global variable. Then the library can be used like
 [NodeJS](#nodejs).
 ```html
-<script src="https://unpkg.com/minimessage-js@^1.0"></script>
+<script src="https://unpkg.com/minimessage-js@^1.1"></script>
 <p id="out"></p>
 <script>
-    MiniMessage.toHTML(
-        MiniMessage.miniMessage().deserialize('<rainbow>hello world!</rainbow>'),
-        document.querySelector("#out")
-    ); // also returns the HTML code as a string
+  const component = MiniMessage
+          .miniMessage()
+          .deserialize('<rainbow>hello world!</rainbow>');
+  
+  MiniMessage.toHTML(
+      component,
+      document.querySelector("#out")
+  ); // also returns the HTML code as a string
 </script>
 ```
 
 ## Translations
 Translations can be registered, which will take effect when [rendering to HTML](#html-rendering).
-You can add your own translations or optionally require the [vanilla translations](https://www.npmjs.com/package/@minimessage-js/translations)
-(warning: it's quite big).
+You can add your own translations or optionally require the vanilla translations:
+- [@minimessage-js/translations](https://www.npmjs.com/package/@minimessage-js/translations) : Contains JSON of all Vanilla translations **(huge)**
+- [@minimessage-js/fetch-translations](https://www.npmjs.com/package/@minimessage-js/fetch-translations) : Contains methods to fetch translations from the Mojang API at runtime
 
 ```js
 const Translations = require("@minimessage-js/translations");
 
 const mm = MiniMessage.builder()
     // Add American English translations
-    .translations(Translations.get("en-us"))
+    .translations(
+        require("@minimessage-js/translations")
+                .get("en-us")
+    )
     // Add custom translations
     .translations({ "greeting": "Hello %s!" })
     .build();

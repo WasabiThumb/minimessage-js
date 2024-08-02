@@ -4,6 +4,7 @@
         <title>MiniMessage JS Demo</title>
         <meta charset="UTF-8">
         <script src="./umd/minimessage.js" type="text/javascript"></script>
+        <script src="./packages/fetch-translations/umd/minimessage-fetch-translations.js" type="text/javascript"></script>
         <style>
             /* Sorry Kezz :) */
             /* https://github.com/KyoriPowered/adventure-webui/tree/ab4a2c092a04425407955a26671805c60bc32d62/src/commonMain/resources/web/font */
@@ -114,9 +115,14 @@
         <div id="json" class="output json" style="height: 30vh"></div>
 
         <script>
-            // noinspection JSUnresolvedVariable
-            const { miniMessage, toHTML } = MiniMessage;
-            const mm = miniMessage();
+            const { miniMessage, builder, toHTML } = MiniMessage;
+            let mm = miniMessage();
+
+            // Load English translations asynchronously
+            MiniMessageTranslations.getAsync("en_us").then((english) => {
+                console.log("Loaded english translations!");
+                mm = builder().translations(english).build();
+            }).catch(console.error);
 
             const inp = document.querySelector("#input");
             const out = document.querySelector("#output");

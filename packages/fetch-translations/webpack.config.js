@@ -12,18 +12,26 @@ module.exports = ((env) => {
     }
 
     return {
-        entry: "./src/index.js",
+        entry: "./src/index.ts",
         mode, devtool,
+        module: {
+            rules: [
+                {
+                    test: /\.tsx?$/,
+                    use: "ts-loader",
+                    exclude: /node_modules|dist|tests|types/
+                }
+            ]
+        },
         resolve: {
-            fallback: {
-                "fs": false,
-                "fs/promises": false,
-                "path": false
+            extensions: [".tsx", ".ts"],
+            alias: {
+                "sync-request": false
             }
         },
         output: {
             path: path.resolve(__dirname, "umd"),
-            filename: "minimessage-translations" + ext,
+            filename: "minimessage-fetch-translations" + ext,
             globalObject: "this",
             library: {
                 name: "MiniMessageTranslations",

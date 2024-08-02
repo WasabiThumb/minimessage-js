@@ -39,10 +39,19 @@ jobs:
         npm install
         npm run build-umd
 
+    - name: Build fetch-translations
+      run: |
+        cd packages/fetch-translations
+        npm install
+        npm run build-umd
+        rm -f .npmignore package.json package-lock.json README.md tsconfig.json webpack.config.js
+        rm -rf node_modules src
+        cd ../..
+
     - name: Cull unused files
       run: |
         rm -f .gitignore .npmignore jest.config.js package.json package-lock.json README.md tsconfig.json tsconfig.test.json webpack.config.js 
-        rm -rf types tests src node_modules buildSrc
+        rm -rf types tests src node_modules buildSrc packages/translations
 
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v2
