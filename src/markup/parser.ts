@@ -32,6 +32,7 @@ type MarkupParserEventCallback<K = MarkupParserEventType> = K extends keyof Mark
 type MarkupParserEventCallbacks = { [K in keyof MarkupParserEventMap]?: MarkupParserEventCallback[] };
 
 /**
+ * Implements event registration & dispatch for exclusive use by MarkupParser.
  * @protected
  */
 abstract class MarkupParserEventTarget {
@@ -90,15 +91,21 @@ export class MarkupParser extends MarkupParserEventTarget {
             this.escaped = true;
             return;
         }
+
+        // You'll notice that some code paths (perhaps confusingly) end in flush0. This is because
+        // flushing is the only way to fire an event; we can only say that a section has opened or closed if we
+        // have hit EOF or the characters themselves tell us that this has happened.
+
         if (char === 60) { // left angle bracket <
             if (this.readingTag) {
-                // ??? Ok I guess
+                // some big doo doo head is putting < inside of a tag >_< escape it!!!!! please escape it!!!!!!
                 this.buffer.appendChar(char);
                 return;
             }
             this.flush0(false);
             this.readingTag = true;
         } else if (char === 62) { // right angle bracket >
+            if (!this.readingTag) this.buffer.appendChar(char); // i would prefer if you escaped it, meanie! >_<
             this.flush0(true);
         } else {
             this.buffer.appendChar(char);
@@ -170,6 +177,8 @@ export class MarkupParser extends MarkupParserEventTarget {
 
 }
 
+// Essentially a LIFO pair list. This makes it easy to associate data with an opening tag and then retrieve it when
+// the tag is later closed. It also allows us to complain when popping a specific tag causes us to skip over another.
 export class MarkupStack<D> {
 
     private static readonly LOAD_FACTOR: number = 0.75;

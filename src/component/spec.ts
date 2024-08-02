@@ -31,6 +31,8 @@ export enum ComponentDecorationState {
 /**
  * In the absence of the Adventure API, the Component type is now a shallow structure that mirrors
  * the output of https://webui.advntr.dev/api/mini-to-json
+ *
+ * Generally don't want users to deal with the IComponent and rather the wrapped Component.
  */
 export type IComponent = {
     // Basic
@@ -64,6 +66,7 @@ export type IComponent = {
     separator?: string
 };
 
+// Computes the length of a Component primitive, taking into account its own text & the text of its children.
 function contentLength(component: IComponent, noChildren: boolean): number {
     let len: number = 0;
     if (typeof component.text === "string") len += component.text.length;
@@ -80,6 +83,9 @@ function contentLength(component: IComponent, noChildren: boolean): number {
     return len;
 }
 
+/**
+ * Utility class that wraps the JSON representation of an Adventure component
+ */
 export class Component implements IComponent {
 
     /**
@@ -110,10 +116,12 @@ export class Component implements IComponent {
 
     //
 
+    /** Creates a plain text Component */
     static text(content: string): Component {
         return new Component({ text: content });
     }
 
+    /** Creates an empty Component */
     static empty(): Component {
         return new Component();
     }
@@ -140,6 +148,7 @@ export class Component implements IComponent {
         if (!("color" in this.primitive)) this.primitive.color = value;
     }
 
+    /** Sets the color of this Component recursively, depending on where the enclosed glyph is located horizontally. */
     setColorByPlacement(fn: (delta: number) => string): void {
         const len = this.contentLength();
         if (len < 2) {
@@ -150,6 +159,8 @@ export class Component implements IComponent {
     }
 
     private setColorByPlacement0(fn: (delta: number) => string, offset: number, totalLength: number): void {
+        // I hope nobody ever asks about this code ever. ;_;
+
         let children: Component[] = [];
         let sizes: number[] = [];
 
@@ -225,6 +236,8 @@ export class Component implements IComponent {
     }
 
     appendChild(child: Component | string): this {
+        // Take the opportunity to also collapse plain text Components
+
         let toAdd: IComponent | string;
         if (typeof child === "object") {
             if (child.isOnlyText()) {
@@ -252,6 +265,7 @@ export class Component implements IComponent {
         return Object.getOwnPropertyNames(this.primitive).length === 0;
     }
 
+    /** Returns if this Component represents plain text and has no styling or metadata. */
     isOnlyText(): boolean {
         let value: any;
         for (let prop of Object.getOwnPropertyNames(this.primitive)) {
@@ -262,6 +276,10 @@ export class Component implements IComponent {
         return true;
     }
 
+    /**
+     * Returns the textual length of this Component.
+     * @param noChildren If true, children will not be evaluated.
+     */
     contentLength(noChildren: boolean = false): number {
         return contentLength(this.primitive, noChildren);
     }

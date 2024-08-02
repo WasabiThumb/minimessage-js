@@ -5,6 +5,7 @@ function createFont(documentAccessor: any): BitmapFont {
     return new BitmapFont(documentAccessor, fontData);
 }
 
+/** Registers the obfuscated text effect if the current environment supports it */
 export function bindObfuscatedText(container: HTMLElement, debug: (msg: string) => void): void {
     const font = createFont(container);
     if (!font.canRender) return;
@@ -78,6 +79,7 @@ export function bindObfuscatedText(container: HTMLElement, debug: (msg: string) 
     frame();
 }
 
+// Create canvases or ``<span> </span>`` to replace a character or space respectively.
 function bindObfuscatedText0(font: BitmapFont, text: string, append: (element: HTMLElement) => void): HTMLCanvasElement[] {
     const canvases: HTMLCanvasElement[] = new Array(text.length);
     let canvasCount = 0;

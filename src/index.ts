@@ -46,19 +46,31 @@ class MiniMessageInstanceImpl implements MiniMessageInstance {
         this.translations = translations;
     }
 
+    /**
+     * This method throws with an Error; not implemented.
+     * Not included on the interface so this method shouldn't appear in inspections.
+     * @param component Reserved
+     */
     serialize(component: Component): string {
         // TODO
         throw new Error("Not implemented");
     }
 
     deserialize(miniMessage: string): Component {
-        miniMessage = this.preProcessor(miniMessage);
+        miniMessage = this.preProcessor(miniMessage); // Apply the configured preprocessor
 
+        // Setup parser state
         const root = Component.empty();
         const parser = new MarkupParser();
-        const stack = new MarkupStack<[ModifyTag, (Component | string)[]]>();
         const { strict, tags } = this;
 
+        // This stack is used to keep track of open Modify tags. When a Modify tag is closed, its corresponding
+        // open is popped from the stack and the children stored in the entry are used to populate a Component
+        // which the tag will then modify.
+        const stack = new MarkupStack<[ModifyTag, (Component | string)[]]>();
+
+        // Finds the currently open tag and appends a child to it. This is either the root tag or most recent
+        // Modify tag from the stack.
         function appendChildToHighest(child: Component | string): void {
             let entry = stack.peek();
             if (entry !== null) {
@@ -68,6 +80,7 @@ class MiniMessageInstanceImpl implements MiniMessageInstance {
             }
         }
 
+        // Used for when a Modify tag is closed, but also during <reset> in which all open tags on the stack are closed.
         function popModification(key: string, position?: number): void {
             const entry = stack.pop(key, strict, position);
             if (entry === null) return;
@@ -88,6 +101,9 @@ class MiniMessageInstanceImpl implements MiniMessageInstance {
             tag.apply(component, 0);
             appendChildToHighest(component);
         }
+
+        // The Parser emits events as it digests the input steam. In fact, this whole package COULD be a streaming
+        // parser. Why would you want that? I don't know. But it's possible.
 
         parser.on("start_tag", (e) => {
             const { name, args } = e;
@@ -118,7 +134,10 @@ class MiniMessageInstanceImpl implements MiniMessageInstance {
                     break;
                 case TagType.DIRECTIVE:
                     if (strict) throw new Error(`Strict mode does not allow directives (` + TagDirective[tag.directive] + `)`);
-                    if (tag.directive !== TagDirective.RESET) throw new Error(`Unknown directive ID ` + tag.directive);
+                    if (tag.directive !== TagDirective.RESET) {
+                        // @ts-ignore
+                        throw new Error(`Unknown directive ID ` + tag.directive);
+                    }
                     let peek: string | null;
                     while ((peek = stack.peekTag()) !== null) popModification(peek);
                     break;
@@ -133,18 +152,28 @@ class MiniMessageInstanceImpl implements MiniMessageInstance {
             appendChildToHighest(e.content);
         });
 
+        // Feed our input into the parser.
         parser.parse(miniMessage);
+        // Flush the parser, signaling that we are done giving input.
         parser.flush();
 
+        // Close all Modify tags that haven't been popped naturally (no corresponding closing tag).
+        // For strict mode, we throw.
         let peek: string | null;
         while ((peek = stack.peekTag()) !== null) {
             if (strict) throw new Error(`Tag <${peek}> was never closed`);
             popModification(peek);
         }
 
+        // Sometimes we have Components that do nothing but hold 1 child. This method replaces the parent with its
+        // only child in this circumstance.
         root.collapseUnnecessaryEnclosures();
+
+        // Sets the "context" (instance used to generate the Component) recursively.
+        // This is kind of disgusting, but it allows us to extract it for use in MiniMessage.toHTML
         root.setContext(this);
 
+        // Apply the configured post-processor and return the result
         return this.postProcessor(root);
     }
 

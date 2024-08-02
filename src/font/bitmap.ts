@@ -21,6 +21,11 @@ type BitmapLoadingState = { code: 1, value: Promise<HTMLImageElement> };
 type BitmapReadyState = { code: 2, value: HTMLImageElement };
 type BitmapState = BitmapVoidState | BitmapLoadingState | BitmapReadyState;
 
+/**
+ * Utility class for monospaced bitmap fonts.
+ * No kerning, no ascent, just ridiculousness. The way god intended.
+ * Used only for the obfuscated font, and at the moment that's a good thing.
+ */
 export class BitmapFont {
 
     readonly document: HTMLDocument;
@@ -108,10 +113,10 @@ export class BitmapFont {
                     img.addEventListener("error", rej);
                     img.src = src;
                 });
+                this.bitmapState = { code: 1, value: ret };
                 ret.then(() => {
                     this.bitmapState = { code: 2, value: img };
                 });
-                this.bitmapState = { code: 1, value: ret };
                 return ret;
             case 1:
                 return this.bitmapState.value;

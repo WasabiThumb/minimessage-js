@@ -1,4 +1,8 @@
 
+/**
+ * A procedural StringBuilder, similar to the class of the same name in Java.
+ * Internally uses a growing Uint16Array of UTF-16 code points.
+ */
 export class StringBuilder {
 
     private static readonly LOAD_FACTOR: number = 0.75;
@@ -29,6 +33,7 @@ export class StringBuilder {
         return this._length === 0;
     }
 
+    // Ensure that the internal array can store "size" more elements
     protected provision(size: number): void {
         let required: number = this._length + size;
         if (required <= this._capacity) return;
@@ -36,6 +41,7 @@ export class StringBuilder {
         this.setCapacity(required, true);
     }
 
+    // Sets the capacity of the internal array
     private setCapacity(cap: number, mustCopy: boolean) {
         let buf: ArrayBuffer = this._u16.buffer;
         if ("transfer" in buf) {
@@ -129,10 +135,19 @@ export class StringBuilder {
         return -1;
     }
 
+    /**
+     * Reduces the length of the StringBuilder by the specified amount. This should only ever be used to reduce the
+     * length by a very small amount, since it won't cause any data to be freed. For that, use {@link clear}.
+     */
     shrink(amount: number): void {
         this._length = Math.max(this._length - amount, 0);
     }
 
+    /**
+     * Converts the StringBuilder into a string.
+     * @param offset Offset into the string (in codepoints) to start converting. Default is 0.
+     * @param length Length (number of codepoints) to convert. Default is the length of the internal array.
+     */
     toString(offset?: number, length?: number): string {
         if (arguments.length === 0) {
             return this.toString0(0, this._length);
@@ -164,6 +179,8 @@ export class StringBuilder {
 
         let ret: string = "";
 
+        // Using fromCodePoint.apply, we will eventually hit the stack size limit. Artificially limiting to 255
+        // will support essentially every environment ever, while not greatly affecting speed.
         const codePointBufferSize: number = Math.min(length, 255);
         const codePointBuffer: number[] = new Array(codePointBufferSize);
         let codePointBufferPos: number = 0;

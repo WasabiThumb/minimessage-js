@@ -1,7 +1,6 @@
 import {HexUtil} from "./hex";
 
 export type RGB = [number, number, number];
-export type HSV = [number, number, number];
 
 export namespace ColorUtil {
 
@@ -20,15 +19,14 @@ export namespace ColorUtil {
             HexUtil.octet2Hex(rgb[2]);
     }
 
+    // Interpolates between two RGB colors by "d" and returns the result as a hex color
     export function interpolateRGB(a: RGB, b: RGB, d: number): string {
         const v: number = 1 - d;
-        function component(n: 0 | 1 | 2): number {
-            return Math.round((a[n] * v) + (b[n] * d));
+        function component(n: number): number {
+            return Math.round((a[n as 0 | 1 | 2] * v) + (b[n as 0 | 1 | 2] * d));
         }
-
-        return "#" + HexUtil.octet2Hex(component(0))
-            + HexUtil.octet2Hex(component(1))
-            + HexUtil.octet2Hex(component(2));
+        // Silliest shorthand of all time
+        return rgb2Hex([0, 1, 2].map(component) as unknown as RGB);
     }
 
 }
