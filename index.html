@@ -141,11 +141,12 @@
             }).catch(console.error);
             // END Load translations asynchronously
 
+            // START Input & Output box functionality
             const inp = document.querySelector("#input");
             const out = document.querySelector("#output");
             const jsn = document.querySelector("#json");
 
-            inp.addEventListener("input", () => {
+            function updateIO() {
                 out.innerHTML = "";
                 let component;
                 try {
@@ -156,7 +157,9 @@
                 }
                 console.log(toHTML(component, out));
                 jsn.innerText = JSON.stringify(component.toJSON(), null, '\xa0');
-            });
+            }
+            inp.addEventListener("input", updateIO);
+            // END Input & Output box functionality
         </script>
     </body>
 </html>

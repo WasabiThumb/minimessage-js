@@ -32,7 +32,8 @@ function setHeadersForXHR(xhr: XMLHttpRequest, headers: object): void {
 function getJSONAsync(url: string, gh: boolean = false): Promise<TranslationMap> {
     return fetch(url, {
         method: "GET",
-        headers: gh ? GH_HEADERS : STANDARD_HEADERS
+        headers: gh ? GH_HEADERS : STANDARD_HEADERS,
+        cache: "force-cache"
     }).then((r) => r.json() as unknown as TranslationMap);
 }
 
@@ -48,6 +49,7 @@ function getJSONSync(url: string, gh: boolean = false): TranslationMap {
         const xhr = new XMLHttpRequest();
         xhr.open("GET", url, false);
         setHeadersForXHR(xhr, gh ? GH_HEADERS : STANDARD_HEADERS);
+        xhr.setRequestHeader("Cache-Control", "max-stale");
         xhr.send(null);
 
         if (xhr.status < 200 || xhr.status > 299)
