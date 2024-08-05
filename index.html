@@ -1,165 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>MiniMessage JS Demo</title>
+        <title>minimessage-js demo</title>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="./doc/stylesheets/main.css">
         <script src="./umd/minimessage.js" type="text/javascript"></script>
         <script src="./packages/fetch-translations/umd/minimessage-fetch-translations.js" type="text/javascript"></script>
-        <style>
-            /* Sorry Kezz :) */
-            /* https://github.com/KyoriPowered/adventure-webui/tree/ab4a2c092a04425407955a26671805c60bc32d62/src/commonMain/resources/web/font */
-
-            @font-face {
-                font-family: "Minecraft";
-                src: url("./doc/font/1_Minecraft-Regular.woff") format("woff");
-                font-weight: normal;
-                font-style: normal;
-                font-display: swap;
-            }
-            @font-face {
-                font-family: "Minecraft";
-                src: url("./doc/font/2_Minecraft-Italic.woff") format("woff");
-                font-weight: normal;
-                font-style: italic;
-                font-display: swap;
-            }
-            @font-face {
-                font-family: "Minecraft";
-                src: url("./doc/font/3_Minecraft-Bold.woff") format("woff");
-                font-weight: bold;
-                font-style: normal;
-                font-display: swap;
-            }
-            @font-face {
-                font-family: "Minecraft";
-                src: url("./doc/font/4_Minecraft-BoldItalic.woff") format("woff");
-                font-weight: bold;
-                font-style: italic;
-                font-display: swap;
-            }
-
-            :root {
-                text-rendering: optimizeLegibility;
-                font-synthesis: none;
-                font-family: 'Minecraft', monospace;
-            }
-
-            h1 {
-                text-align: center;
-                font-size: min(4vw, 4vh);
-            }
-
-            textarea, div.output.json {
-                font-family: monospace;
-            }
-
-            textarea, div.output {
-                font-size: min(2vw, 2vh);
-                width: 100%;
-                min-height: 6em;
-                display: block;
-                margin-bottom: 4em;
-                box-sizing: border-box;
-                border: 0.15em solid black;
-                padding: 0.2em;
-            }
-
-            div.output {
-                overflow-y: auto;
-            }
-
-            div.output.plain {
-                background-color: black;
-                color: white;
-                line-height: 1;
-                -webkit-text-size-adjust: none;
-                -moz-text-size-adjust: none;
-                -webkit-font-smoothing: none;
-                -moz-osx-font-smoothing: grayscale;
-            }
-
-            div.output span {
-                font-family: inherit;
-                font-size: inherit;
-            }
-
-            label {
-                display: block;
-                font-size: min(3vw, 3vh);
-                text-align: left;
-            }
-
-            nav {
-                display: block;
-                text-align: center;
-                font-size: min(2vw, 2vh);
-            }
-        </style>
+        <script src="./doc/script/resize.js" type="text/javascript"></script>
+        <script src="./doc/script/io.js" type="text/javascript"></script>
+        <script src="./doc/script/widgets.js" type="text/javascript"></script>
+        <script src="./doc/script/colors.js" type="text/javascript"></script>
     </head>
     <body>
-        <h1>MiniMessage JS Demo</h1>
-        <nav>
-            <a href="https://www.npmjs.com/package/minimessage-js">NPM</a>
-            &bull;
-            <a href="https://github.com/WasabiThumb/minimessage-js">GitHub</a>
-            &bull;
-            <a href="https://docs.advntr.dev/minimessage/format.html">Spec</a>
-        </nav>
-        <br>
-
-        <label for="input">Input</label>
-        <textarea id="input" autocomplete="off"></textarea>
-        <label for="output">Output</label>
-        <div id="output" class="output plain"></div>
-        <label for="json">Output (JSON)</label>
-        <div id="json" class="output json" style="height: 30vh"></div>
-
-        <script>
-            const { miniMessage, builder, toHTML } = MiniMessage;
-            let mm = miniMessage();
-
-            // START Load translations asynchronously
-            const userLangs = ((navigator) => {
-                return navigator.languages || ((!!navigator.language) && [ navigator.language ]) || [];
-            })(typeof navigator === "object" ? navigator : window["navigator"]);
-
-            console.log("Available translations", MiniMessageTranslations.list());
-            console.log("User languages", userLangs);
-
-            let targetLang = "en_us";
-            for (let lang of userLangs) {
-                if (MiniMessageTranslations.has(lang)) {
-                    targetLang = lang;
-                    break;
-                }
-            }
-
-            console.log(`Loading ${targetLang} translations...`)
-            MiniMessageTranslations.getAsync(targetLang).then((translations) => {
-                console.log(`Loaded ${targetLang} translations!`);
-                mm = builder().translations(translations).build();
-            }).catch(console.error);
-            // END Load translations asynchronously
-
-            // START Input & Output box functionality
-            const inp = document.querySelector("#input");
-            const out = document.querySelector("#output");
-            const jsn = document.querySelector("#json");
-
-            function updateIO() {
-                out.innerHTML = "";
-                let component;
-                try {
-                    component = mm.deserialize(inp.value);
-                } catch (e) {
-                    console.trace(e);
-                    return;
-                }
-                console.log(toHTML(component, out));
-                jsn.innerText = JSON.stringify(component.toJSON(), null, '\xa0');
-            }
-            inp.addEventListener("input", updateIO);
-            // END Input & Output box functionality
-        </script>
+        <header>
+            <h1>minimessage-js demo</h1>
+            <nav>
+                <a href="https://www.npmjs.com/package/minimessage-js" target="_blank" title="NPM Page">
+                    <img src="doc/icon/nav/npm.svg" alt="NPM">
+                </a>
+                <a href="https://github.com/WasabiThumb/minimessage-js" target="_blank" title="GitHub Page">
+                    <img src="doc/icon/nav/github.svg" alt="GitHub">
+                </a>
+                <a href="https://docs.advntr.dev/minimessage/format.html" target="_blank" title="Spec Page">
+                    <img src="doc/icon/nav/kyori.svg" alt="Kyori">
+                </a>
+                <a href="https://wasabithumb.github.io/" target="_blank" title="Author Page">
+                    <img src="doc/icon/nav/wc.svg" alt="Wasabi Codes">
+                </a>
+            </nav>
+        </header>
+        <main>
+            <section style="flex-grow: 1.75">
+                <div class="io">
+                    <h2>
+                        Input
+                        <span id="input-widgets" aria-hidden="true">
+                            <a href="javascript:void(0)" data-widget-action="bold" title="Bold">
+                                <img src="./doc/icon/widget/bold.svg" alt="Bold">
+                            </a>
+                            <a href="javascript:void(0)" data-widget-action="italic" title="Italic">
+                                <img src="./doc/icon/widget/italic.svg" alt="Italic" style="transform: scale(.8)">
+                            </a>
+                            <a href="javascript:void(0)" data-widget-action="underlined" title="Underline">
+                                <img src="./doc/icon/widget/underline.svg" alt="Underline">
+                            </a>
+                            <a href="javascript:void(0)" data-widget-action="strikethrough" title="Strikethrough">
+                                <img src="./doc/icon/widget/strikethrough.svg" alt="Strikethrough">
+                            </a>
+                            <a href="javascript:void(0)" data-widget-action="obfuscated" title="Obfuscation">
+                                <img src="./doc/icon/widget/obf.svg" alt="Obfuscation">
+                            </a>
+                            <a href="javascript:void(0)" data-widget-action="colors" title="Colors">
+                                <img src="./doc/icon/widget/colors.svg" alt="Colors">
+                            </a>
+                        </span>
+                    </h2>
+                    <textarea class="content legible" autocomplete="off" id="input" aria-label="Input" autofocus></textarea>
+                </div>
+                <div class="resize-handle horizontal"></div>
+                <div class="io">
+                    <h2>Output</h2>
+                    <div class="content" id="output-dom"></div>
+                </div>
+            </section>
+            <div class="resize-handle vertical" style="z-index: 5"></div>
+            <section>
+                <div class="io" style="flex-grow: 0.5">
+                    <h2>Output (Raw)</h2>
+                    <div class="content legible" id="output-raw"></div>
+                </div>
+                <div class="resize-handle horizontal"></div>
+                <div style="flex-grow: 1; display: flex; flex-direction: column">
+                    <div class="io" style="flex-grow: 1">
+                        <h2>Output (JSON)</h2>
+                        <div class="content legible" id="output-json"></div>
+                    </div>
+                    <div class="resize-handle horizontal"></div>
+                    <div class="io" style="flex-grow: 1">
+                        <h2>Options</h2>
+                        <div class="content legible"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <div id="colors-modal">
+            <div class="carat" aria-hidden="true"></div>
+            <div class="content">
+                <div class="wheel-area">
+                    <canvas width="512" height="640" data-role="canvas"></canvas>
+                    <div class="presets" data-role="presets">
+                        <button data-color-name="dark_red" data-color-hex="aa0000" style="background-color: #a00"></button>
+                        <button data-color-name="red" data-color-hex="ff5555" style="background-color: #f55"></button>
+                        <button data-color-name="dark_green" data-color-hex="00aa00" style="background-color: #0a0"></button>
+                        <button data-color-name="green" data-color-hex="55ff55" style="background-color: #5f5"></button>
+                        <button data-color-name="dark_blue" data-color-hex="0000aa" style="background-color: #00a"></button>
+                        <button data-color-name="blue" data-color-hex="5555ff" style="background-color: #55f"></button>
+                        <button data-color-name="dark_aqua" data-color-hex="00aaaa" style="background-color: #0aa"></button>
+                        <button data-color-name="aqua" data-color-hex="55ffff" style="background-color: #5ff"></button>
+                        <button data-color-name="dark_purple" data-color-hex="aa00aa" style="background-color: #a0a"></button>
+                        <button data-color-name="light_purple" data-color-hex="ff55ff" style="background-color: #f5f"></button>
+                        <button data-color-name="gold" data-color-hex="ffaa00" style="background-color: #fa0"></button>
+                        <button data-color-name="yellow" data-color-hex="ffff55" style="background-color: #ff5"></button>
+                        <button data-color-name="black" data-color-hex="000000" style="background-color: #000"></button>
+                        <button data-color-name="dark_gray" data-color-hex="555555" style="background-color: #555"></button>
+                        <button data-color-name="gray" data-color-hex="aaaaaa" style="background-color: #aaa"></button>
+                        <button data-color-name="white" data-color-hex="ffffff" style="background-color: #fff"></button>
+                    </div>
+                </div>
+                <div class="value-area">
+                    <input type="text" pattern="^\d{6}$" maxlength="6" aria-label="Hex Code" data-role="code" autocomplete="off">
+                    <button data-role="submit">Apply</button>
+                </div>
+            </div>
+        </div>
     </body>
 </html>
