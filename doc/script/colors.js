@@ -242,7 +242,7 @@
             const cy = (rect.top + rad);
             const dx = x - cx;
             const dy = y - cy;
-            let mag = Math.pow(dx / rad, 2) + Math.pow(dy / rad, 2);
+            let mag = Math.pow(dx / (rad * 0.9), 2) + Math.pow(dy / (rad * 0.9), 2);
             if (mag < 1e-6) {
                 setCurrentColorAsHSV(0, 0, getCurrentColorAsHSV()[2]);
                 return;
