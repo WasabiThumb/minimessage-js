@@ -1,7 +1,28 @@
+import {Character, CharacterLike} from "./char";
+
+//
+
+export function codePointCount(
+    data: string,
+    from: number = 0,
+    to: number = data.length
+): number {
+    let ret: number = 0;
+    let codePoint: number;
+
+    for (let i = from; i < to; i++) {
+        codePoint = data.codePointAt(i)!;
+        ret++;
+        if (codePoint > 0xFFFF) i++;
+    }
+
+    return ret;
+}
 
 /**
  * A procedural StringBuilder, similar to the class of the same name in Java.
  * Internally uses a growing Uint16Array of UTF-16 code points.
+ * @internal
  */
 export class StringBuilder {
 
@@ -43,7 +64,7 @@ export class StringBuilder {
 
     // Sets the capacity of the internal array
     private setCapacity(cap: number, mustCopy: boolean) {
-        let buf: ArrayBuffer = this._u16.buffer;
+        let buf: ArrayBuffer = this._u16.buffer as unknown as ArrayBuffer;
         if ("transfer" in buf) {
             // es2024
             buf = (buf as unknown as { transfer(len: number): ArrayBuffer }).transfer(cap << 1);
@@ -56,17 +77,19 @@ export class StringBuilder {
         this._capacity = cap;
     }
 
-    append(value: string | StringBuilder | { toString(): string }): this {
-        if (typeof value === "string") {
-            this.appendString(value);
-        } else {
-            if (value instanceof StringBuilder) {
-                this.appendStringBuilder(value);
-            } else {
-                this.appendString(value.toString());
-            }
+    append(value: any): this {
+        // noinspection FallThroughInSwitchStatementJS
+        switch (typeof value) {
+            case "string":
+                return this.appendString(value);
+            case "object":
+                if (value instanceof StringBuilder) {
+                    this.appendStringBuilder(value);
+                    return this;
+                }
+            default:
+                return this.appendString(`${value}`);
         }
-        return this;
     }
 
     appendLeftAngleBracket(): this {
@@ -85,15 +108,21 @@ export class StringBuilder {
         return this.appendChar(59); // ;
     }
 
-    appendChar(value: number): this {
+    appendChar(value: CharacterLike): this {
         this.provision(1);
-        this._u16[this._length++] = value;
+        this._u16[this._length++] = Character(value).value;
         return this;
     }
 
-    appendString(value: string): this {
-        this.provision(value.length);
-        for (let i=0; i < value.length; i++) {
+    appendString(
+        value: string,
+        start: number = 0,
+        end: number = value.length
+    ): this {
+        const length = end - start;
+        if (length < 0) throw new Error(`Negative range`);
+        this.provision(length);
+        for (let i= start; i < end; i++) {
             this._u16[this._length++] = value.charCodeAt(i);
         }
         return this;
@@ -136,41 +165,29 @@ export class StringBuilder {
     }
 
     /**
-     * Reduces the length of the StringBuilder by the specified amount. This should only ever be used to reduce the
-     * length by a very small amount, since it won't cause any data to be freed. For that, use {@link clear}.
-     */
-    shrink(amount: number): void {
-        this._length = Math.max(this._length - amount, 0);
-    }
-
-    /**
      * Converts the StringBuilder into a string.
      * @param offset Offset into the string (in codepoints) to start converting. Default is 0.
      * @param length Length (number of codepoints) to convert. Default is the length of the internal array.
      */
     toString(offset?: number, length?: number): string {
-        if (arguments.length === 0) {
-            return this.toString0(0, this._length);
-        } else {
-            if (typeof offset === "undefined") {
-                offset = 0;
-            } else if (offset < 0) {
-                throw new Error(`Offset cannot be negative`);
-            } else if (offset >= this._length) {
-                throw new Error(`Index ${offset} out of bounds for length ${this._length}`);
-            }
-
-            if (typeof length === "undefined") {
-                length = (this._length - offset);
-                if (length < 0) throw new Error(`Offset ${offset} out of bounds for length ${this._length}`);
-            } else if (length < 0) {
-                throw new Error(`Length cannot be negative`);
-            } else if (length > (this._length - offset)) {
-                throw new Error(`Index ${length + offset - 1} out of bounds for length ${this._length}`);
-            }
-
-            return this.toString0(offset, length);
+        if (typeof offset === "undefined") {
+            offset = 0;
+        } else if (offset < 0) {
+            throw new Error(`Offset cannot be negative`);
+        } else if (offset >= this._length) {
+            throw new Error(`Index ${offset} out of bounds for length ${this._length}`);
         }
+
+        if (typeof length === "undefined") {
+            length = (this._length - offset);
+            if (length < 0) throw new Error(`Offset ${offset} out of bounds for length ${this._length}`);
+        } else if (length < 0) {
+            throw new Error(`Length cannot be negative`);
+        } else if (length > (this._length - offset)) {
+            throw new Error(`Index ${length + offset - 1} out of bounds for length ${this._length}`);
+        }
+
+        return this.toString0(offset, length);
     }
 
     private toString0(offset: number, length: number): string {
