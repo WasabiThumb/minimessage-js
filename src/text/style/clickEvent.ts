@@ -1,3 +1,4 @@
+import {Key, KeyLike} from "../../key";
 
 export interface ClickEvent<T extends ClickEvent.Payload> {
 
@@ -63,7 +64,7 @@ export namespace ClickEvent {
         return clickEvent(Action.COPY_TO_CLIPBOARD, Payload.string(text));
     }
 
-    export function custom(key: string, nbt: string | null): ClickEvent<Payload.Custom> {
+    export function custom(key: KeyLike, nbt: string | null): ClickEvent<Payload.Custom> {
         return clickEvent(Action.CUSTOM, Payload.custom(key, nbt));
     }
 
@@ -91,7 +92,7 @@ export namespace ClickEvent {
 
         export type Custom = {
             readonly type: typeof TYPE_CUSTOM,
-            key(): string,
+            key(): Key,
             nbt(): string | null
         };
 
@@ -115,11 +116,12 @@ export namespace ClickEvent {
             });
         }
 
-        export function custom(key: string, nbt: string | null): Custom {
+        export function custom(key: KeyLike, nbt: string | null): Custom {
+            const finalKey = Key.key(key);
             return Object.freeze({
                 type: TYPE_CUSTOM,
-                key(): string {
-                    return key;
+                key(): Key {
+                    return finalKey;
                 },
                 nbt(): string | null {
                     return nbt;

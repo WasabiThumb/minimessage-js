@@ -10,6 +10,7 @@ import {BlockNBTComponent, BlockNBTComponentImpl} from "./component/nbt/block";
 import {StorageNBTComponent, StorageNBTComponentImpl} from "./component/nbt/storage";
 import {EntityNBTComponent, EntityNBTComponentImpl} from "./component/nbt/entity";
 import {AbstractScopedComponent} from "./component/scoped";
+import {Key, KeyLike} from "../key";
 
 //
 
@@ -123,29 +124,29 @@ export namespace Component {
     // StorageNBTComponent
 
     type StorageNBTConstructor = {
-        (nbtPath: string, storage: string): StorageNBTComponent;
-        (nbtPath: string, interpret: boolean, storage: string): StorageNBTComponent;
-        (nbtPath: string, interpret: boolean, separator: ComponentLike | null, storage: string): StorageNBTComponent;
+        (nbtPath: string, storage: KeyLike): StorageNBTComponent;
+        (nbtPath: string, interpret: boolean, storage: KeyLike): StorageNBTComponent;
+        (nbtPath: string, interpret: boolean, separator: ComponentLike | null, storage: KeyLike): StorageNBTComponent;
     };
 
     function storageNBTConstructor(): StorageNBTComponent {
         let nbtPath: string;
         let interpret: boolean = false;
         let separator: ComponentLike | null = null;
-        let storage: string;
+        let storage: KeyLike;
 
         if (arguments.length === 2) {
             nbtPath = `${arguments[0]}`;
-            storage = `${arguments[1]}`;
+            storage = arguments[1] as KeyLike;
         } else if (arguments.length === 3) {
             nbtPath = `${arguments[0]}`;
             interpret = !!arguments[1];
-            storage = `${arguments[2]}`;
+            storage = arguments[2] as KeyLike;
         } else if (arguments.length === 4) {
             nbtPath = `${arguments[0]}`;
             interpret = !!arguments[1];
             separator = arguments[2] as ComponentLike | null;
-            storage = `${arguments[3]}`;
+            storage = arguments[3] as KeyLike;
         } else {
             throw new Error(`Expected 2-4 arguments, got ${arguments.length}`);
         }
@@ -154,7 +155,7 @@ export namespace Component {
             nbtPath,
             interpret,
             separator: (separator === null) ? null : separator.asComponent(),
-            storage
+            storage: Key.key(storage)
         });
     }
 

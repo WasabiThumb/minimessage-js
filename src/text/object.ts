@@ -1,5 +1,6 @@
-import { PlayerHeadObjectContents } from "./object/playerHead";
-import type { SpriteObjectContents } from "./object/sprite";
+import {PlayerHeadObjectContents} from "./object/playerHead";
+import {SpriteObjectContents} from "./object/sprite";
+import {Key} from "../key";
 
 //
 
@@ -14,29 +15,29 @@ export type ObjectContents = PlayerHeadObjectContents |
 export namespace ObjectContents {
 
     type SpriteConstructor = {
-        (sprite: string): SpriteObjectContents;
-        (atlas: string, sprite: string): SpriteObjectContents;
+        (sprite: string | Key): SpriteObjectContents;
+        (atlas: string | Key, sprite: string | Key): SpriteObjectContents;
     };
 
     function spriteConstructor(): SpriteObjectContents {
-        let atlas: string = "minecraft:blocks";
-        let sprite: string;
+        let atlas: Key = SpriteObjectContents.DEFAULT_ATLAS;
+        let sprite: Key;
 
         if (arguments.length === 1) {
-            sprite = `${arguments[0]}`;
+            sprite = Key.key(arguments[0] as string | Key);
         } else if (arguments.length === 2) {
-            atlas = `${arguments[0]}`;
-            sprite = `${arguments[1]}`;
+            atlas = Key.key(arguments[0] as string | Key);
+            sprite = Key.key(arguments[1] as string | Key);
         } else {
             throw new Error(`Expected 1-2 arguments, got ${arguments.length}`);
         }
 
         return Object.freeze({
             type: "sprite",
-            atlas() {
+            atlas(): Key {
                 return atlas;
             },
-            sprite() {
+            sprite(): Key {
                 return sprite;
             }
         });

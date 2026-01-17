@@ -33,7 +33,7 @@ export class HtmlComponentRenderer extends AbstractComponentRenderer<HtmlWriter>
             context.property("title", text);
         });
         handlers.register(HoverEvent.Action.SHOW_ITEM, (event, context) => {
-            let text: string = event.value().item();
+            let text: string = event.value().item().asString();
             const count = event.value().count();
             if (count !== 1) text += ` x${count}`;
             context.property("title", text);

@@ -1,5 +1,7 @@
 import {ComponentRenderer} from "../renderer";
 import {Component} from "../component";
+import {Key, KeyLike} from "../../key";
+import {defineAccessor} from "../../util/accessor";
 
 //
 
@@ -44,7 +46,7 @@ export namespace HoverEvent {
         return create(Action.SHOW_TEXT, text);
     }
 
-    export function showItem(item: string, count: number): HoverEvent<ShowItem> {
+    export function showItem(item: KeyLike, count: number): HoverEvent<ShowItem> {
         return create(Action.SHOW_ITEM, ShowItem.showItem(item, count));
     }
 
@@ -55,8 +57,8 @@ export namespace HoverEvent {
     //
 
     export interface ShowItem {
-        item(): string,
-        item(item: string): ShowItem;
+        item(): Key,
+        item(item: KeyLike): ShowItem;
         count(): number;
         count(count: number): ShowItem;
     }
@@ -64,29 +66,29 @@ export namespace HoverEvent {
     export namespace ShowItem {
 
         /** @internal */
-        function create(item: string, count: number): ShowItem {
+        function create(item: Key, count: number): ShowItem {
             if (!Number.isFinite(count) || count < 0 || count > 0x7FFFFFFF) {
                 throw new Error(`Invalid count: ${count}`);
             }
             count = Math.trunc(count);
 
             return Object.freeze({
-                item(arg0?: string) {
-                    if (typeof arg0 !== "undefined") return create(arg0, count);
-                    return item;
-                },
-                count(arg0?: number) {
-                    if (typeof arg0 !== "undefined") return create(item, arg0);
-                    return count;
-                }
-            }) as unknown as ShowItem;
+                item: defineAccessor(
+                    () => item,
+                    (item) => create(Key.key(item), count)
+                ),
+                count: defineAccessor(
+                    () => count,
+                    (count) => create(item, count)
+                )
+            });
         }
 
         export function showItem(
-            item: string,
+            item: KeyLike,
             count: number
         ): ShowItem {
-            return create(item, count);
+            return create(Key.key(item), count);
         }
 
     }
@@ -105,19 +107,19 @@ export namespace HoverEvent {
         /** @internal */
         function create(type: string, id: string, name: Component | null): ShowEntity {
             return Object.freeze({
-                type(arg0?: string) {
-                    if (typeof arg0 !== "undefined") return create(arg0, id, name);
-                    return type;
-                },
-                id(arg0?: string) {
-                    if (typeof arg0 !== "undefined") return create(type, arg0, name);
-                    return id;
-                },
-                name(arg0?: Component | null) {
-                    if (typeof arg0 !== "undefined") return create(type, id, arg0);
-                    return name;
-                }
-            }) as unknown as ShowEntity;
+                type: defineAccessor(
+                    () => type,
+                    (type) => create(type, id, name)
+                ),
+                id: defineAccessor(
+                    () => id,
+                    (id) => create(type, id, name)
+                ),
+                name: defineAccessor(
+                    () => name,
+                    (name) => create(type, id, name)
+                )
+            });
         }
 
         export function showEntity(

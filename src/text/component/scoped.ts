@@ -3,6 +3,7 @@ import { Style, TextColor, ShadowColor, TextDecoration, HoverEvent, ClickEvent }
 import {defineAccessor, defineContextualAccessor} from "../../util/accessor";
 import {ArrayUtil} from "../../util/array";
 import {ComponentCompaction} from "./compaction";
+import {Key, KeyLike} from "../../key";
 
 //
 
@@ -19,9 +20,9 @@ export interface ScopedComponent<C extends ScopedComponent<C>> extends Component
 
     style(style: Style): C;
 
-    font(): string | null;
+    font(): Key | null;
 
-    font(font: string | null): C;
+    font(font: KeyLike | null): C;
 
     color(): TextColor | null;
 
@@ -114,7 +115,7 @@ export abstract class AbstractScopedComponent<C extends ScopedComponent<C>, E ex
         (style) => this._mutate(this._extra, this._children, style)
     );
 
-    font = defineAccessor<string | null>(
+    font = defineAccessor<Key | null, KeyLike | null>(
         () => this._style.font(),
         (font) => this._mutateStyle((s) => s.font(font))
     );

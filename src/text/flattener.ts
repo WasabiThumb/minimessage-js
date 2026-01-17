@@ -7,6 +7,8 @@ import {KeybindComponent} from "./component/keybind";
 import {SelectorComponent} from "./component/selector";
 import {TranslatableComponent} from "./component/translatable";
 import {ObjectComponent} from "./component/object";
+import {Key} from "../key";
+import {SpriteObjectContents} from "./object/sprite";
 
 //
 
@@ -179,12 +181,9 @@ export namespace ComponentFlattener {
             if (contents.type === "sprite") {
                 let sprite = contents.sprite();
                 let atlas = contents.atlas();
-                if (sprite.startsWith("minecraft:")) sprite = sprite.substring(10);
-                if (atlas.startsWith("minecraft:")) {
-                    atlas = atlas.substring(10);
-                    if (atlas === "blocks") return `[${sprite}]`;
-                }
-                return `[${sprite}@${atlas}]`;
+                return Key.equals(atlas, SpriteObjectContents.DEFAULT_ATLAS) ?
+                    `[${sprite.asMinimalString()}]` :
+                    `[${sprite.asMinimalString()}@${atlas.asMinimalString()}]`;
             } else if (contents.type === "playerHead") {
                 let name = contents.name();
                 if (name === null) name = "unknown player";

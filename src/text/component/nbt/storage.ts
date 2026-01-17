@@ -2,6 +2,7 @@ import {AbstractNBTComponent, NBTComponent} from "../nbt";
 import type {Component} from "../../component";
 import {Style} from "../../style";
 import {defineAccessor} from "../../../util/accessor";
+import {Key, KeyLike} from "../../../key";
 
 //
 
@@ -13,16 +14,16 @@ export interface StorageNBTComponent extends NBTComponent<StorageNBTComponent> {
 
     readonly type: typeof StorageNBTComponent.TYPE;
 
-    storage(): string;
+    storage(): Key;
 
-    storage(storage: string): StorageNBTComponent;
+    storage(storage: KeyLike): StorageNBTComponent;
 
 }
 
 //
 
 type Extra = {
-    storage: string,
+    storage: Key,
     nbtPath: string,
     interpret: boolean,
     separator: Component | null
@@ -39,9 +40,9 @@ export class StorageNBTComponentImpl extends AbstractNBTComponent<StorageNBTComp
 
     //
 
-    storage = defineAccessor(
+    storage = defineAccessor<Key, KeyLike>(
         () => this._getExtra("storage"),
-        (storage) => this._withExtra("storage", storage)
+        (storage) => this._withExtra("storage", Key.key(storage))
     );
 
     protected _mutate(extra: Extra, children: Component[], style: Style): StorageNBTComponentImpl {

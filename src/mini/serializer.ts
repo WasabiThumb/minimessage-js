@@ -36,6 +36,8 @@ import {KeybindTag} from "./tag/standard/keybind";
 import {SpriteTag} from "./tag/standard/sprite";
 import {SequentialHeadTag} from "./tag/standard/sequentialHead";
 import {TokenParser} from "./token/parser";
+import {SpriteObjectContents} from "../text/object/sprite";
+import {Key} from "../key";
 
 //
 
@@ -96,7 +98,7 @@ export namespace MiniMessageSerializer {
 
             // Font
             const font = style.font();
-            if (font !== null) emit(FontTag.FONT, font);
+            if (font !== null) emit(FontTag.FONT, font.asString());
 
             // Insertion
             const insertion = style.insertion();
@@ -119,9 +121,9 @@ export namespace MiniMessageSerializer {
                         const key = payload.key();
                         const nbt = payload.nbt();
                         if (nbt) {
-                            emit(ClickTag.CLICK, actionName, key, nbt);
+                            emit(ClickTag.CLICK, actionName, key.asMinimalString(), nbt);
                         } else {
-                            emit(ClickTag.CLICK, actionName, key);
+                            emit(ClickTag.CLICK, actionName, key.asMinimalString());
                         }
                         break;
                     default:
@@ -153,9 +155,9 @@ export namespace MiniMessageSerializer {
                     const item = showItem.item();
                     const count = showItem.count();
                     if (count !== 1) {
-                        emit(HoverTag.HOVER, `show_item`, item, `${count}`);
+                        emit(HoverTag.HOVER, `show_item`, item.asMinimalString(), `${count}`);
                     } else {
-                        emit(HoverTag.HOVER, `show_item`, item);
+                        emit(HoverTag.HOVER, `show_item`, item.asMinimalString());
                     }
                 });
                 handlers.invoke(hoverEvent, null);
@@ -249,7 +251,7 @@ export namespace MiniMessageSerializer {
                 out,
                 NbtTag.NBT,
                 "storage",
-                component.storage(),
+                component.storage().asMinimalString(),
                 ...this._nbtFooter(context, component)
             );
             return component;
@@ -322,7 +324,7 @@ export namespace MiniMessageSerializer {
                     switch (flag) {
                         case 1: put(name!); break;
                         case 2: put(id!); break;
-                        case 4: put(texture!); break;
+                        case 4: put(texture!.asMinimalString()); break;
                         default:
                             throw new Error(`Unable to serialize ambiguous player head tag with name '${name}', id '${id}' and texture '${texture}'`);
                     }
@@ -330,10 +332,10 @@ export namespace MiniMessageSerializer {
                 case "sprite":
                     const atlas = contents.atlas();
                     const sprite = contents.sprite();
-                    if ("minecraft:blocks" !== atlas) {
-                        this._openCloseTag(out, SpriteTag.SPRITE, atlas, sprite);
+                    if (!Key.equals(atlas, SpriteObjectContents.DEFAULT_ATLAS)) {
+                        this._openCloseTag(out, SpriteTag.SPRITE, atlas.asMinimalString(), sprite.asMinimalString());
                     } else {
-                        this._openCloseTag(out, SpriteTag.SPRITE, sprite);
+                        this._openCloseTag(out, SpriteTag.SPRITE, sprite.asMinimalString());
                     }
                     break;
                 default:

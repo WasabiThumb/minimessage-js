@@ -4,7 +4,7 @@ import {UUID} from "../util/uuid";
 import {assertNever} from "../util/assertions";
 import {Component} from "../text/component";
 import {PlayerHeadObjectContents} from "../text/object/playerHead";
-import {ObjectContents} from "../text/object";
+import {ObjectContents, SpriteObjectContents} from "../text/object";
 import {
     JsonAtlasObjectComponent,
     JsonBaseComponent,
@@ -33,6 +33,7 @@ import {BlockNBTComponent} from "../text/component/nbt/block";
 import {StorageNBTComponent} from "../text/component/nbt/storage";
 import {EntityNBTComponent} from "../text/component/nbt/entity";
 import {TranslatableComponent, TranslationArgument} from "../text/component/translatable";
+import {Key} from "../key";
 
 //
 
@@ -65,7 +66,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
         });
         handlers.register(ClickEvent.Action.CUSTOM, (event) => {
             const custom = event.payload();
-            const ret: JsonClickEvent.Custom = { action: "custom", id: custom.key() };
+            const ret: JsonClickEvent.Custom = { action: "custom", id: custom.key().asString() };
             const nbt = custom.nbt();
             if (nbt !== null) ret.payload = nbt;
             return ret;
@@ -77,7 +78,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
         const handlers = new HoverEvent.Handlers<JsonComponentSerializerImpl, JsonHoverEvent>();
         handlers.register(HoverEvent.Action.SHOW_ITEM, (event) => {
             const value = event.value();
-            return { action: "show_item", id: value.item(), count: value.count() };
+            return { action: "show_item", id: value.item().asString(), count: value.count() };
         });
         handlers.register(HoverEvent.Action.SHOW_TEXT, (event, context) => {
             return { action: "show_text", value: context.serialize(event.value()) };
@@ -341,7 +342,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
             }
         } else if (sprite !== null) {
             ret = Component.object(ObjectContents.sprite(
-                atlas !== null ? atlas : "minecraft:blocks",
+                atlas !== null ? atlas : SpriteObjectContents.DEFAULT_ATLAS,
                 sprite
             ));
         } else if (playerHeadContents !== null && playerHeadContentsHasProfile) {
@@ -473,7 +474,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
     private serializeStorageNbt(component: StorageNBTComponent): JsonStorageNBTComponent {
         const nbt = component.nbtPath();
         const interpret = component.interpret();
-        const storage = component.storage();
+        const storage = component.storage().asString();
         const ret: JsonStorageNBTComponent = {
             ...this.serializeBase(component),
             nbt,
@@ -529,11 +530,11 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
             const sprite = contents.sprite();
             const ret: JsonAtlasObjectComponent = {
                 ...this.serializeBase(component),
-                sprite
+                sprite: sprite.asString()
             };
 
             const atlas = contents.atlas();
-            if (atlas !== "minecraft:blocks") ret.atlas = atlas;
+            if (!Key.equals(atlas, SpriteObjectContents.DEFAULT_ATLAS)) ret.atlas = atlas.asString();
 
             return ret;
         } else if (type === "playerHead") {
@@ -550,7 +551,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
                 profile = {};
                 if (playerName !== null) profile.name = playerName;
                 if (playerId !== null) profile.id = UUID.fromString(playerId).toArray();
-                if (texture !== null) profile.texture = texture;
+                if (texture !== null) profile.texture = texture.asString();
                 if (properties.length !== 0) {
                     const jsonProperties: JsonPlayerProfileProperty[] = new Array(properties.length);
                     for (let i = 0; i < properties.length; i++) {
@@ -604,7 +605,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
         }
 
         const font = component.font();
-        if (font) ret.font = font;
+        if (font) ret.font = font.asString();
 
         const useDecoration = ((decoration: TextDecoration, consumer: (value: boolean) => void): void => {
             const state = component.decoration(decoration);

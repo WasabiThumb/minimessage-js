@@ -1,4 +1,5 @@
 import {ArrayUtil} from "../../util/array";
+import {Key, KeyLike} from "../../key";
 
 export interface PlayerHeadObjectContents {
 
@@ -12,7 +13,7 @@ export interface PlayerHeadObjectContents {
 
     hat(): boolean,
 
-    texture(): string | null
+    texture(): Key | null
 
 }
 
@@ -24,8 +25,9 @@ export namespace PlayerHeadObjectContents {
         id: string | null,
         profileProperties: ProfileProperty[],
         hat: boolean,
-        texture: string | null
+        texture: Key | null
     ): PlayerHeadObjectContents {
+        const finalTexture = texture === null ? null : Key.key(texture);
         return Object.freeze({
             type: "playerHead",
             name() {
@@ -41,7 +43,7 @@ export namespace PlayerHeadObjectContents {
                 return hat;
             },
             texture() {
-                return texture;
+                return finalTexture;
             }
         });
     }
@@ -86,7 +88,7 @@ export namespace PlayerHeadObjectContents {
 
         hat(hat: boolean): Builder;
 
-        texture(texture: string | null): Builder;
+        texture(texture: KeyLike | null): Builder;
 
         build(): PlayerHeadObjectContents;
 
@@ -99,7 +101,7 @@ export namespace PlayerHeadObjectContents {
         private _id: string | null = null;
         private _properties: Record<string, ProfileProperty> = {};
         private _hat: boolean = true;
-        private _texture: string | null = null;
+        private _texture: Key | null = null;
 
         //
 
@@ -129,8 +131,8 @@ export namespace PlayerHeadObjectContents {
             return this;
         }
 
-        texture(texture: string | null): Builder {
-            this._texture = texture;
+        texture(texture: KeyLike | null): Builder {
+            this._texture = (texture === null) ? null : Key.key(texture);
             return this;
         }
 

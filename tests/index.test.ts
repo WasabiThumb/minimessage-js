@@ -2,7 +2,7 @@ import {DOMParser} from "linkedom";
 import {JsonComponent} from "../src/serializer/json/types";
 import {
     Component, HoverEvent,
-    JsonComponentSerializer,
+    JsonComponentSerializer, Key,
     MiniMessage, NamedTextColor,
     PlainTextComponentSerializer, TextColor, TextDecoration,
     Translations
@@ -129,4 +129,26 @@ test("tricky", () => {
    const component = mini.deserialize(`<rainbow>ra<i>i</i>n<b>b</b>ow</rainbow>`);
    const text = PlainTextComponentSerializer.plainText().serialize(component);
    expect(text).toBe(`rainbow`);
+});
+
+test("keys", () => {
+    let key: Key;
+
+    key = Key.key("test_key");
+    expect(      key.namespace()).toBe("minecraft");
+    expect(          key.value()).toBe("test_key");
+    expect(key.asMinimalString()).toBe("test_key");
+    expect(       key.asString()).toBe("minecraft:test_key");
+    expect(       key.toString()).toBe("minecraft:test_key")
+    expect(      `${key}`).toBe("minecraft:test_key");
+    expect(             "" + key).toBe("minecraft:test_key");
+
+    key = Key.key("foo:test_key");
+    expect(      key.namespace()).toBe("foo");
+    expect(          key.value()).toBe("test_key");
+    expect(key.asMinimalString()).toBe("foo:test_key");
+    expect(       key.asString()).toBe("foo:test_key");
+    expect(       key.toString()).toBe("foo:test_key")
+    expect(      `${key}`).toBe("foo:test_key");
+    expect(             "" + key).toBe("foo:test_key");
 });

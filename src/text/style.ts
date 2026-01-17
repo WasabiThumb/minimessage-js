@@ -4,6 +4,7 @@ import {DecorationMap, TextDecoration} from "./style/decoration";
 import {ClickEvent} from "./style/clickEvent";
 import {HoverEvent} from "./style/hoverEvent";
 import {defineAccessor, defineContextualAccessor} from "../util/accessor";
+import {Key, KeyLike} from "../key";
 
 //
 
@@ -16,7 +17,7 @@ export * from "./style/hoverEvent";
 //
 
 export interface Style {
-    font(): string | null;
+    font(): Key | null;
     color(): TextColor | null;
     shadowColor(): ShadowColor | null;
     decoration(decoration: TextDecoration): TextDecoration.State;
@@ -26,7 +27,7 @@ export interface Style {
     hoverEvent(): HoverEvent<any> | null;
     insertion(): string | null;
 
-    font(font: string | null): Style;
+    font(font: KeyLike | null): Style;
     color(color: TextColor | null): Style;
     colorIfAbsent(color: TextColor | null): Style;
     shadowColor(shadowColor: ShadowColor | null): Style;
@@ -47,7 +48,7 @@ export interface Style {
 
 /** @internal */
 type StyleInit = {
-    font: string | null,
+    font: Key | null,
     color: TextColor | null,
     shadowColor: ShadowColor | null,
     decorations: DecorationMap,
@@ -78,9 +79,9 @@ class StyleImpl implements Style {
 
     //
 
-    font = defineAccessor<string | null>(
+    font = defineAccessor<Key | null, KeyLike | null>(
         () => this._get("font"),
-        (font) => this._with({ font })
+        (font) => this._with({ font: font === null ? null : Key.key(font) })
     );
 
     color = defineAccessor<TextColor | null>(
@@ -216,7 +217,7 @@ class StyleImpl implements Style {
             if (predicate(a, b)) newInit[k] = null;
         });
 
-        check(`font`, that.font(), (a, b) => a === b);
+        check(`font`, that.font(), (a, b) => Key.equals(a, b));
         check(`color`, that.color(), (a, b) => a.value() === b.value());
         check(`shadowColor`, that.shadowColor(), (a, b) => a.value() === b.value());
         check(`insertion`, that.insertion(), (a, b) => a === b);
@@ -261,7 +262,7 @@ export namespace Style {
 
     export function equals(a: Style, b: Style): boolean {
         if (a === b) return true;
-        if (a.font() !== b.font()) return false;
+        if (!Key.equals(a.font(), b.font())) return false;
         if (a.color() !== b.color()) return false;
         if (a.shadowColor() !== b.shadowColor()) return false;
         if (a.clickEvent() !== b.clickEvent()) return false; // TODO: use semantic equality instead of object identity
@@ -275,7 +276,7 @@ export namespace Style {
 
     export interface Builder {
 
-        font(font: string | null): this;
+        font(font: KeyLike | null): this;
 
         color(color: TextColor | null): this;
 
@@ -314,8 +315,8 @@ export namespace Style {
 
         //
 
-        font(font: string | null): this {
-            this._init.font = font;
+        font(font: KeyLike | null): this {
+            this._init.font = (font === null) ? font : Key.key(font);
             return this;
         }
 

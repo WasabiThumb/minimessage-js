@@ -29,6 +29,10 @@ export {
 } from "./i18n";
 
 export {
+    Key
+} from "./key";
+
+export {
     MiniMessage,
     Tag,
     TagResolver,
