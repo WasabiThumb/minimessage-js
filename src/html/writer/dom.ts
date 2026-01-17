@@ -1,17 +1,47 @@
 import {HtmlWriter} from "../writer";
 import {Stack} from "../../util/stack";
 import {HtmlStyle, HtmlStyleStore} from "../style";
+import {DomEffects} from "../effects";
 
 //
 
+/**
+ * Executed when the final tag of a DomHTMLWriter is closed.
+ * Anticipates that the tag may become attached to a browser DOM,
+ * then applies DOM effects if so.
+ */
+function applyDomEffects(element: ParentNode): void {
+    if (typeof window === "undefined") return;
+
+    const proceed = (() => {
+        const { ownerDocument } = element;
+        if (!ownerDocument) return;
+        if (window !== ownerDocument.defaultView) return;
+        DomEffects.apply(element);
+    });
+
+    if ("isConnected" in element && element.isConnected) {
+        // Element is already connected
+        proceed();
+    } else {
+        // Stall briefly to allow the caller to
+        // connect the element
+        if ("requestAnimationFrame" in window) {
+            window.requestAnimationFrame(proceed);
+        } else {
+            setTimeout(proceed, 10);
+        }
+    }
+}
+
 export class DomHTMLWriter implements HtmlWriter {
 
-    private readonly _parent: Node;
+    private readonly _parent: ParentNode;
     private readonly _stack: Stack<[ HTMLElement, HtmlStyleStore ]>;
     private readonly _elementFactory: DomHTMLWriter.ElementFactory;
     private _styles: HtmlStyleStore;
 
-    constructor(parent: Node, elementFactory: DomHTMLWriter.ElementFactory) {
+    constructor(parent: ParentNode, elementFactory: DomHTMLWriter.ElementFactory) {
         this._parent = parent;
         this._stack = new Stack();
         this._elementFactory = elementFactory;
@@ -31,16 +61,21 @@ export class DomHTMLWriter implements HtmlWriter {
         if (data === null) throw new Error(`No tag to close`);
 
         let parentData = this._stack.peek();
-        let parent: Node;
+        let parent: ParentNode;
+        let domEffects: boolean;
+
         if (parentData === null) {
             parent = this._parent;
+            domEffects = true;
         } else {
             parent = parentData[0];
+            domEffects = false;
         }
 
         parent.appendChild(data[0]);
         this._styles = { ...data[1] };
 
+        if (domEffects) applyDomEffects(parent);
         return this;
     }
 

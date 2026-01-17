@@ -26,7 +26,7 @@ export interface MiniMessage extends ComponentSerializer<Component, Component, s
 
     toHTML(component: Component): string;
 
-    toHTML(component: Component, target: Element, elementFactory?: DomHTMLWriter.ElementFactory): void;
+    toHTML(component: Component, target: ParentNode, elementFactory?: DomHTMLWriter.ElementFactory): void;
 
     strict(): boolean;
 

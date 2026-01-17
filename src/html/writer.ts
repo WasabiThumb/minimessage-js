@@ -24,7 +24,7 @@ export namespace HtmlWriter {
         return new StringHtmlWriter();
     }
 
-    export function dom(parent: Node, elementFactory?: DomHTMLWriter.ElementFactory): DomHTMLWriter {
+    export function dom(parent: ParentNode, elementFactory?: DomHTMLWriter.ElementFactory): DomHTMLWriter {
         if (typeof elementFactory === "undefined") {
             const { ownerDocument } = parent;
             elementFactory = ownerDocument ?

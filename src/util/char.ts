@@ -91,7 +91,7 @@ class CharacterImpl implements Character {
 type CharacterExport = ((value: CharacterLike) => Character) & Readonly<Record<KnownCharacter, Character>>;
 type KnownCharacter = "LESS_THAN" | "GREATER_THAN" | "SEMICOLON" | "QUOTATION" | "APOSTROPHE" | "AMPERSAND" |
     "COLON" | "NUMBER_SIGN" | "BACKSLASH" | "DOLLAR_SIGN" | "ZERO" | "ONE" | "NINE" | "LOWERCASE_A" | "LOWERCASE_S" |
-    "LOWERCASE_F" | "UPPERCASE_A" | "UPPERCASE_F" | "DASH" | "PERCENT" | "SLASH" | "SECTION" | "PERIOD" |
+    "LOWERCASE_F" | "UPPERCASE_A" | "UPPERCASE_F" | "DASH" | "PERCENT" | "SLASH" | "SECTION" | "PERIOD" | "COMMA" |
     "LOWERCASE_R" | "LOWERCASE_K" | "LOWERCASE_O" | "UPPERCASE_Z" | "SPACE" | "UNDERSCORE" | "LOWERCASE_Z";
 
 export const Character: CharacterExport = ((known: Record<KnownCharacter, string>) => {
@@ -137,4 +137,5 @@ export const Character: CharacterExport = ((known: Record<KnownCharacter, string
     UNDERSCORE: '_',
     LOWERCASE_Z: 'z',
     PERIOD: '.',
+    COMMA: ',',
 });

@@ -64,7 +64,7 @@ export class MiniMessageImpl implements MiniMessage {
         return MiniMessageSerializer.serialize(this, component);
     }
 
-    toHTML(component: Component, target?: Element, elementFactory?: DomHTMLWriter.ElementFactory): string {
+    toHTML(component: Component, target?: ParentNode, elementFactory?: DomHTMLWriter.ElementFactory): string {
         const renderer = HtmlComponentRenderer.renderer(this._translations);
 
         if (target) {

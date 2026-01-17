@@ -19,7 +19,7 @@ export interface Key {
 }
 
 /** @internal */
-class KeyImpl {
+class KeyImpl implements Key {
 
     private static readonly D_NAMESPACE = "namespace";
     private static readonly D_VALUE = "value";

@@ -8,12 +8,10 @@ import {Translations} from "../i18n";
 import {TextComponent} from "../text/component/text";
 import {TranslatableComponent} from "../text/component/translatable";
 import {SelectorComponent} from "../text/component/selector";
-import {ScoreComponent} from "../text/component/score";
 import {KeybindComponent} from "../text/component/keybind";
 import {ObjectComponent} from "../text/component/object";
-import {BlockNBTComponent} from "../text/component/nbt/block";
-import {EntityNBTComponent} from "../text/component/nbt/entity";
-import {StorageNBTComponent} from "../text/component/nbt/storage";
+import {DomEffects} from "./effects";
+import {assertNever} from "../util/assertions";
 
 //
 
@@ -65,56 +63,55 @@ export class HtmlComponentRenderer extends AbstractComponentRenderer<HtmlWriter>
         return translated;
     }
 
-    protected renderBlock(component: BlockNBTComponent, writer: HtmlWriter): Component {
-        this._open(component, writer);
-        // TODO
-        this._close(component, writer);
-        return component;
-    }
-
-    protected renderEntity(component: EntityNBTComponent, writer: HtmlWriter): Component {
-        this._open(component, writer);
-        // TODO
-        this._close(component, writer);
-        return component;
-    }
-
-    protected renderStorage(component: StorageNBTComponent, writer: HtmlWriter): Component {
-        this._open(component, writer);
-        // TODO
-        this._close(component, writer);
-        return component;
-    }
-
     protected renderSelector(component: SelectorComponent, writer: HtmlWriter): Component {
         this._open(component, writer);
-        // TODO
-        this._close(component, writer);
-        return component;
-    }
-
-    protected renderScore(component: ScoreComponent, writer: HtmlWriter): Component {
-        this._open(component, writer);
-        // TODO
+        DomEffects.writeProperty(writer, "misc", component);
+        writer.content(component.pattern());
         this._close(component, writer);
         return component;
     }
 
     protected renderKeybind(component: KeybindComponent, writer: HtmlWriter): Component {
         this._open(component, writer);
-        // TODO
+        DomEffects.writeProperty(writer, "misc", component);
+        writer.content(component.keybind());
         this._close(component, writer);
         return component;
     }
 
     protected renderObject(component: ObjectComponent, writer: HtmlWriter): Component {
         this._open(component, writer);
-        // TODO
+
+        const contents = component.contents();
+        const contentsType = contents.type;
+        switch (contentsType) {
+            case "playerHead":
+                DomEffects.writeProperty(writer, "player-head", contents);
+                break;
+            case "sprite":
+                DomEffects.writeProperty(writer, "misc", component);
+                break;
+            default:
+                assertNever(contentsType);
+        }
+
         this._close(component, writer);
         return component;
     }
 
+    protected renderBlock = this._renderMisc;
+    protected renderEntity = this._renderMisc;
+    protected renderStorage = this._renderMisc;
+    protected renderScore = this._renderMisc;
+
     //
+
+    private _renderMisc(component: Component, writer: HtmlWriter): Component {
+        this._open(component, writer);
+        DomEffects.writeProperty(writer, "misc", component);
+        this._close(component, writer);
+        return component;
+    }
 
     private _open(component: Component, writer: HtmlWriter): void {
         writer.openTag("span");
@@ -133,7 +130,7 @@ export class HtmlComponentRenderer extends AbstractComponentRenderer<HtmlWriter>
 
         s = component.decoration(TextDecoration.OBFUSCATED);
         if (s !== TextDecoration.State.NOT_SET) {
-            writer.property("data-mm-obfuscated", s);
+            DomEffects.writeProperty(writer, "obfuscated", s === TextDecoration.State.TRUE);
         }
 
         const underlined = component.decoration(TextDecoration.UNDERLINED);
