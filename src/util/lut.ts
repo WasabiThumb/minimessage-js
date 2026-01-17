@@ -94,7 +94,12 @@ abstract class AbstractLookupTable<K, V> implements LookupTable<K, V> {
 
     has(key: K): boolean {
         const index = mod(this.hash(key), this._capacity);
-        return !!this._buckets[index];
+        let bucket: BucketRef<K, V> = this._buckets[index];
+        while (bucket) {
+            if (this.eq(key, bucket.key)) return true;
+            bucket = bucket.next;
+        }
+        return false;
     }
 
     get(key: K): V | null {

@@ -1,5 +1,6 @@
 import {StringBuilder} from "../util/string";
 import {TriState} from "../util/triState";
+import {Character} from "../util/char";
 
 //
 
@@ -42,11 +43,11 @@ class BasicHtmlStyle<K extends keyof CSSStyleDeclaration, V extends CSSStyleDecl
     }
 
     applyToInlineSource(source: StringBuilder): void {
-        if (!source.isEmpty()) source.appendSpace();
+        if (!source.isEmpty()) source.appendChar(Character.SPACE);
         source.appendString(this.sourceKey)
             .appendString(": ")
             .append(this.value)
-            .appendSemicolon();
+            .appendChar(Character.SEMICOLON);
     }
 
 }
@@ -71,10 +72,10 @@ class DecorationHtmlStyle implements HtmlStyle {
     }
 
     applyToInlineSource(source: StringBuilder, parent: HtmlStyleStore) {
-        if (!source.isEmpty()) source.appendSpace();
+        if (!source.isEmpty()) source.appendChar(Character.SPACE);
         source.appendString("text-decoration: ")
             .appendString(this._computeValue(parent))
-            .appendSemicolon();
+            .appendChar(Character.SEMICOLON);
     }
 
     private _computeValue(parent: HtmlStyleStore): string {

@@ -92,7 +92,7 @@ type CharacterExport = ((value: CharacterLike) => Character) & Readonly<Record<K
 type KnownCharacter = "LESS_THAN" | "GREATER_THAN" | "SEMICOLON" | "QUOTATION" | "APOSTROPHE" | "AMPERSAND" |
     "COLON" | "NUMBER_SIGN" | "BACKSLASH" | "DOLLAR_SIGN" | "ZERO" | "ONE" | "NINE" | "LOWERCASE_A" | "LOWERCASE_S" |
     "LOWERCASE_F" | "UPPERCASE_A" | "UPPERCASE_F" | "DASH" | "PERCENT" | "SLASH" | "SECTION" |
-    "LOWERCASE_R" | "LOWERCASE_K" | "LOWERCASE_O" | "UPPERCASE_Z";
+    "LOWERCASE_R" | "LOWERCASE_K" | "LOWERCASE_O" | "UPPERCASE_Z" | "SPACE";
 
 export const Character: CharacterExport = ((known: Record<KnownCharacter, string>) => {
     let ret = normalize;
@@ -132,5 +132,6 @@ export const Character: CharacterExport = ((known: Record<KnownCharacter, string
     LOWERCASE_K: 'k',
     LOWERCASE_R: 'r',
     LOWERCASE_O: 'o',
-    UPPERCASE_Z: 'Z'
+    UPPERCASE_Z: 'Z',
+    SPACE: ' ',
 });

@@ -8,9 +8,9 @@ import {assertReal} from "../../util/assertions";
 
 export const TextNodeFactory = new class {
 
-    private _bound: boolean = false;
-    private _identity: ((n: Node) => boolean) | null = null;
-    private _generator: ((parent: ElementNode | null, token: Token, sourceMessage: string) => ElementNode) | null = null;
+    _bound: boolean = false;
+    _identity: ((n: Node) => boolean) | null = null;
+    _generator: ((parent: ElementNode | null, token: Token, sourceMessage: string) => ElementNode) | null = null;
 
     //
 
@@ -35,7 +35,7 @@ export const TextNodeFactory = new class {
         return this._generator!(parent, token, sourceMessage);
     }
 
-    private _checkBound(): void {
+    _checkBound(): void {
         if (!this._bound) throw new Error("Not bound");
     }
 

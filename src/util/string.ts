@@ -78,34 +78,16 @@ export class StringBuilder {
     }
 
     append(value: any): this {
-        // noinspection FallThroughInSwitchStatementJS
         switch (typeof value) {
             case "string":
                 return this.appendString(value);
             case "object":
-                if (value instanceof StringBuilder) {
-                    this.appendStringBuilder(value);
-                    return this;
-                }
+                if (null === value) return this.appendString("null");
+                if (value instanceof StringBuilder) return this.appendStringBuilder(value);
+                return this.appendString(value.toString());
             default:
-                return this.appendString(`${value}`);
+                return this.appendString(String(value));
         }
-    }
-
-    appendLeftAngleBracket(): this {
-        return this.appendChar(60); // <
-    }
-
-    appendRightAngleBracket(): this {
-        return this.appendChar(62); // >
-    }
-
-    appendSpace(): this {
-        return this.appendChar(32); // space
-    }
-
-    appendSemicolon(): this {
-        return this.appendChar(59); // ;
     }
 
     appendChar(value: CharacterLike): this {

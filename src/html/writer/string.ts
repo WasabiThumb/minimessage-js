@@ -38,7 +38,7 @@ export class StringHtmlWriter implements HtmlWriter {
     openTag(tagName: string): this {
         this._closeProperties();
 
-        this._out.appendLeftAngleBracket()
+        this._out.appendChar(Character.LESS_THAN)
             .appendString(tagName);
 
         this._stack.push([ tagName, { ...this._styles } ]);
@@ -55,7 +55,7 @@ export class StringHtmlWriter implements HtmlWriter {
         this._closeProperties();
         this._out.appendString("</")
             .appendString(data[0])
-            .appendRightAngleBracket();
+            .appendChar(Character.GREATER_THAN);
 
         this._styles = { ...data[1] };
         return this;
@@ -121,13 +121,13 @@ export class StringHtmlWriter implements HtmlWriter {
     private _closeProperties(): void {
         if (this._writingProperties) {
             for (const key of Object.keys(this._properties)) {
-                this._out.appendSpace()
+                this._out.appendChar(Character.SPACE)
                     .appendString(key)
                     .appendString(`="`)
                     .appendStringBuilder(this._properties[key])
                     .appendString(`"`);
             }
-            this._out.appendRightAngleBracket();
+            this._out.appendChar(Character.GREATER_THAN);
             this._writingProperties = false;
         }
     }

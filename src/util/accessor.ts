@@ -49,5 +49,5 @@ export const defineContextualAccessor = (<Context, GetType, SetType = GetType>(
         } else {
             throw new Error(`Too many arguments passed to contextual accessor (expected 1 or 2, got ${count})`);
         }
-    } as unknown as AccessorFunction<GetType, SetType>;
+    } as unknown as ContextualAccessorFunction<Context, GetType, SetType>;
 });

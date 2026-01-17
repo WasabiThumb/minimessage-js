@@ -1,10 +1,10 @@
 import {DOMParser} from "linkedom";
 import {JsonComponent} from "../src/serializer/json/types";
 import {
-    Component,
+    Component, HoverEvent,
     JsonComponentSerializer,
-    MiniMessage,
-    PlainTextComponentSerializer,
+    MiniMessage, NamedTextColor,
+    PlainTextComponentSerializer, TextColor, TextDecoration,
     Translations
 } from "../src";
 
@@ -29,7 +29,7 @@ const renderToDom = ((mini: MiniMessage, component: Component) => {
 
 //
 
-test("basic", () => {
+test("deserialize", () => {
     let component: Component;
 
     component = mini.deserialize("<gold>this is gold and <b>bold</b>!</gold>");
@@ -44,6 +44,32 @@ test("basic", () => {
             "!"
         ]
     });
+});
+
+test("serialize", () => {
+    let rich: string;
+    let component: Component;
+
+    //
+
+    component = Component.empty()
+        .color(NamedTextColor.GOLD)
+        .append(Component.text("this is gold and "))
+        .append(Component.text("bold").decorate(TextDecoration.BOLD))
+        .append(Component.text("!"));
+
+    rich = mini.serialize(component);
+    expect(rich).toBe(`<gold>this is gold and <b>bold</b>!</gold>`);
+
+    //
+
+    component = Component.empty()
+        .hoverEvent(HoverEvent.showText(Component.text("tooltip").color(NamedTextColor.DARK_PURPLE)))
+        .color(TextColor.fromHexString("#aabb00"))
+        .append(Component.translatable("block.minecraft.diamond_block"));
+
+    rich = mini.serialize(component);
+    expect(rich).toBe(`<#aabb00><hover:show_text:'<dark_purple>tooltip</dark_purple>'><lang:block.minecraft.diamond_block/></hover></#aabb00>`);
 });
 
 test("html escaping", () => {

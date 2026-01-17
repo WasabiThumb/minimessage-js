@@ -61,20 +61,53 @@ export abstract class AbstractComponentRenderer<C> extends FunctionalComponentRe
     //
 
     render(component: Component, context: C): Component {
+        component = this.preRender(component, context);
+
         const { type } = component;
+        let rendered: Component;
+
         switch (type) {
-            case TextComponent.TYPE: return this.renderText(component, context);
-            case TranslatableComponent.TYPE: return this.renderTranslatable(component, context);
-            case BlockNBTComponent.TYPE: return this.renderBlock(component, context);
-            case EntityNBTComponent.TYPE: return this.renderEntity(component, context);
-            case StorageNBTComponent.TYPE: return this.renderStorage(component, context);
-            case SelectorComponent.TYPE: return this.renderSelector(component, context);
-            case ScoreComponent.TYPE: return this.renderScore(component, context);
-            case KeybindComponent.TYPE: return this.renderKeybind(component, context);
-            case ObjectComponent.TYPE: return this.renderObject(component, context);
+            case TextComponent.TYPE:
+                rendered = this.renderText(component, context);
+                break;
+            case TranslatableComponent.TYPE:
+                rendered = this.renderTranslatable(component, context);
+                break;
+            case BlockNBTComponent.TYPE:
+                rendered = this.renderBlock(component, context);
+                break;
+            case EntityNBTComponent.TYPE:
+                rendered = this.renderEntity(component, context);
+                break;
+            case StorageNBTComponent.TYPE:
+                rendered = this.renderStorage(component, context);
+                break;
+            case SelectorComponent.TYPE:
+                rendered = this.renderSelector(component, context);
+                break;
+            case ScoreComponent.TYPE:
+                rendered = this.renderScore(component, context);
+                break;
+            case KeybindComponent.TYPE:
+                rendered = this.renderKeybind(component, context);
+                break;
+            case ObjectComponent.TYPE:
+                rendered = this.renderObject(component, context);
+                break;
             default:
                 assertNever(type);
         }
+
+        rendered = this.postRender(rendered, context);
+        return rendered;
+    }
+
+    protected preRender(component: Component, context: C): Component {
+        return component;
+    }
+
+    protected postRender(component: Component, context: C): Component {
+        return component;
     }
 
     protected abstract renderText(component: TextComponent, context: C): Component;

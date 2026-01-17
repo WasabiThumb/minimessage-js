@@ -10,6 +10,7 @@ import {DomHTMLWriter} from "../html/writer/dom";
 import {Node} from "./tree";
 import {HtmlComponentRenderer} from "../html/renderer";
 import {HtmlWriter} from "../html/writer";
+import {MiniMessageSerializer} from "./serializer";
 
 //
 
@@ -52,17 +53,15 @@ export class MiniMessageImpl implements MiniMessage {
     }
 
     escapeTags(input: string, ...resolvers: TagResolver[]): string {
-        // TODO
-        throw new Error("Method not implemented.");
+        return this._parser.escapeTokens(this._newContext(input, resolvers));
     }
+
     stripTags(input: string, ...resolvers: TagResolver[]): string {
-        // TODO
-        throw new Error("Method not implemented.");
+        return this._parser.stripTokens(this._newContext(input, resolvers));
     }
 
     serialize(component: Component): string {
-        // TODO: Implement serialization
-        throw new Error("Not implemented");
+        return MiniMessageSerializer.serialize(this, component);
     }
 
     toHTML(component: Component, target?: Element, elementFactory?: DomHTMLWriter.ElementFactory): string {

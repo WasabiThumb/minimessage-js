@@ -18,6 +18,11 @@ export class Stack<T> {
         return this._size;
     }
 
+    clear(): void {
+        this._tail = null;
+        this._size = 0;
+    }
+
     push(value: T) {
         this._tail = { value, parent: this._tail };
         this._size++;
