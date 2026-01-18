@@ -1,4 +1,5 @@
 import {Character} from "./char";
+import {MessageDigest} from "./md5";
 
 /** @internal */
 export class UUID {
@@ -76,11 +77,25 @@ export class UUID {
         return new UUID(ab);
     }
 
+    static nameUUIDFromBytes(bytes: Uint8Array): UUID {
+        // https://github.com/AdoptOpenJDK/openjdk-jdk11/blob/19fb8f93c59dfd791f62d41f332db9e306bc1422/src/java.base/share/classes/java/util/UUID.java#L167
+        const md = new MessageDigest();
+        md.update(bytes);
+
+        const u8 = md.digest();
+        u8[6] &= 0x0F;
+        u8[6] |= 0x30;
+        u8[8] &= 0x3F;
+        u8[8] |= 0x80;
+
+        return new UUID(u8.buffer);
+    }
+
     //
 
     private readonly _buf: DataView;
 
-    constructor(ab: ArrayBuffer) {
+    constructor(ab: ArrayBuffer | SharedArrayBuffer) {
         if (ab.byteLength !== 16) throw new Error(`Illegal byte length`);
         this._buf = new DataView(ab);
     }
@@ -96,8 +111,8 @@ export class UUID {
         ];
     }
 
-    toString(): string {
-        const chars: number[] = new Array(36);
+    toString(noDashes?: boolean): string {
+        const chars: number[] = new Array(noDashes ? 32 : 36);
         let head: number = 0;
 
         const nibble = ((n: number) => {
@@ -116,6 +131,7 @@ export class UUID {
         });
 
         const dash = (() => {
+            if (noDashes) return;
             chars[head++] = Character.DASH.value;
         });
 
@@ -129,6 +145,7 @@ export class UUID {
         dash();
         hex(10, 16); // node
 
+        chars.length = head;
         return String.fromCharCode.apply(null, chars);
     }
 
