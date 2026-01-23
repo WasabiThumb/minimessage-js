@@ -12,7 +12,8 @@ const HTML_ENTITIES: LookupTable<number, string> = LookupTable.number((put) => {
     put(Character.APOSTROPHE.value,   `&apos;`);
     put(Character.AMPERSAND.value,    `&amp;`);
     put(Character.LESS_THAN.value,    `&lt;`);
-    put(Character.GREATER_THAN.value, `&gt`);
+    put(Character.GREATER_THAN.value, `&gt;`);
+    put(Character.NEWLINE.value,      `<br>`);
 });
 
 //
@@ -94,18 +95,7 @@ export class StringHtmlWriter implements HtmlWriter {
 
     content(text: string): this {
         this._closeProperties();
-
-        let c: number;
-        for (let i = 0; i < text.length; i++) {
-            c = text.charCodeAt(i);
-            const ent = HTML_ENTITIES.get(c);
-            if (ent) {
-                this._out.appendString(ent);
-            } else {
-                this._out.appendChar(c);
-            }
-        }
-
+        this._writeEscaping(text);
         return this;
     }
 
@@ -123,12 +113,26 @@ export class StringHtmlWriter implements HtmlWriter {
             for (const key of Object.keys(this._properties)) {
                 this._out.appendChar(Character.SPACE)
                     .appendString(key)
-                    .appendString(`="`)
-                    .appendStringBuilder(this._properties[key])
-                    .appendString(`"`);
+                    .appendString(`="`);
+
+                this._writeEscaping(this._properties[key]);
+                this._out.appendChar(Character.QUOTATION);
             }
             this._out.appendChar(Character.GREATER_THAN);
             this._writingProperties = false;
+        }
+    }
+
+    private _writeEscaping(text: string | StringBuilder) {
+        let c: number;
+        for (let i = 0; i < text.length; i++) {
+            c = text.charCodeAt(i);
+            const ent = HTML_ENTITIES.get(c);
+            if (ent) {
+                this._out.appendString(ent);
+            } else {
+                this._out.appendChar(c);
+            }
         }
     }
 

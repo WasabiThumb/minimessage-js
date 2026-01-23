@@ -1,0 +1,29 @@
+{
+  "name": "@minimessage-js/demo",
+  "version": "2.0.0",
+  "description": "Web demo for minimessage-js",
+  "private": true,
+  "author": "wasabithumbs",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WasabiThumb/minimessage-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/WasabiThumb/minimessage-js/issues",
+    "email": "wasabithumbs@gmail.com"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "dependencies": {
+    "minimessage-js": "file:../.."
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  }
+}

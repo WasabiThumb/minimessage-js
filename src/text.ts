@@ -13,6 +13,10 @@ export {
 } from "./text/renderer";
 
 export {
+    LegacyColorComponentRenderer
+} from "./text/renderer/legacy";
+
+export {
     TextColor,
     NamedTextColor,
     ShadowColor,

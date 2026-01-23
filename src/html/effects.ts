@@ -92,21 +92,17 @@ export namespace DomEffects {
         node: ParentNode,
         propertyValue: string | null
     ) {
-        if (node instanceof Element && markApplied(key, node)) {
+        const children = [ ...node.children ];
+        let effectivePropertyValue: string | null = propertyValue;
+
+        if (node instanceof Element) {
             const ownPropertyValue = node.getAttribute(`${PROPERTY_PREFIX}${key}`);
-            if (ownPropertyValue !== null) {
-                propertyValue = ownPropertyValue;
-                applySingle0(key, effect, node, ownPropertyValue);
-            } else if (propertyValue !== null) {
-                applySingle0(key, effect, node, propertyValue);
-            }
+            if (ownPropertyValue !== null) effectivePropertyValue = ownPropertyValue;
+            if (effectivePropertyValue !== null && markApplied(key, node)) applySingle0(key, effect, node, effectivePropertyValue);
         }
 
-        const children = node.children;
-        for (let i = 0; i < children.length; i++) {
-            const child = children.item(i)!;
-            applySingle(key, effect, child, propertyValue);
-        }
+        for (const child of children)
+            applySingle(key, effect, child, effectivePropertyValue);
     }
 
     export function apply(node: ParentNode) {

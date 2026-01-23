@@ -33,7 +33,7 @@ export namespace OnlineHeads {
      * the hat layer.
      */
     export async function get(id: UUID, hat: boolean): Promise<string | null> {
-        const url = `https://sessionserver.mojang.com/session/minecraft/profile/${id.toString(true)}`;
+        const url = `https://corsjangsessionserver.b-cdn.net/session/minecraft/profile/${id.toString(true)}`;
         const response = await fetch(url, { cache: "force-cache" });
         if (response.status !== 200) return null;
 
@@ -41,7 +41,9 @@ export namespace OnlineHeads {
         const texturesData = extractTextures(json);
         if (texturesData === null) return null;
 
-        const textures = JSON.parse(atob(texturesData)) as { SKIN?: { url: string } };
+        const texturesContainer = JSON.parse(atob(texturesData)) as { textures?: { SKIN?: { url: string } } };
+        const textures = texturesContainer["textures"];
+        if (!textures) return null;
         const skin = textures["SKIN"];
         if (!skin) return null;
 
@@ -86,7 +88,7 @@ export namespace OnlineHeads {
      * Looks up an online user by their name.
      */
     export async function lookup(name: string): Promise<UUID | null> {
-        const url = `https://api.minecraftservices.com/minecraft/profile/lookup/name/${name}`;
+        const url = `https://corsjangservices.b-cdn.net/minecraft/profile/lookup/name/${name}`;
         const response = await fetch(url, { cache: "force-cache" });
         if (response.status !== 200) return null;
 

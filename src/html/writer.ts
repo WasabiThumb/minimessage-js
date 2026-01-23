@@ -28,8 +28,8 @@ export namespace HtmlWriter {
         if (typeof elementFactory === "undefined") {
             const { ownerDocument } = parent;
             elementFactory = ownerDocument ?
-                ownerDocument.createElement :
-                document.createElement;
+                ((tagName) => ownerDocument!.createElement(tagName)) :
+                ((tagName) => document.createElement(tagName));
         }
         return new DomHTMLWriter(parent, elementFactory);
     }

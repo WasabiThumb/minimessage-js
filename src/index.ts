@@ -3,6 +3,7 @@ export {
     Component,
     ObjectContents,
     AbstractComponentRenderer,
+    LegacyColorComponentRenderer,
     TextColor,
     NamedTextColor,
     ShadowColor,

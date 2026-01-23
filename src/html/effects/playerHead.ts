@@ -16,6 +16,7 @@ class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
         image.style.display = `inline-block`;
         image.style.width = `1em`;
         image.style.height = `1em`;
+        image.style.verticalAlign = `-7%`;
         image.style.objectFit = `contain`;
         image.style.objectPosition = `center`;
         image.style.imageRendering = `pixelated`;
@@ -80,7 +81,7 @@ class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
             image.submit(VanillaHeads.getByUUID(uuid), alt, 1);
             OnlineHeads.get(uuid, hat)
                 .then((url) => {
-                    if (url !== null) image.submit(url, alt, 2);
+                    if (url !== null) image.submit(url, alt, 2, true);
                 })
                 .catch((e) => {
                     const inf = ErrorInfo.of(e);
@@ -92,7 +93,7 @@ class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
             const fallback = (() => {
                 const nameBytes = (new TextEncoder()).encode(name);
                 const nameUUID = UUID.nameUUIDFromBytes(nameBytes);
-                withUUID(nameUUID, `${nameUUID.toString()} (${name})`);
+                image.submit(VanillaHeads.getByUUID(nameUUID), `${nameUUID.toString()} (${name})`, 1);
             });
             OnlineHeads.lookup(name)
                 .then((id) => {
@@ -152,24 +153,68 @@ class PolyImage {
 
     readonly element: HTMLImageElement;
     private _activePriority: number;
+    private _lastController: AbortController | null;
 
     constructor() {
         this.element = document.createElement("img");
         this._activePriority = Number.MIN_VALUE;
+        this._lastController = null;
     }
 
     //
 
-    submit(src: string | Promise<string>, alt: string, priority: number): void {
+    submit(
+        src: string | Promise<string>,
+        alt: string,
+        priority: number,
+        revoke: boolean = false
+    ): void {
         (async () => {
             return src;
         })().then((s) => {
+            this._submitNow(s, alt, priority, revoke);
             if (priority <= this._activePriority) return;
             this.element.src = s;
             this.element.alt = alt;
             if (alt.length !== 0) this.element.title = alt;
             this._activePriority = priority;
         });
+    }
+
+    private _submitNow(src: string, alt: string, priority: number, revoke: boolean): void {
+        if (priority <= this._activePriority) {
+            if (revoke) URL.revokeObjectURL(src);
+            return;
+        }
+        this._activePriority = priority;
+        this._resetController();
+
+        const { element } = this;
+        if (revoke) {
+            const abort = new AbortController();
+            this._lastController = abort;
+
+            const loaded = (() => {
+                URL.revokeObjectURL(src);
+                this._resetController();
+            });
+            element.addEventListener("load", loaded, { signal: abort.signal });
+            element.addEventListener("error", loaded, { signal: abort.signal });
+        }
+
+        element.src = src;
+        element.alt = alt;
+        if (alt.length === 0) {
+            element.removeAttribute("title");
+        } else {
+            element.title = alt;
+        }
+    }
+
+    private _resetController(): void {
+        const last = this._lastController;
+        if (last !== null) last.abort();
+        this._lastController = null;
     }
 
 }

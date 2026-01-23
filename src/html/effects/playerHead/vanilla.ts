@@ -142,7 +142,7 @@ export namespace VanillaHeads {
     export function getByUUID(uuid: UUID): Promise<string> {
         const [ i0, i1, i2, i3 ] = uuid.toArray();
         const hash = i0 ^ i1 ^ i2 ^ i3;
-        const index = hash % NAME_COUNT;
+        const index = ((hash % NAME_COUNT) + NAME_COUNT) % NAME_COUNT;
         return getByOrdinal(index);
     }
 

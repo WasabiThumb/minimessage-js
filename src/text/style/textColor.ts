@@ -195,6 +195,10 @@ export namespace NamedTextColor {
     export const YELLOW: NamedTextColor       = new NamedTextColorImpl("yellow",       YELLOW_VALUE);
     export const WHITE: NamedTextColor        = new NamedTextColorImpl("white",        WHITE_VALUE);
 
+    export function isNamed(color: TextColor): boolean {
+        return color instanceof NamedTextColorImpl;
+    }
+
     export function namedColor(value: number): NamedTextColor | null {
         switch (value) {
             case BLACK_VALUE: return BLACK;

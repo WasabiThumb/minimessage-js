@@ -93,7 +93,12 @@ export class DomHTMLWriter implements HtmlWriter {
     }
 
     content(text: string): this {
-        this._tail().append(text);
+        const tail = this._tail();
+        const lines = text.split(`\n`);
+        for (let i = 0; i < lines.length; i++) {
+            if (i !== 0) tail.append(this._elementFactory("br"));
+            tail.append(lines[i]);
+        }
         return this;
     }
 

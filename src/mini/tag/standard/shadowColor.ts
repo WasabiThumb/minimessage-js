@@ -31,8 +31,9 @@ export namespace ShadowColorTag {
                 if (ac === null) {
                     throw ctx.newException(`Number was expected to be a float`, args);
                 }
+                alpha = ac;
             }
-            color = ShadowColor.shadowColor(text, alpha);
+            color = ShadowColor.shadowColor(text, Math.round(alpha * 255));
         }
 
         return Tag.styling((b) => b.shadowColor(color));

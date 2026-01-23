@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>minimessage-js demo</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" type="image/svg+xml" href="/images/kyori.svg" />
+    </head>
+    <body class="bg-gray-950 text-white">
+        <main class="w-full h-full flex flex-col p-8 gap-6">
+            <div class="flex flex-row">
+                <h1 class="text-2xl font-bold font-code grow">
+                    minimessage-js demo
+                </h1>
+                <nav class="flex flex-row gap-2 md:gap-4 origin-right scale-75 md:scale-100">
+                    <a href="https://www.npmjs.com/package/minimessage-js" target="_blank" title="NPM Page">
+                        <img src="/images/npm.svg" alt="NPM" class="w-8"/>
+                    </a>
+                    <a href="https://github.com/WasabiThumb/minimessage-js" target="_blank" title="GitHub Repo">
+                        <img src="/images/github.svg" alt="GitHub" class="w-8"/>
+                    </a>
+                </nav>
+            </div>
+            <div class="grow flex flex-col md:flex-row gap-8 md:gap-4">
+                <div class="border-2 border-gray-700 rounded-2xl relative p-4 h-1/2 md:h-full md:w-1/2 flex flex-col gap-4" id="operations">
+                    <div class="bg-gray-950 pl-2 pr-2 text-gray-700 absolute -top-3 left-4 select-none">
+                        <h2 class="text-sm font-bold">Operations</h2>
+                    </div>
+                    <div class="grow overflow-y-auto" data-role="listing">
+                        <div class="rounded-2xl bg-gray-700 even:bg-gray-800 p-3 flex flex-col gap-2 mb-2 data-template:hidden" data-template>
+                            <div class="flex flex-row">
+                                <h3 data-role="title" class="grow font-bold">Title</h3>
+                                <button data-role="remove" title="Remove" class="disabled:hidden cursor-pointer text-gray-400">&#x1F5D9;</button>
+                            </div>
+                            <div class="flex flex-col gap-1" data-role="args">
+                                <div class="data-template:hidden" data-arg="text" data-template>
+                                    <div class="flex flex-row mb-1">
+                                        <label data-role="name" class="text-xs text-gray-400 grow">TEXT</label>
+                                        <div data-role="widgets" class="flex flex-row gap-1 items-center
+                                                                        origin-bottom-right scale-125
+                                                                        *:opacity-50 *:hover:opacity-100
+                                                                        *:transition-opacity *:duration-50
+                                                                        *:ease-in-out">
+                                            <button data-widget="bold" title="Bold" class="cursor-pointer">
+                                                <img src="/images/widgets/bold.svg" alt="Bold" class="h-3">
+                                            </button>
+                                            <button data-widget="italic" title="Italic" class="cursor-pointer">
+                                                <img src="/images/widgets/italic.svg" alt="Italic" class="h-2.5">
+                                            </button>
+                                            <button data-widget="underline" title="Underline" class="cursor-pointer">
+                                                <img src="/images/widgets/underline.svg" alt="Underline" class="h-3">
+                                            </button>
+                                            <button data-widget="strikethrough" title="Strikethrough" class="cursor-pointer">
+                                                <img src="/images/widgets/strikethrough.svg" alt="Strikethrough" class="h-3">
+                                            </button>
+                                            <button data-widget="obfuscate" title="Obfuscate" class="cursor-pointer">
+                                                <img src="/images/widgets/obf.svg" alt="Obfuscate" class="h-3">
+                                            </button>
+                                            <button data-widget="colors" title="Colors" class="cursor-pointer">
+                                                <img src="/images/widgets/colors.svg" alt="Colors" class="h-3">
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <textarea data-role="value"
+                                              class="w-full color-white p-1 rounded-md bg-gray-950/50 outline-none min-h-8 h-12"
+                                              aria-label="Value"
+                                              autocomplete="off"
+                                              autocorrect="off"
+                                              autocapitalize="off"
+                                              spellcheck="false"
+                                    ></textarea>
+                                </div>
+                                <div class="data-template:hidden" data-arg="bool" data-template>
+                                    <label data-role="name" class="text-xs text-gray-400">BOOL</label>
+                                    <label class="block bg-black/50 rounded-full h-6 w-10 relative cursor-pointer">
+                                        <input data-role="value" type="checkbox" class="peer hidden" autocomplete="off">
+                                        <span class="block absolute top-1 left-1 w-4 h-4 rounded-full transition-all
+                                                     duration-200 ease-in-out bg-white opacity-25
+                                                     peer-checked:opacity-100 peer-checked:translate-x-4"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-row text-2xl gap-2">
+                        <div class="grow overflow-visible relative">
+                            <div class="absolute left-0 bottom-0 w-full opacity-0 pointer-events-none
+                                        data-visible:opacity-100 data-visible:pointer-events-auto
+                                        transition-opacity duration-200 ease-in-out flex flex-col gap-1"
+                                 id="dropdown">
+                                <div class="ml-auto bg-gray-800 text-sm p-1 pl-4 pr-4 cursor-pointer rounded-full
+                                              data-template:hidden data-disallowed:opacity-50
+                                              data-disallowed:cursor-not-allowed
+                                              select-none" data-template>
+                                    NAME
+                                </div>
+                            </div>
+                        </div>
+                        <button class="bg-cyan-800 rounded-full font-bold cursor-pointer p-1 pl-3 pr-3
+                                         data-active:rotate-45 data-active:bg-cyan-950 transition-all
+                                         duration-200 ease-in-out" id="add">
+                            +
+                        </button>
+                    </div>
+                </div>
+                <div class="border-2 border-gray-700 rounded-2xl relative p-4 grow" id="output">
+                    <div class="bg-gray-950 pl-2 pr-2 text-gray-700 absolute -top-3 left-4 select-none flex flex-row gap-2">
+                        <h2 class="text-sm font-bold">Output</h2>
+                        <span class="text-xs text-gray-400 bg-gray-900 p-1 pl-2 pr-2 rounded-full -mt-0.5" data-role="type">
+                            NOTHING
+                        </span>
+                    </div>
+                    <div class="w-full h-full relative *:absolute *:top-0 *:left-0 *:w-full *:h-full overflow-hidden" data-role="container">
+                        <div class="hidden data-show:flex items-center justify-center" data-type="nothing">
+                            <div class="w-1/2 flex flex-col gap-2">
+                                <img src="/images/bush.gif" alt="" aria-hidden="true"
+                                     class="w-full aspect-square object-contain object-center opacity-50"
+                                     loading="lazy"/>
+                                <span class="text-center text-md text-white opacity-20 italic">
+                                    Nothing to see here.
+                                </span>
+                            </div>
+                        </div>
+                        <div class="hidden data-show:block overflow-y-auto" data-type="string"></div>
+                        <pre class="hidden data-show:block overflow-y-auto font-code" data-type="component"></pre>
+                        <div class="hidden data-show:block overflow-y-auto font-minecraft
+                                    [line-height:1.2] [white-space-collapse:preserve] [text-rendering:geometricPrecision]"
+                             data-type="rich"></div>
+                        <div class="hidden data-show:block overflow-y-auto font-code text-red-500" data-type="error">
+                            <p class="font-bold">Failed to execute operation <span data-field="index">0</span> (<span data-field="id">ID</span>)</p>
+                            <p><span data-field="cause"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <div id="colors" class="fixed z-50 opacity-0 data-active:opacity-100 pointer-events-none data-active:*:pointer-events-auto">
+            <div class="-translate-x-1/2 flex flex-col gap-2
+                        *:p-2 *:bg-gray-600 *:rounded-xl *:ring-2 *:ring-gray-950">
+                <div class="flex flex-col gap-3">
+                    <div class="flex flex-row gap-2">
+                        <div class="flex flex-col gap-2">
+                            <div class="flex flex-row gap-2 select-none *:cursor-grab">
+                                <canvas width="256" height="256" class="w-64 h-64" data-role="wheel"></canvas>
+                                <canvas width="48" height="256" class="w-12 h-64" data-role="slider"></canvas>
+                            </div>
+                            <div class="w-full h-18 grid grid-cols-8 grid-rows-2 *:cursor-pointer rounded-xl overflow-hidden" data-role="presets">
+                                <button class="bg-mc-black" title="Black" data-color="black"></button>
+                                <button class="bg-mc-dark-gray" title="Dark Gray" data-color="dark_gray"></button>
+                                <button class="bg-mc-dark-red" title="Dark Red" data-color="dark_red"></button>
+                                <button class="bg-mc-dark-green" title="Dark Green" data-color="dark_green"></button>
+                                <button class="bg-mc-dark-blue" title="Dark Blue" data-color="dark_blue"></button>
+                                <button class="bg-mc-dark-aqua" title="Dark Aqua" data-color="dark_aqua"></button>
+                                <button class="bg-mc-dark-purple" title="Dark Purple" data-color="dark_purple"></button>
+                                <button class="bg-mc-gold" title="Gold" data-color="gold"></button>
+                                <button class="bg-mc-white" title="White" data-color="white"></button>
+                                <button class="bg-mc-gray" title="Gray" data-color="gray"></button>
+                                <button class="bg-mc-red" title="Red" data-color="red"></button>
+                                <button class="bg-mc-green" title="Green" data-color="green"></button>
+                                <button class="bg-mc-blue" title="Blue" data-color="blue"></button>
+                                <button class="bg-mc-aqua" title="Aqua" data-color="aqua"></button>
+                                <button class="bg-mc-light-purple" title="Light Purple" data-color="light_purple"></button>
+                                <button class="bg-mc-yellow" title="Yellow" data-color="yellow"></button>
+                            </div>
+                        </div>
+                        <div class="w-24 bg-gray-700 p-2 rounded-xl flex flex-col gap-1 text-sm justify-between" data-role="components">
+                            <div class="flex flex-row justify-start items-center gap-4">
+                                <label class="text-gray-200 font-bold" for="ci-red" title="Red">R</label>
+                                <input class="font-code min-w-0 text-center grow bg-gray-800 p-1 rounded-sm invalid:text-red-400 invalid:bg-red-900"
+                                       type="number" min="0" max="255" step="1" autocomplete="off" id="ci-red" data-component="red">
+                            </div>
+                            <div class="flex flex-row justify-start items-center gap-4">
+                                <label class="text-gray-200 font-bold" for="ci-green" title="Green">G</label>
+                                <input class="font-code min-w-0 text-center grow bg-gray-800 p-1 rounded-sm invalid:text-red-400 invalid:bg-red-900"
+                                       type="number" min="0" max="255" step="1" autocomplete="off" id="ci-green" data-component="green">
+                            </div>
+                            <div class="flex flex-row justify-start items-center gap-4">
+                                <label class="text-gray-200 font-bold" for="ci-blue" title="Blue">B</label>
+                                <input class="font-code min-w-0 text-center grow bg-gray-800 p-1 rounded-sm invalid:text-red-400 invalid:bg-red-900"
+                                       type="number" min="0" max="255" step="1" autocomplete="off" id="ci-blue" data-component="blue">
+                            </div>
+
+                            <div class="flex flex-row justify-start items-center gap-4">
+                                <label class="text-gray-200 font-bold" for="ci-h" title="Hue">H</label>
+                                <input class="font-code min-w-0 text-center grow bg-gray-800 p-1 rounded-sm invalid:text-red-400 invalid:bg-red-900"
+                                       type="number" min="0" max="360" step="1" autocomplete="off" id="ci-h" data-component="hue">
+                            </div>
+                            <div class="flex flex-row justify-start items-center gap-4">
+                                <label class="text-gray-200 font-bold" for="ci-s" title="Saturation">S</label>
+                                <input class="font-code min-w-0 text-center grow bg-gray-800 p-1 rounded-sm invalid:text-red-400 invalid:bg-red-900"
+                                       type="number" min="0" max="100" step="1" autocomplete="off" id="ci-s" data-component="saturation">
+                            </div>
+                            <div class="flex flex-row justify-start items-center gap-4">
+                                <label class="text-gray-200 font-bold" for="ci-v" title="Value">V</label>
+                                <input class="font-code min-w-0 text-center grow bg-gray-800 p-1 rounded-sm invalid:text-red-400 invalid:bg-red-900"
+                                       type="number" min="0" max="100" step="1" autocomplete="off" id="ci-v" data-component="value">
+                            </div>
+
+                            <div class="flex flex-row justify-start items-center gap-2">
+                                <label class="text-gray-200 font-bold" for="ci-hex" title="Hex">#</label>
+                                <input class="font-code grow  min-w-0 bg-gray-800 p-1 rounded-sm
+                                             invalid:text-red-400 invalid:bg-red-900"
+                                       maxlength="6" minlength="6" pattern="[0-9a-fA-F]{6}"
+                                       type="text" autocomplete="off" id="ci-hex" data-component="hex">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-row gap-2" data-role="actions">
+                        <button class="p-2 bg-gray-800 rounded-xl text-sm text-gray-300 grow hover:bg-gray-900
+                                       transition-colors duration-200 ease-in-out cursor-pointer"
+                                data-action="color">
+                            COLOR
+                        </button>
+                        <button class="p-2 bg-gray-800 rounded-xl text-sm text-gray-300 grow hover:bg-gray-900
+                                       transition-colors duration-200 ease-in-out cursor-pointer"
+                                data-action="shadowColor">
+                            SHADOW
+                        </button>
+                        <button class="p-2 bg-gray-800 rounded-xl text-sm text-gray-300 grow hover:bg-gray-900
+                                       transition-colors duration-200 ease-in-out cursor-pointer"
+                                data-action="gradient">
+                            GRADIENT <span class="opacity-50">+</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="hidden data-active:flex flex-row gap-4" data-role="gradientModal">
+                    <div class="flex flex-row grow gap-1 overflow-x-auto"
+                         data-role="list">
+                        <div class="relative rounded-xl aspect-square border-6 border-gray-800 data-template:hidden" data-template>
+                            <div class="absolute left-0 top-0 w-full h-full
+                                        flex justify-center align-middle select-none cursor-pointer
+                                        z-20 opacity-0 hover:opacity-80 transition-opacity
+                                        duration-200 ease-in-out">
+                                <span class="font-bold text-shadow-md">X</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="p-2 pl-4 pr-4 bg-gray-800 rounded-xl text-sm text-gray-300
+                                   hover:bg-gray-900 transition-colors duration-200 ease-in-out
+                                   cursor-pointer"
+                            data-role="apply">
+                        APPLY
+                    </button>
+                </div>
+            </div>
+        </div>
+        <script type="module" src="./src/main.ts"></script>
+    </body>
+</html>

@@ -1,0 +1,48 @@
+@import "tailwindcss";
+@import "./font.css";
+
+@theme {
+    --font-code: 'JetBrains Mono', monospace;
+    --font-minecraft: 'Minecraft', monospace;
+
+    --color-mc-black:        #000000;
+    --color-mc-dark-blue:    #0000aa;
+    --color-mc-dark-green:   #00aa00;
+    --color-mc-dark-aqua:    #00aaaa;
+    --color-mc-dark-red:     #aa0000;
+    --color-mc-dark-purple:  #aa00aa;
+    --color-mc-gold:         #ffaa00;
+    --color-mc-gray:         #aaaaaa;
+    --color-mc-dark-gray:    #555555;
+    --color-mc-blue:         #5555ff;
+    --color-mc-green:        #55ff55;
+    --color-mc-aqua:         #55ffff;
+    --color-mc-red:          #ff5555;
+    --color-mc-light-purple: #ff55ff;
+    --color-mc-yellow:       #ffff55;
+    --color-mc-white:        #ffffff;
+}
+
+:root {
+    font-family: "Ubuntu", system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    color-scheme: dark only;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html, body {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
