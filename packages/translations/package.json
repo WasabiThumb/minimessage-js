@@ -1,0 +1,26 @@
+{
+  "name": "@minimessage-js/translations",
+  "version": "2.0.0",
+  "description": "Provides MC:JE client translations",
+  "type": "module",
+  "main": "src/index.mjs",
+  "types": "types/index.d.ts",
+  "author": "wasabithumbs",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WasabiThumb/minimessage-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/WasabiThumb/minimessage-js/issues",
+    "email": "wasabithumbs@gmail.com"
+  },
+  "scripts": {
+    "prepare": "npm run populate",
+    "populate": "node buildSrc/populate.mjs"
+  },
+  "devDependencies": {
+    "@minimessage-js/mojang": "file:../mojang",
+    "json-stream-es": "^1.2.1"
+  }
+}

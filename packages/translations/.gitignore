@@ -1,0 +1,6 @@
+!types/
+types/locales.d.ts
+node_modules/
+src/data.mjs
+src/data/
+.mc-version
