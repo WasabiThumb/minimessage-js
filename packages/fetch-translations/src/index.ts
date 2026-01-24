@@ -4,7 +4,7 @@ import type {Asset} from "@minimessage-js/mojang/types/struct";
 //
 
 type TranslationData = {
-    [key: string]: string
+    readonly [key: string]: string
 };
 
 export interface MinecraftTranslations {

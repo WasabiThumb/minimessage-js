@@ -3,7 +3,7 @@ import { parseJsonStreamWithPaths, streamToIterable } from "json-stream-es";
 
 //
 
-const USER_AGENT = `minimessage-js`;
+const USER_AGENT = `minimessage-js; xpedraza542@gmail.com`;
 const ACCEPT_JSON = `"application/json;charset=UTF-8;q=1, */*;q=0.8"`;
 const ACCEPT_TEXT = `text/plain;charset=UTF-8;q=1, */*;q=0.8`;
 

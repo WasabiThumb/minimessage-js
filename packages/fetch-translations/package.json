@@ -22,8 +22,10 @@
     "prepare": "npm run build",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
+  "dependencies": {
+    "@minimessage-js/mojang": "^2.0.0"
+  },
   "devDependencies": {
-    "@minimessage-js/mojang": "^2.0.0",
     "@types/jest": "^30.0.0",
     "jest": "^30.2.0",
     "ts-jest": "^29.4.6",
