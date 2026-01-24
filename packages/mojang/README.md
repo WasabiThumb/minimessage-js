@@ -1,4 +1,4 @@
-# minimessage-js/mojang
+# @minimessage-js/mojang
 Internal utility for ``minimessage-js``.
 
 ## License

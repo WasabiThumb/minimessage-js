@@ -15,7 +15,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build"
+    "build": "vite build",
+    "build-pages": "vite build --base /minimessage-js/"
   },
   "dependencies": {
     "minimessage-js": "file:../.."

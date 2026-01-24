@@ -16,10 +16,9 @@
     "email": "wasabithumbs@gmail.com"
   },
   "scripts": {
-    "preinstall": "npm run siblings",
-    "siblings": "npm link @minimessage-js/mojang",
     "build": "tsc",
-    "prepare": "npm run build",
+    "prepare": "npm run siblings && npm run build",
+    "siblings": "npm link @minimessage-js/mojang",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "dependencies": {
