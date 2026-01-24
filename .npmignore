@@ -3,6 +3,7 @@
 node_modules/
 src/
 tests/
+packages/
 .gitignore
 jest.config.js
 rollup.config.js

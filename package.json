@@ -7,9 +7,7 @@
   "browser": "dist/minimessage.umd.js",
   "types": "types/index.d.ts",
   "type": "module",
-  "files": [
-    "dist"
-  ],
+  "files": [ "dist", "types" ],
   "author": "wasabithumbs",
   "license": "Apache-2.0",
   "repository": {

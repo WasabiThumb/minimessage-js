@@ -1,0 +1,32 @@
+{
+  "name": "@minimessage-js/fetch-translations",
+  "version": "2.0.0",
+  "description": "Fetches MC:JE client translations",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "types/index.d.ts",
+  "author": "wasabithumbs",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WasabiThumb/minimessage-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/WasabiThumb/minimessage-js/issues",
+    "email": "wasabithumbs@gmail.com"
+  },
+  "scripts": {
+    "preinstall": "npm run siblings",
+    "siblings": "npm link @minimessage-js/mojang",
+    "build": "tsc",
+    "prepare": "npm run build",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+  },
+  "devDependencies": {
+    "@minimessage-js/mojang": "^2.0.0",
+    "@types/jest": "^30.0.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
+    "typescript": "^5.9.3"
+  }
+}

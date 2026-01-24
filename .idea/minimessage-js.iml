@@ -7,6 +7,7 @@
       <sourceFolder url="file://$MODULE_DIR$/packages/translations/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/packages/translations/types" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/packages/fetch-translations/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/packages/fetch-translations/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />
       <excludeFolder url="file://$MODULE_DIR$/types" />
       <excludeFolder url="file://$MODULE_DIR$/packages/fetch-translations/dist" />
