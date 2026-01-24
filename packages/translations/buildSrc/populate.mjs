@@ -147,7 +147,7 @@ async function writeDataScript(dataScript, locales, version) {
             const locale = locales[i];
             const importName = createImportName(locale);
             importNames[i] = importName;
-            put(`import ${importName} from "./data/${locale}.json";\n`);
+            put(`import ${importName} from "./data/${locale}.json" with { type: "json" };\n`);
         }
 
         put("\nconst translations = Object.freeze({\n");
