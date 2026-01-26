@@ -27,6 +27,15 @@ export namespace OnlineHeads {
         return null;
     }
 
+    function upgradeHTTP(url: string): string {
+        // The texture link provided by the mojang API is http
+        // despite also supporting https. Browsers
+        // consistently block this request instead of upgrading
+        // it, so we do this manually.
+        if (!url.startsWith("http:")) return url;
+        return "https:" + url.substring(5);
+    }
+
     /**
      * Provides an object URL containing the
      * face texture of the given online user, with or without
@@ -47,7 +56,10 @@ export namespace OnlineHeads {
         const skin = textures["SKIN"];
         if (!skin) return null;
 
-        const bitmap = await fetch(skin.url, { cache: "force-cache" })
+        let skinUrl = skin.url;
+        skinUrl = upgradeHTTP(skinUrl);
+
+        const bitmap = await fetch(skinUrl, { cache: "force-cache" })
             .then((r) => r.blob())
             .then((blob) => createImageBitmap(blob));
 
