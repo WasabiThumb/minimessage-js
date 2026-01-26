@@ -1,5 +1,5 @@
-import texturedVert from './shader/textured.vert?raw';
-import wheelFrag from './shader/wheel.frag?raw';
+import texturedVert from './shader/textured.vert';
+import wheelFrag from './shader/wheel.frag';
 import {type AttributeMap, type BufferMap, ShaderRenderer, type UniformMap} from "./shader.ts";
 import {Color} from "./color.ts";
 

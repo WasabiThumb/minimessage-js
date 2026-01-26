@@ -1,5 +1,5 @@
-import texturedVert from './shader/textured.vert?raw';
-import sliderFrag from './shader/slider.frag?raw';
+import texturedVert from './shader/textured.vert';
+import sliderFrag from './shader/slider.frag';
 import {type AttributeMap, type BufferMap, ShaderRenderer, type UniformMap} from "./shader.ts";
 import {Color} from "./color.ts";
 
