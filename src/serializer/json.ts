@@ -262,8 +262,11 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
                     let color: TextColor | null = TextColor.fromHexString(jsonColor);
                     if (color === null) {
                         const token = jsonColor.toLowerCase();
-                        if (token in NamedTextColor.NAMES) color = NamedTextColor.NAMES[token];
-                        throw new Error(`Unable to parse color: ${jsonColor}`);
+                        if (token in NamedTextColor.NAMES) {
+                            color = NamedTextColor.NAMES[token];
+                        } else {
+                            throw new Error(`Unable to parse color: ${jsonColor}`);
+                        }
                     }
                     style.color(color);
                     break;
