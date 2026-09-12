@@ -27,6 +27,18 @@ export interface SpriteRenderInfo {
     readonly animation: SpriteAnimation | null;
 }
 
+/** Identifies an atlas (e.g. from `assets/<namespace>/atlases/<id>.json`). */
+export interface AtlasId {
+    readonly namespace: string;
+    readonly id: string;
+}
+
+/** Identifies a texture or a sprite name registered within an atlas. */
+export interface TextureId {
+    readonly namespace: string;
+    readonly path: string;
+}
+
 /** @internal */
 type TextureIndex = Map<string, Uint8Array>;
 
@@ -68,6 +80,22 @@ export interface ResourcePacks {
         atlasNamespace: string, atlasId: string,
         spriteNamespace: string, spritePath: string
     ): SpriteRenderInfo | null;
+
+    /** All atlases found across the loaded resource packs. */
+    listAtlases(): readonly AtlasId[];
+
+    /**
+     * All sprite names registered in the given atlas (i.e. the names you'd use in
+     * a `<sprite:...>` tag), or `null` if no atlas with that namespace/id was loaded.
+     */
+    listAtlasSprites(atlasNamespace: string, atlasId: string): readonly TextureId[] | null;
+
+    /**
+     * Every raw texture found in the loaded resource packs, regardless of whether
+     * it's referenced by any atlas. Useful as a fallback when an atlas wasn't
+     * included in the upload, or for browsing textures directly.
+     */
+    listTextures(): readonly TextureId[];
 
     dispose(): void;
 
@@ -136,6 +164,20 @@ class ResourcePacksImpl implements ResourcePacks {
         };
     }
 
+    listAtlases(): readonly AtlasId[] {
+        return [...this._atlases.keys()].map(splitKeyToAtlasId);
+    }
+
+    listAtlasSprites(atlasNamespace: string, atlasId: string): readonly TextureId[] | null {
+        const atlasIndex = this._atlases.get(key(atlasNamespace, atlasId));
+        if (!atlasIndex) return null;
+        return [...atlasIndex.keys()].map(splitKeyToTextureId);
+    }
+
+    listTextures(): readonly TextureId[] {
+        return [...this._textures.keys()].map(splitKeyToTextureId);
+    }
+
     dispose(): void {
         this._urlCache.forEach((url) => URL.revokeObjectURL(url));
         this._urlCache.clear();
@@ -156,6 +198,24 @@ class ResourcePacksImpl implements ResourcePacks {
 /** @internal */
 function key(namespace: string, path: string): string {
     return `${namespace.toLowerCase()}:${path.toLowerCase()}`;
+}
+
+/** @internal */
+function splitKey(k: string): [namespace: string, path: string] {
+    const sep = k.indexOf(":");
+    return [k.substring(0, sep), k.substring(sep + 1)];
+}
+
+/** @internal */
+function splitKeyToAtlasId(k: string): AtlasId {
+    const [namespace, id] = splitKey(k);
+    return {namespace, id};
+}
+
+/** @internal */
+function splitKeyToTextureId(k: string): TextureId {
+    const [namespace, path] = splitKey(k);
+    return {namespace, path};
 }
 
 /** @internal */
@@ -253,9 +313,7 @@ function buildAtlasIndex(
             const spritePrefix = (src.prefix ?? "").toLowerCase();
 
             for (const textureKey of allTextureKeys) {
-                const sep = textureKey.indexOf(":");
-                const ns = textureKey.substring(0, sep);
-                const path = textureKey.substring(sep + 1);
+                const [ns, path] = splitKey(textureKey);
                 if (ns !== atlasNamespace) continue;
                 if (!path.startsWith(dirPrefix)) continue;
 

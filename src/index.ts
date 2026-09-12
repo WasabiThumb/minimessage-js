@@ -43,3 +43,12 @@ export {
 export {
     ResourcePacks
 } from "./resourcePacks";
+
+export type {
+    ResourcePackSource,
+    SpriteAnimationFrame,
+    SpriteAnimation,
+    SpriteRenderInfo,
+    AtlasId,
+    TextureId
+} from "./resourcePacks";
