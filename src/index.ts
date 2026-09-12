@@ -40,6 +40,11 @@ export {
     StandardTags
 } from "./mini";
 
+export type {
+    HighlightSpan,
+    HighlightKind
+} from "./mini/highlight";
+
 export {
     ResourcePacks
 } from "./resourcePacks";

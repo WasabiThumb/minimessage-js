@@ -6,6 +6,7 @@ import {DomHTMLWriter} from "./html/writer/dom";
 import {TranslationData, Translations} from "./i18n";
 import {MiniMessageBuilderImpl} from "./mini/impl";
 import { ResourcePacks } from "./resourcePacks";
+import { HighlightSpan } from "./mini/highlight";
 
 //
 
@@ -36,6 +37,8 @@ export interface MiniMessage extends ComponentSerializer<Component, Component, s
     translations(): Translations;
 
     resourcePacks(): ResourcePacks;
+
+    highlight(input: string, ...resolvers: TagResolver[]): HighlightSpan[];
 
 }
 

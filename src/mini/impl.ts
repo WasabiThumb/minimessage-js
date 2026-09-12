@@ -12,6 +12,7 @@ import {HtmlComponentRenderer} from "../html/renderer";
 import {HtmlWriter} from "../html/writer";
 import {MiniMessageSerializer} from "./serializer";
 import {ResourcePacks} from "../resourcePacks";
+import {highlightTree, HighlightSpan} from "./highlight";
 
 //
 
@@ -56,6 +57,11 @@ export class MiniMessageImpl implements MiniMessage {
 
     deserializeToTree(input: string, ...resolvers: TagResolver[]): Node.Root {
         return this._parser.parseToTree(this._newContext(input, resolvers));
+    }
+
+    highlight(input: string, ...resolvers: TagResolver[]): HighlightSpan[] {
+        const root = this._parser.parseToTree(this._newContext(input, resolvers));
+        return highlightTree(root, input);
     }
 
     escapeTags(input: string, ...resolvers: TagResolver[]): string {
