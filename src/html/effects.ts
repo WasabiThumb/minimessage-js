@@ -2,8 +2,11 @@ import {ObfuscatedDomEffect} from "./effects/obfuscated";
 import {HtmlWriter} from "./writer";
 import {ErrorInfo} from "../util/errors";
 import {PlayerHeadDomEffect} from "./effects/playerHead";
+import {ShadowDomEffect} from "./effects/shadow";
 import {Character} from "../util/char";
 import {MiscDomEffect} from "./effects/misc";
+import {SpriteTintDomEffect} from "./effects/sprite";
+import {SpriteAnimationDomEffect} from "./effects/spriteAnimation";
 
 //
 
@@ -20,7 +23,10 @@ export interface DomEffect<D> {
 export type DomEffectMap = {
     [ObfuscatedDomEffect.TOKEN]: ObfuscatedDomEffect,
     [PlayerHeadDomEffect.TOKEN]: PlayerHeadDomEffect,
+    [ShadowDomEffect.TOKEN]: ShadowDomEffect,
     [MiscDomEffect.TOKEN]: MiscDomEffect,
+    [SpriteTintDomEffect.TOKEN]: SpriteTintDomEffect,
+    [SpriteAnimationDomEffect.TOKEN]: SpriteAnimationDomEffect,
 };
 
 //
@@ -32,7 +38,10 @@ export namespace DomEffects {
     const MAP: DomEffectMap = {
         [ObfuscatedDomEffect.TOKEN]: ObfuscatedDomEffect.INSTANCE,
         [PlayerHeadDomEffect.TOKEN]: PlayerHeadDomEffect.INSTANCE,
+        [ShadowDomEffect.TOKEN]: ShadowDomEffect.INSTANCE,
         [MiscDomEffect.TOKEN]: MiscDomEffect.INSTANCE,
+        [SpriteTintDomEffect.TOKEN]: SpriteTintDomEffect.INSTANCE,
+        [SpriteAnimationDomEffect.TOKEN]: SpriteAnimationDomEffect.INSTANCE,
     };
 
     export function writeProperty<K extends keyof DomEffectMap>(

@@ -1,5 +1,33 @@
 # minimessage-js
 
+
+## Fork notice
+
+This repository is a fork of
+[minimessage-js](https://github.com/WasabiThumb/minimessage-js)
+by Wasabi Codes.
+
+It is specifically made to support the Baggel MiniMessage Editor:
+https://baggel.de/tools/minimessage/
+
+This fork is maintained primarily for use by the Baggel MiniMessage Editor.
+While it remains licensed under Apache 2.0 and is free to use, it is not
+intended to be a general-purpose drop-in replacement for the original project.
+
+Feature additions in this fork include:
+- Default keybind rendering
+- Render sprite tinting and shadows
+- Render Hover tag data
+- Render click & insertion tag data
+
+Changes are made based on the needs of the Baggel editor.
+For editor-related feature requests or issues, please open an issue at:
+https://github.com/BaggelMC/Baggel-Website
+
+**Some of the information in the following README may be inaccurate for this fork.**
+
+---
+
 [Source Code](https://github.com/WasabiThumb/minimessage-js/) | [NPM Page](https://www.npmjs.com/package/minimessage-js) | [Web Demo](https://wasabithumb.github.io/minimessage-js/)
 
 A TypeScript reimplementation of 
