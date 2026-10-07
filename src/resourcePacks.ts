@@ -1,4 +1,4 @@
-import {unzipSync} from "fflate";
+// import {unzipSync} from "fflate";
 import {assertReal} from "./util/assertions";
 import {Key} from "./key";
 
@@ -344,6 +344,7 @@ export namespace ResourcePacks {
     export async function fromZips(files: ResourcePackSource[]): Promise<ResourcePacks> {
         assertReal(files, "files");
 
+        /*
         const textures: TextureIndex = new Map();
         const mcmetaRaw: Map<string, McmetaRaw> = new Map();
         const atlasRaw: Map<string, AtlasJson> = new Map();
@@ -397,6 +398,10 @@ export namespace ResourcePacks {
         });
 
         return new ResourcePacksImpl(textures, dimensions, mcmetaRaw, atlases);
+         */
+
+        // TODO
+        throw new Error("TODO");
     }
 
     async function toBytes(source: ResourcePackSource): Promise<Uint8Array> {
