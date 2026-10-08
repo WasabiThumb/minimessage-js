@@ -17,9 +17,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run siblings && npm run build",
-    "siblings": "npm link @minimessage-js/mojang",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npm exec jest"
+    "prepare": "bun run build",
+    "test": "NODE_OPTIONS=--experimental-vm-modules bun run jest"
   },
   "dependencies": {
     "@minimessage-js/mojang": "^2.0.0"

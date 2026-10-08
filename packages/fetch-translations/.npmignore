@@ -3,4 +3,6 @@ node_modules/
 src/
 tests/
 tsconfig.json
+tsconfig.test.json
 jest.config.ts
+bun.lock

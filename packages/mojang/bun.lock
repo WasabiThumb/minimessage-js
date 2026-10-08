@@ -1,0 +1,18 @@
+{
+  "lockfileVersion": 2,
+  "configVersion": 0,
+  "workspaces": {
+    "": {
+      "name": "@minimessage-js/mojang",
+      "dependencies": {
+        "but-unzip": "^0.1.7",
+        "json-stream-es": "^1.2.1",
+      },
+    },
+  },
+  "packages": {
+    "but-unzip": ["but-unzip@0.1.7", "", {}, "sha512-fGmYleG7dAYaoqMVZCoM6zjSeaIYNlyVreUVyUkVPtPLRTbKq8J8KdNnyqMaiLqun7P9bBuSMeqJs0YxN86GJA=="],
+
+    "json-stream-es": ["json-stream-es@1.2.1", "", {}, "sha512-Nugv+UpZl72pq+Wqy+kA5NjqYYS6JgjJnnXGCX0f5BbISUiIQfMTqaNM8QgO2BX4uVWlpxlXvC8kLtOtvragUw=="],
+  }
+}

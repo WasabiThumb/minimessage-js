@@ -24,8 +24,8 @@
   "scripts": {
     "build": "rollup -c",
     "types": "tsc --build tsconfig.types.json",
-    "prepare": "npm run build && npm run types",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npm exec jest"
+    "prepare": "bun run build && bun run types",
+    "test": "NODE_OPTIONS=--experimental-vm-modules bun run jest"
   },
   "keywords": [
     "minimessage",

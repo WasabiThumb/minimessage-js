@@ -4,3 +4,4 @@ node_modules/
 src/data.mjs
 src/data/
 .mc-version
+package-lock.json

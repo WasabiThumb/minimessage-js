@@ -9,3 +9,5 @@ jest.config.js
 rollup.config.js
 tsconfig.json
 tsconfig.types.json
+tsconfig.test.json
+bun.lock

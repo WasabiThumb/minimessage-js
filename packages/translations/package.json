@@ -16,8 +16,8 @@
     "email": "wasabithumbs@gmail.com"
   },
   "scripts": {
-    "prepare": "npm run populate",
-    "populate": "node buildSrc/populate.mjs"
+    "prepare": "bun run populate",
+    "populate": "bun run buildSrc/populate.mjs"
   },
   "devDependencies": {
     "@minimessage-js/mojang": "file:../mojang",
