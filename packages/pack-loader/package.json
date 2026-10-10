@@ -1,7 +1,7 @@
 {
-  "name": "@minimessage-js/fetch-translations",
+  "name": "@minimessage-js/pack-loader",
   "version": "2.0.1",
-  "description": "Fetches MC:JE client translations",
+  "description": "Loads resource packs for minimessage-js",
   "type": "module",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
@@ -17,16 +17,13 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepare": "bun run build",
-    "test": "NODE_OPTIONS=--experimental-vm-modules bun run jest"
+    "prepare": "bun run build"
   },
   "dependencies": {
-    "@minimessage-js/mojang": "^2.0.0"
+    "minimessage-js": "^2.0.1",
+    "wrauz": "^0.1.1"
   },
   "devDependencies": {
-    "@types/jest": "^30.0.0",
-    "jest": "^30.5.2",
-    "ts-jest": "^29.4.14",
     "typescript": "^6.0.3"
   }
 }

@@ -1,7 +1,7 @@
 import {StringBuilder} from "../util/string";
 import {TriState} from "../util/triState";
 import {Character} from "../util/char";
-import type {SpriteAnimation} from "../resourcePacks";
+import {ResourcePacks} from "../resourcePacks";
 
 //
 
@@ -148,7 +148,7 @@ class ColorHtmlStyle implements HtmlStyle {
 }
 
 /** @internal */
-function keyframesCacheKey(animation: SpriteAnimation): string {
+function keyframesCacheKey(animation: ResourcePacks.SpriteAnimation): string {
     return JSON.stringify({
         r: animation.totalRows,
         f: animation.frames.map((f) => [f.row, f.durationMs])
@@ -156,7 +156,7 @@ function keyframesCacheKey(animation: SpriteAnimation): string {
 }
 
 /** @internal */
-function buildKeyframesCss(name: string, animation: SpriteAnimation): string {
+function buildKeyframesCss(name: string, animation: ResourcePacks.SpriteAnimation): string {
     const { frames, totalRows, durationMs } = animation;
     const yFor = (row: number) => (totalRows > 1 ? (row / (totalRows - 1)) * 100 : 0);
 
@@ -187,7 +187,7 @@ let _injectedKeyframeNames = new Set<string>();
 let _keyframeCounter = 0;
 
 /** @internal */
-function ensureAnimationKeyframes(animation: SpriteAnimation): string {
+function ensureAnimationKeyframes(animation: ResourcePacks.SpriteAnimation): string {
     const cacheKey = keyframesCacheKey(animation);
 
     let name = _keyframeNameCache.get(cacheKey);
@@ -214,7 +214,7 @@ class SpriteHtmlStyle implements HtmlStyle {
 
     constructor(
         private readonly _url: string,
-        private readonly _animation: SpriteAnimation | null
+        private readonly _animation: ResourcePacks.SpriteAnimation | null
     ) { }
 
     applyToStore(): void { }
@@ -303,34 +303,12 @@ export namespace HtmlStyle {
     const MISSING_SPRITE_DATA_URL =
         "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAMUlEQVQ4T2NkYGD4D8Q4wQ+GH/ikGZjwyhIhOWoAwyAIRBZC8czBwDGaDggk52GQlAH5FQURrYyjQgAAAABJRU5ErkJggg==";
 
-    export function sprite(url: string, animation: SpriteAnimation | null = null): HtmlStyle {
+    export function sprite(url: string, animation: ResourcePacks.SpriteAnimation | null = null): HtmlStyle {
         return new SpriteHtmlStyle(url, animation);
     }
 
     export function missingSprite(): HtmlStyle {
         return new SpriteHtmlStyle(MISSING_SPRITE_DATA_URL, null);
-    }
-
-    /**
-     * Shared `@keyframes` powering all animated sprites (see SpriteHtmlStyle). Injected
-     * automatically into `document.head` on first use when rendering to a live DOM. If you
-     * only ever render to a string yourself, include this once in your page's own CSS.
-     */
-    export const SPRITE_ANIMATION_CSS =
-        "@keyframes mm-sprite-cycle { from { background-position-y: 0%; } to { background-position-y: 100%; } }";
-
-    let _spriteKeyframesInjected = false;
-
-    /** @internal */
-    export function ensureSpriteKeyframesInjected(): void {
-        if (_spriteKeyframesInjected) return;
-        if (typeof document === "undefined") return;
-        _spriteKeyframesInjected = true;
-
-        const style = document.createElement("style");
-        style.setAttribute("data-mm-sprite-keyframes", "");
-        style.textContent = SPRITE_ANIMATION_CSS;
-        document.head.appendChild(style);
     }
 
     export function spriteContainer(): HtmlStyle {

@@ -171,6 +171,8 @@ export class HtmlComponentRenderer extends AbstractComponentRenderer<HtmlWriter>
         const atlas = contents.atlas();
         const sprite = contents.sprite();
 
+        // TODO
+        /*
         const info = this._resourcePacks.resolveSprite(
             atlas.namespace(), atlas.value(),
             sprite.namespace(), sprite.value()
@@ -195,6 +197,7 @@ export class HtmlComponentRenderer extends AbstractComponentRenderer<HtmlWriter>
             writer.style(HtmlStyle.sprite(info.url, info.animation));
             DomEffects.writeProperty(writer, "sprite-tint", { url: info.url });
         }
+         */
     }
 
     private _open(component: Component, writer: HtmlWriter): void {
