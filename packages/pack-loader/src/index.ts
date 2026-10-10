@@ -226,7 +226,7 @@ class Texture {
         try {
             const reader = stream.getReader();
             try {
-                return this._fetchWithReader(reader);
+                return await this._fetchWithReader(reader);
             } finally {
                 await reader.cancel();
             }
@@ -245,9 +245,8 @@ class Texture {
 
         // Piece together the header
         let header: Uint8Array;
-        const p0 = parts[0];
-        if (p0.length >= 24) {
-            header = p0.subarray(0, 24);
+        if (parts.length !== 0 && parts[0].length >= 24) {
+            header = parts[0].subarray(0, 24);
         } else {
             header = new Uint8Array(24);
             let head: number = 0;
@@ -268,7 +267,7 @@ class Texture {
 
         // Validate the header and read dimensions
         const dv = new DataView(header.buffer, header.byteOffset, header.byteLength);
-        if (0x89_50_4E_47_0D_0A_1A_0An !== dv.getBigUint64(0, true))
+        if (0x89_50_4E_47_0D_0A_1A_0An !== dv.getBigUint64(0, false))
             throw new Error(`Invalid PNG data (mismatched signature)`);
         const width = dv.getUint32(16, false);
         const height = dv.getUint32(20, false);
