@@ -1,7 +1,6 @@
 import {StringBuilder} from "../util/string";
 import {TriState} from "../util/triState";
 import {Character} from "../util/char";
-import {ResourcePacks} from "../resourcePacks";
 
 //
 
@@ -125,8 +124,6 @@ class MultiHtmlStyle implements HtmlStyle {
 
 }
 
-//
-
 /** @internal */
 class ColorHtmlStyle implements HtmlStyle {
 
@@ -147,7 +144,7 @@ class ColorHtmlStyle implements HtmlStyle {
 
 }
 
-/** @internal */
+/*
 function keyframesCacheKey(animation: ResourcePacks.SpriteAnimation): string {
     return JSON.stringify({
         r: animation.totalRows,
@@ -155,7 +152,6 @@ function keyframesCacheKey(animation: ResourcePacks.SpriteAnimation): string {
     });
 }
 
-/** @internal */
 function buildKeyframesCss(name: string, animation: ResourcePacks.SpriteAnimation): string {
     const { frames, totalRows, durationMs } = animation;
     const yFor = (row: number) => (totalRows > 1 ? (row / (totalRows - 1)) * 100 : 0);
@@ -179,14 +175,10 @@ function buildKeyframesCss(name: string, animation: ResourcePacks.SpriteAnimatio
     return `@keyframes ${name} { ${stops.join(" ")} }`;
 }
 
-/** @internal */
 let _keyframeNameCache = new Map<string, string>();
-/** @internal */
 let _injectedKeyframeNames = new Set<string>();
-/** @internal */
 let _keyframeCounter = 0;
 
-/** @internal */
 function ensureAnimationKeyframes(animation: ResourcePacks.SpriteAnimation): string {
     const cacheKey = keyframesCacheKey(animation);
 
@@ -209,7 +201,6 @@ function ensureAnimationKeyframes(animation: ResourcePacks.SpriteAnimation): str
     return name;
 }
 
-/** @internal */
 class SpriteHtmlStyle implements HtmlStyle {
 
     constructor(
@@ -263,6 +254,7 @@ class SpriteHtmlStyle implements HtmlStyle {
     }
 
 }
+*/
 
 export namespace HtmlStyle {
 
@@ -298,17 +290,6 @@ export namespace HtmlStyle {
         yOffset: string = DEFAULT_SHADOW_OFFSET
     ): HtmlStyle {
         return new BasicHtmlStyle("textShadow", "text-shadow", `${xOffset} ${yOffset} ${color}`);
-    }
-
-    const MISSING_SPRITE_DATA_URL =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAMUlEQVQ4T2NkYGD4D8Q4wQ+GH/ikGZjwyhIhOWoAwyAIRBZC8czBwDGaDggk52GQlAH5FQURrYyjQgAAAABJRU5ErkJggg==";
-
-    export function sprite(url: string, animation: ResourcePacks.SpriteAnimation | null = null): HtmlStyle {
-        return new SpriteHtmlStyle(url, animation);
-    }
-
-    export function missingSprite(): HtmlStyle {
-        return new SpriteHtmlStyle(MISSING_SPRITE_DATA_URL, null);
     }
 
     export function spriteContainer(): HtmlStyle {

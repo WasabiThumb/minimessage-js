@@ -170,34 +170,11 @@ export class HtmlComponentRenderer extends AbstractComponentRenderer<HtmlWriter>
     private _writeSprite(contents: SpriteObjectContents, writer: HtmlWriter): void {
         const atlas = contents.atlas();
         const sprite = contents.sprite();
-
-        // TODO
-        /*
-        const info = this._resourcePacks.resolveSprite(
-            atlas.namespace(), atlas.value(),
-            sprite.namespace(), sprite.value()
-        );
-
-        if (info === null) {
-            writer.style(HtmlStyle.missingSprite());
-            writer.property("data-mc-sprite-missing", sprite.asString());
-            return;
-        }
-
-        if (info.animation && info.animation.interpolate) {
-            writer.style(HtmlStyle.spriteContainer());
-            DomEffects.writeProperty(writer, "sprite-interp", {
-                url: info.url,
-                frameWidth: info.animation.frameWidth,
-                frameHeight: info.animation.frameHeight,
-                frames: info.animation.frames.map((f) => ({ row: f.row, durationMs: f.durationMs })),
-                durationMs: info.animation.durationMs
-            });
-        } else {
-            writer.style(HtmlStyle.sprite(info.url, info.animation));
-            DomEffects.writeProperty(writer, "sprite-tint", { url: info.url });
-        }
-         */
+        writer.style(HtmlStyle.spriteContainer());
+        DomEffects.writeProperty(writer, "sprite", {
+            atlas: atlas.asString(),
+            sprite: sprite.asString()
+        });
     }
 
     private _open(component: Component, writer: HtmlWriter): void {

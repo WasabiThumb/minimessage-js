@@ -2,6 +2,7 @@ import {HtmlWriter} from "../writer";
 import {Stack} from "../../util/stack";
 import {HtmlStyle, HtmlStyleStore} from "../style";
 import {DomEffects} from "../effects";
+import {type MiniMessage} from "../../mini";
 
 //
 
@@ -10,14 +11,14 @@ import {DomEffects} from "../effects";
  * Anticipates that the tag may become attached to a browser DOM,
  * then applies DOM effects if so.
  */
-function applyDomEffects(element: ParentNode): void {
+function applyDomEffects(instance: MiniMessage, element: ParentNode): void {
     if (typeof window === "undefined") return;
 
     const proceed = (() => {
         const { ownerDocument } = element;
         if (!ownerDocument) return;
         if (window !== ownerDocument.defaultView) return;
-        DomEffects.apply(element);
+        DomEffects.apply(instance, element);
     });
 
     if ("isConnected" in element && element.isConnected) {
@@ -36,12 +37,18 @@ function applyDomEffects(element: ParentNode): void {
 
 export class DomHTMLWriter implements HtmlWriter {
 
+    private readonly _instance: MiniMessage;
     private readonly _parent: ParentNode;
     private readonly _stack: Stack<[ HTMLElement, HtmlStyleStore ]>;
     private readonly _elementFactory: DomHTMLWriter.ElementFactory;
     private _styles: HtmlStyleStore;
 
-    constructor(parent: ParentNode, elementFactory: DomHTMLWriter.ElementFactory) {
+    constructor(
+        instance: MiniMessage,
+        parent: ParentNode,
+        elementFactory: DomHTMLWriter.ElementFactory
+    ) {
+        this._instance = instance;
         this._parent = parent;
         this._stack = new Stack();
         this._elementFactory = elementFactory;
@@ -75,7 +82,7 @@ export class DomHTMLWriter implements HtmlWriter {
         parent.appendChild(data[0]);
         this._styles = { ...data[1] };
 
-        if (domEffects) applyDomEffects(parent);
+        if (domEffects) applyDomEffects(this._instance, parent);
         return this;
     }
 

@@ -136,6 +136,7 @@ type RelevantMcMeta = {
 /** URL, width and height of a texture (must be fetched) */
 type TextureInfo = {
     readonly url: string,
+    readonly blob: Blob,
     readonly width: number,
     readonly height: number
 };
@@ -163,7 +164,7 @@ type TextureState = IdleTextureState | LoadingTextureState | LoadedTextureState;
 class Texture {
 
     private static readonly _IDLE: IdleTextureState = Object.freeze({ type: "idle" });
-    private static readonly _RECLAIM_DELAY_MS: number = 10_000;
+    private static readonly _RECLAIM_DELAY_MS: number = 200;
 
     //
 
@@ -277,7 +278,7 @@ class Texture {
         const url = URL.createObjectURL(blob);
 
         // Create the texture info
-        const info = { url, width, height } as TextureInfo;
+        const info: TextureInfo = { url, blob, width, height };
 
         // Create the texture data
         return { info, refcount: 0, reclaim: 0 };
@@ -301,13 +302,18 @@ class SpriteImpl implements ResourcePacks.Sprite {
     //
 
     use<T>(cb: (info: ResourcePacks.SpriteRenderInfo) => T): Promise<Awaited<T>> {
-        return this._texture.use(({ url, width, height }) => {
+        return this._texture.use(({ url, blob, width, height }) => {
+            const me = this;
+            const getAnimation = (() => me._parseAnimation(me._texture.meta, width, height));
             return cb({
                 url,
+                blob,
                 width,
                 height,
-                animation: this._parseAnimation(this._texture.meta, width, height)
-            } as ResourcePacks.SpriteRenderInfo);
+                get animation() {
+                    return getAnimation();
+                }
+            });
         });
     }
 

@@ -80,7 +80,7 @@ export class MiniMessageImpl implements MiniMessage {
         const renderer = HtmlComponentRenderer.renderer(this._translations, this._resourcePacks);
 
         if (target) {
-            const writer = HtmlWriter.dom(target, elementFactory);
+            const writer = HtmlWriter.dom(this, target, elementFactory);
             renderer.render(component, writer);
         }
 

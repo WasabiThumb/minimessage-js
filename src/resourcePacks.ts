@@ -60,14 +60,25 @@ export namespace ResourcePacks {
 
     export interface SpriteRenderInfo {
         readonly url: string;
+        readonly blob: Blob;
         readonly width: number;
         readonly height: number;
         readonly animation: SpriteAnimation | null;
     }
 
+    /** Represents a potentially animated texture from a resource pack. */
     export interface Sprite {
         readonly key: Key;
         readonly atlas: Key | null;
+
+        /**
+         * Provides access to the texture and animation data.
+         * The URL is an object URL and will be revoked some time
+         * after the callback resolves (the timing is otherwise
+         * not a guarantee). If you need to continue
+         * using the sprite, consider transferring the Blob to
+         * an ImageBitmap.
+          */
         use<T>(cb: (info: SpriteRenderInfo) => T): Promise<Awaited<T>>;
     }
 
@@ -75,6 +86,19 @@ export namespace ResourcePacks {
 
     export function empty(): ResourcePacks {
         return EMPTY;
+    }
+
+    /**
+     * Utility function for loading resource packs with
+     * a specified loader, such as the loader provided
+     * by @minimessage-js/pack-loader. Uses Function#apply
+     * to expand an argument array into varargs.
+     */
+    export function load<A extends readonly any[], R extends ResourcePacks | Promise<ResourcePacks>>(
+        loader: (...args: A) => ResourcePacks | Promise<ResourcePacks>,
+        args: A
+    ): R {
+        return loader.apply(null, args as unknown as any[]) as R;
     }
 
 }
