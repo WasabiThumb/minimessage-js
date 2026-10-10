@@ -458,6 +458,14 @@ function resolveAtlasIndex(
 
 /**
  * Loads resource packs from the specified sources.
+ * For example, if a `File` has been received from
+ * the user via a file input element, that `File`
+ * may be passed as-is. Crucially, doing it this way
+ * means that the entire file does not necessarily
+ * need to be loaded into memory. You may also
+ * use a `URL` or `string` representing a URL for
+ * a similar effect, or simply pass in-memory
+ * `ArrayBuffer`s or `TypedArray`s.
  */
 export default async function loadResourcePacks(...sources: ResourcePacks.Source[]): Promise<ResourcePacks> {
     // Tables
