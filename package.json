@@ -1,6 +1,6 @@
 {
   "name": "minimessage-js",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Reimplementation of MiniMessage and associated Adventure APIs in TypeScript",
   "main": "dist/minimessage.cjs.js",
   "module": "dist/minimessage.esm.js",

@@ -1,6 +1,6 @@
 {
   "name": "@minimessage-js/pack-loader",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Loads resource packs for minimessage-js",
   "type": "module",
   "main": "dist/index.js",
@@ -20,7 +20,7 @@
     "prepare": "bun run build"
   },
   "dependencies": {
-    "minimessage-js": "^2.0.1",
+    "minimessage-js": "^2.1.0",
     "wrauz": "^0.1.1"
   },
   "devDependencies": {
