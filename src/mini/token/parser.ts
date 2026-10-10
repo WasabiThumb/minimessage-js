@@ -403,6 +403,8 @@ export namespace TokenParser {
                                     `not closed, because ${closeValues[0]} was closed first.`);
                             }
 
+                            parentNode.setCloseToken(token);
+
                             const par = parentNode.parent();
                             if (par !== null) {
                                 node = par;

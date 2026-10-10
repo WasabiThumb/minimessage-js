@@ -1,4 +1,3 @@
-
 export {
     Component,
     ObjectContents,
@@ -22,7 +21,8 @@ export {
 
 export {
     HtmlWriter,
-    HtmlComponentRenderer
+    HtmlComponentRenderer,
+    DomEffects
 } from "./html";
 
 export {
@@ -39,3 +39,12 @@ export {
     TagResolver,
     StandardTags
 } from "./mini";
+
+export type {
+    HighlightSpan,
+    HighlightKind
+} from "./mini/highlight";
+
+export {
+    ResourcePacks
+} from "./resourcePacks";

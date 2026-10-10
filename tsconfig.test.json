@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": [ "jest" ],
     "target": "esnext",
     "module": "esnext",
     "esModuleInterop": true,
@@ -8,15 +9,13 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "sourceMap": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "declaration": true,
-    "declarationDir": "./types"
+    "rootDir": "./"
   },
-  "include": ["src/**/*"],
+  "include": [ "src/**/*", "tests/**/*" ],
   "exclude": [
     "node_modules",
     "dist",
-    "types"
+    "types",
+    "packages"
   ]
 }

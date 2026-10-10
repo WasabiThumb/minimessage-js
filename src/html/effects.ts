@@ -2,14 +2,17 @@ import {ObfuscatedDomEffect} from "./effects/obfuscated";
 import {HtmlWriter} from "./writer";
 import {ErrorInfo} from "../util/errors";
 import {PlayerHeadDomEffect} from "./effects/playerHead";
+import {ShadowDomEffect} from "./effects/shadow";
 import {Character} from "../util/char";
+import {type MiniMessage} from "../mini";
 import {MiscDomEffect} from "./effects/misc";
+import {SpriteDomEffect} from "./effects/sprite";
 
 //
 
 export interface DomEffect<D> {
 
-    apply(element: Element, data: D): void;
+    apply(element: Element, data: D, instance: MiniMessage): void;
 
     serialize(data: D): string;
 
@@ -20,7 +23,9 @@ export interface DomEffect<D> {
 export type DomEffectMap = {
     [ObfuscatedDomEffect.TOKEN]: ObfuscatedDomEffect,
     [PlayerHeadDomEffect.TOKEN]: PlayerHeadDomEffect,
+    [ShadowDomEffect.TOKEN]: ShadowDomEffect,
     [MiscDomEffect.TOKEN]: MiscDomEffect,
+    [SpriteDomEffect.TOKEN]: SpriteDomEffect,
 };
 
 //
@@ -32,7 +37,9 @@ export namespace DomEffects {
     const MAP: DomEffectMap = {
         [ObfuscatedDomEffect.TOKEN]: ObfuscatedDomEffect.INSTANCE,
         [PlayerHeadDomEffect.TOKEN]: PlayerHeadDomEffect.INSTANCE,
+        [ShadowDomEffect.TOKEN]: ShadowDomEffect.INSTANCE,
         [MiscDomEffect.TOKEN]: MiscDomEffect.INSTANCE,
+        [SpriteDomEffect.TOKEN]: SpriteDomEffect.INSTANCE,
     };
 
     export function writeProperty<K extends keyof DomEffectMap>(
@@ -75,10 +82,16 @@ export namespace DomEffects {
         return true;
     }
 
-    function applySingle0<D, E extends DomEffect<D>>(key: string, effect: E, element: Element, propertyValue: string) {
+    function applySingle0<D, E extends DomEffect<D>>(
+        instance: MiniMessage,
+        key: string,
+        effect: E,
+        element: Element,
+        propertyValue: string
+    ) {
         try {
             const value: D = effect.deserialize(propertyValue);
-            effect.apply(element, value);
+            effect.apply(element, value, instance);
         } catch (e) {
             const inf = ErrorInfo.of(e);
             console.warn(`Failed to apply DOM effect '${key}' to element due to ${inf.name} (${inf.message})`, element);
@@ -87,6 +100,7 @@ export namespace DomEffects {
     }
 
     function applySingle<K extends keyof DomEffectMap>(
+        instance: MiniMessage,
         key: K,
         effect: DomEffectMap[K],
         node: ParentNode,
@@ -98,17 +112,18 @@ export namespace DomEffects {
         if (node instanceof Element) {
             const ownPropertyValue = node.getAttribute(`${PROPERTY_PREFIX}${key}`);
             if (ownPropertyValue !== null) effectivePropertyValue = ownPropertyValue;
-            if (effectivePropertyValue !== null && markApplied(key, node)) applySingle0(key, effect, node, effectivePropertyValue);
+            if (effectivePropertyValue !== null && markApplied(key, node))
+                applySingle0(instance, key, effect, node, effectivePropertyValue);
         }
 
         for (const child of children)
-            applySingle(key, effect, child, effectivePropertyValue);
+            applySingle(instance, key, effect, child, effectivePropertyValue);
     }
 
-    export function apply(node: ParentNode) {
+    export function apply(instance: MiniMessage, node: ParentNode) {
         for (const rawKey of Object.keys(MAP)) {
             const key = rawKey as keyof DomEffectMap;
-            applySingle(key, MAP[key], node, null);
+            applySingle(instance, key, MAP[key], node, null);
         }
     }
 

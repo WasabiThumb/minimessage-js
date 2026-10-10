@@ -1,51 +1,103 @@
 import {Component, TextDecoration} from "../text";
-import {HoverEvent} from "../text/style";
+import {ClickEvent, HoverEvent} from "../text/style";
 import {AbstractComponentRenderer} from "../text/renderer";
 import {HtmlWriter} from "./writer";
 import {HtmlStyle} from "./style";
-import {PlainTextComponentSerializer} from "../serializer";
 import {Translations} from "../i18n";
 import {TextComponent} from "../text/component/text";
 import {TranslatableComponent} from "../text/component/translatable";
 import {SelectorComponent} from "../text/component/selector";
 import {KeybindComponent} from "../text/component/keybind";
 import {ObjectComponent} from "../text/component/object";
+import {SpriteObjectContents} from "../text/object/sprite";
+import {ResourcePacks} from "../resourcePacks";
 import {DomEffects} from "./effects";
 import {assertNever} from "../util/assertions";
+import {KEYBIND_TO_LITERAL, KEYBIND_TO_TRANSLATABLE} from "../data/defaultKeybinds";
 
 //
 
 export class HtmlComponentRenderer extends AbstractComponentRenderer<HtmlWriter> {
 
     private static readonly HOVER_EVENT_RENDERER = (() => {
-        const handlers = new HoverEvent.Handlers<HtmlWriter, void>();
-        handlers.register(HoverEvent.Action.SHOW_TEXT, (event, context) => {
-            const text = PlainTextComponentSerializer.plainText().serialize(event.value());
-            context.property("title", text);
+        const handlers = new HoverEvent.Handlers<{ writer: HtmlWriter, renderer: HtmlComponentRenderer }, void>();
+        
+        handlers.register(HoverEvent.Action.SHOW_TEXT, (event, { writer, renderer }) => {
+            const inner = HtmlWriter.string();
+            renderer.render(event.value(), inner);
+            writer.property("data-mc-tooltip", inner.toString());
         });
-        handlers.register(HoverEvent.Action.SHOW_ENTITY, (event, context) => {
+        handlers.register(HoverEvent.Action.SHOW_ENTITY, (event, { writer, renderer }) => {
             const name = event.value().name();
-            const text = name !== null ?
-                PlainTextComponentSerializer.plainText().serialize(name) :
-                event.value().type();
-            context.property("title", text);
+            const inner = HtmlWriter.string();
+            if (name !== null) {
+                renderer.render(name, inner);
+            } else {
+                inner.openTag("span").content(event.value().type()).closeTag();
+            }
+            writer.property("data-mc-tooltip", inner.toString());
         });
-        handlers.register(HoverEvent.Action.SHOW_ITEM, (event, context) => {
-            let text: string = event.value().item().asString();
+        handlers.register(HoverEvent.Action.SHOW_ITEM, (event, { writer }) => {
+            let text = event.value().item().asString();
             const count = event.value().count();
             if (count !== 1) text += ` x${count}`;
-            context.property("title", text);
+            writer.property("data-mc-tooltip", `<span>${text}</span>`);
         });
+        return handlers;
+    })();
+
+    private static readonly CLICK_EVENT_RENDERER = (() => {
+        const handlers = new ClickEvent.Handlers<{ writer: HtmlWriter}, void>();
+
+        handlers.register(ClickEvent.Action.OPEN_URL, (event, { writer }) => {
+            writer.property("data-mc-click-action", "open_url");
+            writer.property("data-mc-click-value", event.payload().value());
+        })
+
+        handlers.register(ClickEvent.Action.OPEN_FILE, (event, { writer }) => {
+            writer.property("data-mc-click-action", "open_file");
+            writer.property("data-mc-click-value", event.payload().value());
+        })
+
+        handlers.register(ClickEvent.Action.RUN_COMMAND, (event, { writer }) => {
+            writer.property("data-mc-click-action", "run_command");
+            writer.property("data-mc-click-value", event.payload().value());
+        })
+
+        handlers.register(ClickEvent.Action.SUGGEST_COMMAND, (event, { writer }) => {
+            writer.property("data-mc-click-action", "suggest_command");
+            writer.property("data-mc-click-value", event.payload().value());
+        })
+
+        handlers.register(ClickEvent.Action.CHANGE_PAGE, (event, { writer }) => {
+            writer.property("data-mc-click-action", "change_page");
+            writer.property("data-mc-click-value", event.payload().integer().toString());
+        })
+
+        handlers.register(ClickEvent.Action.COPY_TO_CLIPBOARD, (event, { writer }) => {
+            writer.property("data-mc-click-action", "copy_to_clipboard");
+            writer.property("data-mc-click-value", event.payload().value());
+        })
+
+        handlers.register(ClickEvent.Action.CUSTOM, (event, { writer }) => {
+            writer.property("data-mc-click-action", "custom");
+            writer.property("data-mc-click-value", event.payload().key().toString());
+            const nbt = event.payload().nbt();
+            if (nbt !== null) writer.property("data-mc-click-nbt", nbt);
+        })
+
         return handlers;
     })();
 
     //
 
     private readonly _translations: Translations;
+    private readonly _resourcePacks: ResourcePacks;
     
-    constructor(translations: Translations) {
+    constructor(translations: Translations, resourcePacks: ResourcePacks) {
         super();
         this._translations = translations;
+        this._resourcePacks = resourcePacks;
     }
 
     //
@@ -74,7 +126,8 @@ export class HtmlComponentRenderer extends AbstractComponentRenderer<HtmlWriter>
     protected renderKeybind(component: KeybindComponent, writer: HtmlWriter): Component {
         this._open(component, writer);
         DomEffects.writeProperty(writer, "misc", component);
-        writer.content(component.keybind());
+        const key = component.keybind();
+        writer.content(KEYBIND_TO_LITERAL[key] ?? KEYBIND_TO_TRANSLATABLE[key] ?? key);
         this._close(component, writer);
         return component;
     }
@@ -90,6 +143,7 @@ export class HtmlComponentRenderer extends AbstractComponentRenderer<HtmlWriter>
                 break;
             case "sprite":
                 DomEffects.writeProperty(writer, "misc", component);
+                this._writeSprite(contents, writer);
                 break;
             default:
                 assertNever(contentsType);
@@ -111,6 +165,16 @@ export class HtmlComponentRenderer extends AbstractComponentRenderer<HtmlWriter>
         DomEffects.writeProperty(writer, "misc", component);
         this._close(component, writer);
         return component;
+    }
+
+    private _writeSprite(contents: SpriteObjectContents, writer: HtmlWriter): void {
+        const atlas = contents.atlas();
+        const sprite = contents.sprite();
+        writer.style(HtmlStyle.spriteContainer());
+        DomEffects.writeProperty(writer, "sprite", {
+            atlas: atlas.asString(),
+            sprite: sprite.asString()
+        });
     }
 
     private _open(component: Component, writer: HtmlWriter): void {
@@ -148,11 +212,22 @@ export class HtmlComponentRenderer extends AbstractComponentRenderer<HtmlWriter>
 
         // Shadow Color
         const shadowColor = component.shadowColor();
-        if (shadowColor) writer.style(HtmlStyle.textShadow(shadowColor.asHexString()));
+        if (shadowColor) {
+            writer.style(HtmlStyle.textShadow(shadowColor.asHexString()));
+            DomEffects.writeProperty(writer, "shadow", shadowColor.asHexString());
+        }
 
         // Hover Event
         const hover = component.hoverEvent();
-        if (hover) HtmlComponentRenderer.HOVER_EVENT_RENDERER.invoke(hover, writer);
+        if (hover) HtmlComponentRenderer.HOVER_EVENT_RENDERER.invoke(hover, { writer, renderer: this });
+
+        // Click Event
+        const click = component.clickEvent();
+        if (click) HtmlComponentRenderer.CLICK_EVENT_RENDERER.invoke(click, { writer });
+
+        // Insertion
+        const insertion = component.insertion();
+        if (insertion) writer.property("data-mc-insertion", insertion);
     }
 
     private _close(component: Component, writer: HtmlWriter): void {
@@ -166,13 +241,14 @@ export class HtmlComponentRenderer extends AbstractComponentRenderer<HtmlWriter>
 
 export namespace HtmlComponentRenderer {
 
-    const INSTANCE = new HtmlComponentRenderer(Translations.empty());
+    const INSTANCE = new HtmlComponentRenderer(Translations.empty(), ResourcePacks.empty());
 
     export function renderer(
-        translations: Translations = Translations.empty()
+        translations: Translations = Translations.empty(),
+        resourcePacks: ResourcePacks = ResourcePacks.empty()
     ): HtmlComponentRenderer {
         if (arguments.length === 0) return INSTANCE;
-        return new HtmlComponentRenderer(translations);
+        return new HtmlComponentRenderer(translations, resourcePacks);
     }
-    
+
 }
