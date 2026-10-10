@@ -13,5 +13,5 @@ jobs:
     - uses: actions/checkout@v4
     - uses: oven-sh/setup-bun@v2
       name: Setup Bun
-    - run: npm ci
-    - run: npm test
+    - run: bun ci
+    - run: bun test
