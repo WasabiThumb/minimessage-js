@@ -1,4 +1,4 @@
-import { iter } from "but-unzip";
+import wrauz from "wrauz";
 import { parseJsonStreamWithPaths, streamToIterable } from "json-stream-es";
 
 //
@@ -99,20 +99,18 @@ function Version(id, packageUrl) {
             .then((r) => r.json());
     });
 
-    /** @type { () => Promise<Uint8Array> } */
-    const getClientJarData = runOnce(async () => {
+    /** @type { () => Promise<import("wrauz").ZipFile> } */
+    const getClientJarFile = runOnce(async () => {
         const info = await getPackageInfo();
-        return fetch(info.downloads.client.url, { headers: makeHeaders(), cache: "force-cache" })
-            .then((r) => r.arrayBuffer())
-            .then((ab) => new Uint8Array(ab));
+        return await wrauz(info.downloads.client.url);
     });
 
     /** @type { (path: string) => Promise<Uint8Array | null> } */
     const getResource = (async (path) => {
-        const jarData = await getClientJarData();
-        for (const entry of iter(jarData)) {
-            if (entry.filename === path) {
-                return entry.read();
+        const zf = await getClientJarFile();
+        for (const entry of zf) {
+            if (entry.name === path) {
+                return await zf.read(entry, "bytes");
             }
         }
         return null;

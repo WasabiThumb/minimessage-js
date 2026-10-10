@@ -16,7 +16,7 @@
     "email": "wasabithumbs@gmail.com"
   },
   "dependencies": {
-    "but-unzip": "^0.1.7",
-    "json-stream-es": "^1.2.1"
+    "json-stream-es": "^1.2.1",
+    "wrauz": "^0.1.1"
   }
 }
