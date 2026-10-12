@@ -21,9 +21,8 @@ const check = ((component: Component, expected: JsonComponent)=> {
 
 const renderToDom = ((mini: MiniMessage, component: Component) => {
     const document = (new DOMParser()).parseFromString(``, `text/html`);
-    const container = document.createElement(`span`);
-    // @ts-ignore
-    mini.toHTML(component, container, (tag) => document.createElement(tag));
+    const container = document.createElement(`span`, undefined);
+    mini.toHTML(component, container, (tag) => document.createElement(tag, undefined));
     return container;
 });
 

@@ -1,6 +1,6 @@
 {
   "name": "@minimessage-js/demo",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Web demo for minimessage-js",
   "private": true,
   "author": "wasabithumbs",
@@ -22,10 +22,10 @@
     "minimessage-js": "file:../.."
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.1.18",
-    "tailwindcss": "^4.1.18",
-    "typescript": "^5.9.3",
-    "vite": "^7.3.1",
-    "vite-plugin-glsl": "^1.5.5"
+    "@tailwindcss/vite": "^4.3.3",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.3",
+    "vite-plugin-glsl": "^1.6.2"
   }
 }

@@ -1,0 +1,29 @@
+{
+  "name": "@minimessage-js/pack-loader",
+  "version": "2.1.0",
+  "description": "Loads resource packs for minimessage-js",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "types/index.d.ts",
+  "author": "wasabithumbs",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WasabiThumb/minimessage-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/WasabiThumb/minimessage-js/issues",
+    "email": "wasabithumbs@gmail.com"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepare": "bun run build"
+  },
+  "dependencies": {
+    "minimessage-js": "^2.1.0",
+    "wrauz": "^0.1.1"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

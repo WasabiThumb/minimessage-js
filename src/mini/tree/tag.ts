@@ -29,6 +29,7 @@ export class TagNode extends ElementNode {
 
     private readonly _parts: TagPart[];
     private _tag: Tag | null;
+    private _closeToken: Token | null;
 
     constructor(
         parent: ElementNode,
@@ -39,6 +40,7 @@ export class TagNode extends ElementNode {
         super(parent, token, sourceMessage);
         this._parts = ArrayUtil.immutableView(TagNode.genParts(token, sourceMessage, tagProvider));
         this._tag = null;
+        this._closeToken = null;
         if (this._parts.length === 0) throw new Error(`Tag has no parts`);
     }
 
@@ -56,6 +58,22 @@ export class TagNode extends ElementNode {
         const token = super.token();
         if (token === null) throw new Error(`token is not set`);
         return token;
+    }
+
+    /**
+     * The matching `</tag>` (or `</tag:args>`) token that closed this tag, if any.
+     *
+     * This is `null` for self-closing tags (`<tag/>`), and for tags that were
+     * left open at the end of input in non-strict mode (or closed implicitly
+     * by a `<reset>`).
+     */
+    closeToken(): Token | null {
+        return this._closeToken;
+    }
+
+    /** @internal — set once by the tree builder when a matching close tag is found. */
+    setCloseToken(token: Token): void {
+        this._closeToken = token;
     }
 
     tag(tag?: Tag): Tag {

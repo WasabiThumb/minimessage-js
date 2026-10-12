@@ -1,10 +1,13 @@
 import {HtmlStyle} from "./style";
 import {StringHtmlWriter} from "./writer/string";
 import {DomHTMLWriter} from "./writer/dom";
+import {type MiniMessage} from "../mini";
 
 //
 
 export interface HtmlWriter {
+
+    readonly minimessage: MiniMessage;
 
     openTag(tagName: string): this;
 
@@ -20,18 +23,22 @@ export interface HtmlWriter {
 
 export namespace HtmlWriter {
 
-    export function string(): StringHtmlWriter {
-        return new StringHtmlWriter();
+    export function string(instance: MiniMessage): StringHtmlWriter {
+        return new StringHtmlWriter(instance);
     }
 
-    export function dom(parent: ParentNode, elementFactory?: DomHTMLWriter.ElementFactory): DomHTMLWriter {
+    export function dom(
+        instance: MiniMessage,
+        parent: ParentNode,
+        elementFactory?: DomHTMLWriter.ElementFactory
+    ): DomHTMLWriter {
         if (typeof elementFactory === "undefined") {
             const { ownerDocument } = parent;
             elementFactory = ownerDocument ?
                 ((tagName) => ownerDocument!.createElement(tagName)) :
                 ((tagName) => document.createElement(tagName));
         }
-        return new DomHTMLWriter(parent, elementFactory);
+        return new DomHTMLWriter(instance, parent, elementFactory);
     }
 
 }

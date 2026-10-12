@@ -10,8 +10,9 @@ yarn-error.log*
 .pnp.js
 
 .vscode/*
+.idea/
 
+package-lock.json
 dist/
 types/
 .DS_Store
-

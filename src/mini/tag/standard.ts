@@ -49,6 +49,7 @@ export namespace StandardTags {
             PrideTag.RESOLVER,
             ShadowColorTag.RESOLVER,
             SpriteTag.RESOLVER,
+            HoverTag.RESOLVER,
         )
         .build();
 

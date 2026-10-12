@@ -1,0 +1,23 @@
+{
+  "lockfileVersion": 2,
+  "configVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "@minimessage-js/pack-loader",
+      "dependencies": {
+        "minimessage-js": "^2.0.1",
+        "wrauz": "^0.1.1",
+      },
+      "devDependencies": {
+        "typescript": "^6.0.3",
+      },
+    },
+  },
+  "packages": {
+    "minimessage-js": ["minimessage-js@2.0.1", "", {}, "sha512-9rkMlqu2iXJYWyRhselioOsXWhDyqb3qBvG/vCQtRHMvClJ1RGGkS2tU1gfvo0zSiKiU2k3EnH+Q2UR/CWU1RA=="],
+
+    "typescript": ["typescript@6.0.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw=="],
+
+    "wrauz": ["wrauz@0.1.1", "", {}, "sha512-U5ABnIn9Jgxk8MpTL7L+kWo04YMJ5HGQX4rdTyrRa0it74aPeOwNsaY3tI5z/jeFoJI5AN90Bepw34i1HrlnSw=="],
+  }
+}

@@ -6,3 +6,7 @@ export {
 export {
     HtmlComponentRenderer
 } from "./html/renderer";
+
+export {
+    DomEffects
+} from "./html/effects";

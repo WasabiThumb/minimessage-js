@@ -6,6 +6,11 @@ ready for use in ``minimessage-js``.
 > For synchronous access to translation data, use ``@minimessage-js/translations``.
 
 > [!IMPORTANT]
+> Before installing this library after cloning, make sure that
+> ``@minimessage-js/mojang`` is linked (go to ``packages/mojang`` and run ``bun link``,
+> then go to ``packages/fetch-translations`` and run ``bun link @minimessage-js/mojang``).
+
+> [!IMPORTANT]
 > This library relies on ``piston-meta.mojang.com``,
 > ``piston-data.mojang.com`` and ``resources.download.minecraft.net``.
 > Any outages or major changes with respect to these services

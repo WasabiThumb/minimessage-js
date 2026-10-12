@@ -4,6 +4,7 @@ import {Stack} from "../../util/stack";
 import {StringBuilder} from "../../util/string";
 import {LookupTable} from "../../util/lut";
 import {Character} from "../../util/char";
+import {type MiniMessage} from "../../mini";
 
 //
 
@@ -26,7 +27,9 @@ export class StringHtmlWriter implements HtmlWriter {
     private _properties: Record<string, StringBuilder>;
     private _styles: HtmlStyleStore;
 
-    constructor() {
+    constructor(
+        readonly minimessage: MiniMessage
+    ) {
         this._out = new StringBuilder();
         this._stack = new Stack();
         this._writingProperties = false;

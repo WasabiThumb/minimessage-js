@@ -1,9 +1,13 @@
-import type { Config } from "jest"
-import { createDefaultEsmPreset } from "ts-jest";
+import {createDefaultEsmPreset, type JestConfigWithTsJest} from "ts-jest";
 
 const presetConfig = createDefaultEsmPreset({
+    tsconfig: "tsconfig.test.json",
 });
 
-export default {
-    ...presetConfig
-} satisfies Config;
+const jestConfig: JestConfigWithTsJest = {
+    ...presetConfig,
+    roots: [ "<rootDir>/tests/" ],
+    testTimeout: 120_000,
+}
+
+export default jestConfig;

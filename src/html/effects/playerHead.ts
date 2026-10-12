@@ -7,12 +7,13 @@ import {OnlineHeads} from "./playerHead/online";
 import {ErrorInfo} from "../../util/errors";
 import {Key} from "../../key";
 
-//
-
 class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
 
     apply(element: Element, data: PlayerHeadObjectContents): void {
-        const image = this._createImage(data);
+        const tint = this._resolveColor(element);
+        const image = this._createImage(data, tint);
+
+
         image.style.display = `inline-block`;
         image.style.width = `1em`;
         image.style.height = `1em`;
@@ -58,6 +59,16 @@ class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
         return builder.build();
     }
 
+    private _resolveColor(element: Element): string | null {
+        let current: Element | null = element;
+        while (current !== null) {
+            const color = (current as HTMLElement).style?.color;
+            if (color) return color;
+            current = current.parentElement;
+        }
+        return null;
+    }
+
     private _nameOfTexture(texture: Key): VanillaHeads.Name | null {
         if (texture.namespace() !== Key.MINECRAFT_NAMESPACE) return null;
         const value = texture.value();
@@ -68,8 +79,8 @@ class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
         return name as VanillaHeads.Name;
     }
 
-    private _createImage(data: PlayerHeadObjectContents): HTMLImageElement {
-        const image = new PolyImage();
+    private _createImage(data: PlayerHeadObjectContents, tintColor: string | null): HTMLImageElement {
+        const image = new PolyImage(tintColor);
         image.submit(VanillaHeads.getByName("alex"), ``, 0);
 
         const hat = data.hat();
@@ -137,8 +148,6 @@ export namespace PlayerHeadDomEffect {
     export const INSTANCE: PlayerHeadDomEffect = new PlayerHeadDomEffectImpl();
 }
 
-//
-
 type SerialForm = {
     hat?: boolean,
     id?: string,
@@ -154,14 +163,23 @@ class PolyImage {
     readonly element: HTMLImageElement;
     private _activePriority: number;
     private _lastController: AbortController | null;
+    private _tintColor: string | null;
+    private _tintedUrl: string | null;
 
-    constructor() {
+    constructor(tintColor: string | null = null) {
         this.element = document.createElement("img");
         this._activePriority = Number.MIN_VALUE;
         this._lastController = null;
-    }
+        this._tintColor = tintColor;
+        this._tintedUrl = null;
 
-    //
+        if (tintColor !== null) {
+            this.element.addEventListener("load", () => {
+                if (this.element.src === this._tintedUrl) return;
+                this._applyTint(this.element, tintColor);
+            });
+        }
+    }
 
     submit(
         src: string | Promise<string>,
@@ -169,15 +187,8 @@ class PolyImage {
         priority: number,
         revoke: boolean = false
     ): void {
-        (async () => {
-            return src;
-        })().then((s) => {
+        (async () => src)().then((s) => {
             this._submitNow(s, alt, priority, revoke);
-            if (priority <= this._activePriority) return;
-            this.element.src = s;
-            this.element.alt = alt;
-            if (alt.length !== 0) this.element.title = alt;
-            this._activePriority = priority;
         });
     }
 
@@ -190,17 +201,16 @@ class PolyImage {
         this._resetController();
 
         const { element } = this;
-        if (revoke) {
-            const abort = new AbortController();
-            this._lastController = abort;
+        const abort = new AbortController();
+        this._lastController = abort;
 
-            const loaded = (() => {
-                URL.revokeObjectURL(src);
-                this._resetController();
-            });
-            element.addEventListener("load", loaded, { signal: abort.signal });
-            element.addEventListener("error", loaded, { signal: abort.signal });
-        }
+        const onSettled = (() => {
+            this._resetController();
+            if (revoke) URL.revokeObjectURL(src);
+        });
+
+        element.addEventListener("load", onSettled, { signal: abort.signal, once: true });
+        element.addEventListener("error", onSettled, { signal: abort.signal, once: true });
 
         element.src = src;
         element.alt = alt;
@@ -211,10 +221,37 @@ class PolyImage {
         }
     }
 
+    private _applyTint(element: HTMLImageElement, tintColor: string): void {
+        const canvas = document.createElement("canvas");
+        canvas.width = element.naturalWidth;
+        canvas.height = element.naturalHeight;
+
+        const ctx = canvas.getContext("2d")!;
+
+        ctx.drawImage(element, 0, 0);
+
+        ctx.globalCompositeOperation = "multiply";
+        ctx.fillStyle = tintColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.globalCompositeOperation = "destination-in";
+        ctx.drawImage(element, 0, 0);
+
+        canvas.toBlob((blob: Blob | null) => {
+            if (blob === null) return;
+            const oldTintedUrl = this._tintedUrl;
+            const url = URL.createObjectURL(blob);
+            this._tintedUrl = url;
+            if (oldTintedUrl !== null) URL.revokeObjectURL(oldTintedUrl);
+            element.addEventListener("load", () => URL.revokeObjectURL(url), { once: true });
+            element.addEventListener("error", () => URL.revokeObjectURL(url), { once: true });
+            element.src = url;
+        });
+    }
+
     private _resetController(): void {
         const last = this._lastController;
         if (last !== null) last.abort();
         this._lastController = null;
     }
-
 }

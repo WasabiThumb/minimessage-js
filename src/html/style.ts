@@ -6,12 +6,13 @@ import {Character} from "../util/char";
 
 export type HtmlStyleStore = {
     underline: boolean,
-    strikethrough: boolean
+    strikethrough: boolean,
+    color: string | null
 };
 
 export const HtmlStyleStore = Object.freeze({
     get EMPTY(): HtmlStyleStore {
-        return { underline: false, strikethrough: false };
+        return { underline: false, strikethrough: false, color: null };
     }
 });
 
@@ -24,6 +25,8 @@ export interface HtmlStyle {
     applyToInlineSource(source: StringBuilder, parent: HtmlStyleStore): void;
 
 }
+
+//
 
 /** @internal */
 class BasicHtmlStyle<K extends keyof CSSStyleDeclaration, V extends CSSStyleDeclaration[K]> implements HtmlStyle {
@@ -93,6 +96,56 @@ class DecorationHtmlStyle implements HtmlStyle {
 
 }
 
+/** @internal */
+class MultiHtmlStyle implements HtmlStyle {
+
+    constructor(
+        private readonly _entries: readonly (readonly [keyof CSSStyleDeclaration, string, string])[]
+    ) { }
+
+    //
+
+    applyToStore(): void { }
+
+    applyToDocument(style: CSSStyleDeclaration): void {
+        for (const [documentKey, , value] of this._entries) {
+            // @ts-ignore - keys are restricted to string-valued CSS properties by construction
+            style[documentKey] = value;
+        }
+    }
+
+    applyToInlineSource(source: StringBuilder): void {
+        for (const [, sourceKey, value] of this._entries) {
+            if (!source.isEmpty()) source.appendChar(Character.SPACE);
+            source.appendString(sourceKey)
+                .appendString(": ")
+                .appendString(value)
+                .appendChar(Character.SEMICOLON);
+        }
+    }
+
+}
+
+/** @internal */
+class ColorHtmlStyle implements HtmlStyle {
+
+    constructor(private readonly _value: string) { }
+
+    applyToStore(store: HtmlStyleStore): void {
+        store.color = this._value;
+    }
+
+    applyToDocument(style: CSSStyleDeclaration): void {
+        style.color = this._value;
+    }
+
+    applyToInlineSource(source: StringBuilder): void {
+        if (!source.isEmpty()) source.appendChar(Character.SPACE);
+        source.appendString("color: ").appendString(this._value).appendChar(Character.SEMICOLON);
+    }
+
+}
+
 //
 
 export namespace HtmlStyle {
@@ -120,7 +173,7 @@ export namespace HtmlStyle {
     }
 
     export function color(color: string): HtmlStyle {
-        return new BasicHtmlStyle("color", "color", color);
+        return new ColorHtmlStyle(color);
     }
 
     export function textShadow(
@@ -129,6 +182,15 @@ export namespace HtmlStyle {
         yOffset: string = DEFAULT_SHADOW_OFFSET
     ): HtmlStyle {
         return new BasicHtmlStyle("textShadow", "text-shadow", `${xOffset} ${yOffset} ${color}`);
+    }
+
+    export function spriteContainer(): HtmlStyle {
+        return new MultiHtmlStyle([
+            ["display", "display", "inline-block"],
+            ["verticalAlign", "vertical-align", "-0.2em"],
+            ["width", "width", "1em"],
+            ["height", "height", "1em"]
+        ]);
     }
 
 }

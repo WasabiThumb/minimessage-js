@@ -95,8 +95,10 @@ export namespace Chunks {
 
             literal(true);
             if (!hasNext()) {
-                throw new Error(`Dangling escape sequence at end` +
-                    ` of lang string \"${text}\"`);
+                // not an error
+                ret.push({ type: ChunkType.LITERAL, value: "%" });
+                start = head;
+                continue;
             }
 
             c = next();
@@ -139,8 +141,10 @@ export namespace Chunks {
                 }
             }
 
-            throw new Error(`Illegal escape sequence at index` +
-                ` ${head} of lang string \"${text}\"`);
+            // Unrecognized escape. Treat % as literal and rewind
+            ret.push({ type: ChunkType.LITERAL, value: "%" });
+            start = head - 1; // rewind so the unrecognized char is re-evaluated
+            head--;
         }
 
         literal(false);
