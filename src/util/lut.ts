@@ -1,4 +1,4 @@
-import {Character} from "./char";
+import { Character } from "./char";
 
 //
 
@@ -191,6 +191,10 @@ export namespace LookupTable {
 
     export function number<T>(populate: PopulateFunction<number, T>): LookupTable<number, T> {
         return new NumberLookupTable<T>(populate);
+    }
+
+    export function string<T>(populate: PopulateFunction<string, T>): LookupTable<string, T> {
+        return new StringLookupTable(populate, false);
     }
 
     export function caseInsensitiveString<T>(populate: PopulateFunction<string, T>): LookupTable<string, T> {

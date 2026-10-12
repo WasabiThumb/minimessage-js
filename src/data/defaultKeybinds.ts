@@ -1,98 +1,88 @@
-// I could dynamically fetch some of this info from the options.txt
-// However some keys like "	key.keyboard.p" are not translatable keys
-// And I would need to include special logic for those.
-// I do not trust Mojang to be consistent here,
-// so I'd just put these in here by hand
+import { Component } from "../text/component";
+import { LookupTable } from "../util/lut";
 
-export const KEYBIND_TO_TRANSLATABLE: Record<string, string> = {
-  "key.jump": "key.keyboard.space",
-  "key.sneak": "key.keyboard.left.shift",
-  "key.sprint": "key.keyboard.left.control",
-  "key.attack": "key.mouse.left",
-  "key.use": "key.mouse.right",
-  "key.pickItem": "key.mouse.middle",
-  "key.playerlist": "key.keyboard.tab",
-  "key.fullscreen": "key.keyboard.f11",
-  "key.togglePerspective": "key.keyboard.f5",
-  "key.spectatorHotbar": "key.mouse.middle",
-  "key.screenshot": "key.keyboard.f2",
-};
+//
 
-// Fallback if translatable isn't present
-export const KEYBIND_TO_LITERAL: Record<string, string> = {
-  // movement
-  "key.jump": "Space",
-  "key.sneak": "Left Shift",
-  "key.sprint": "Left Control",
-  "key.left": "A",
-  "key.right": "D",
-  "key.back": "S",
-  "key.forward": "W",
+/**
+ * Declared in the same order as the `en_us.json`.
+ * Includes anything starting with `key.` but NOT `key.keyboard.`
+ * or `key.mouse.` (should be passed through as-is)
+ */
+const DEFAULT_KEYBIND_LUT = LookupTable.string<Component>((put) => {
+  const literal = (char: string) => Component.text(char);
+  const keyboard = (name: string) => Component.translatable(`key.keyboard.${name}`);
+  const mouse = (name: string) => Component.translatable(`key.mouse.${name}`);
 
-  // miscellaneous
-  "key.advancements": "L",
-  "key.quickActions": "G",
-  "key.screenshot": "F2",
-  "key.smoothCamera": "Not Bound",
-  "key.fullscreen": "F11",
-  "key.toggleGui": "F1",
-  "key.togglePerspective": "F5",
-  "key.toggleSpectatorShaderEffects": "F4",
+  put("advancements",                 literal("L"));
+  put("attack",                       mouse("left"));
+  put("back",                         literal("S"));
+  put("chat",                         literal("T"));
+  put("command",                      keyboard("slash"));
+  put("debug.clearChat",              literal("D"));
+  put("debug.copyLocation",           literal("C"));
+  put("debug.copyRecreateCommand",    literal("I"));
+  put("debug.crash",                  literal("C"));
+  put("debug.debugOptions",           keyboard("f6"));
+  put("debug.dumpDynamicTextures",    literal("S"));
+  put("debug.dumpVersion",            literal("V"));
+  put("debug.focusPause",             literal("P"));
+  put("debug.fpsCharts",              literal("2"));
+  put("debug.improvedTransparency",   literal("X"));
+  put("debug.lightmapTexture",        literal("4"));
+  put("debug.modifier",               keyboard("f3"));
+  put("debug.networkCharts",          literal("3"));
+  put("debug.overlay",                keyboard("f3"));
+  put("debug.profiling",              literal("L"));
+  put("debug.profilingChart",         literal("1"));
+  put("debug.reloadChunk",            literal("A"));
+  put("debug.reloadResourcePacks",    literal("T"));
+  put("debug.showAdvancedTooltips",   literal("H"));
+  put("debug.showChunkBorders",       literal("G"));
+  put("debug.showHitboxes",           literal("B"));
+  put("debug.spectate",               literal("N"));
+  put("debug.switchGameMode",         keyboard("f4"));
+  put("drop",                         literal("Q"));
+  put("forward",                      literal("W"));
+  put("friends",                      literal("O"));
+  put("fullscreen",                   keyboard("f11"));
+  put("hotbar.1",                     literal("1"));
+  put("hotbar.2",                     literal("2"));
+  put("hotbar.3",                     literal("3"));
+  put("hotbar.4",                     literal("4"));
+  put("hotbar.5",                     literal("5"));
+  put("hotbar.6",                     literal("6"));
+  put("hotbar.7",                     literal("7"));
+  put("hotbar.8",                     literal("8"));
+  put("hotbar.9",                     literal("9"));
+  put("inventory",                    literal("E"));
+  put("jump",                         keyboard("space"));
+  put("left",                         literal("A"));
+  put("loadToolbarActivator",         literal("X"));
+  put("otherPlayers",                 literal("P"));
+  put("pickItem",                     mouse("middle"));
+  put("playerlist",                   keyboard("tab"));
+  put("quickActions",                 literal("G"));
+  put("right",                        literal("D"));
+  put("saveToolbarActivator",         literal("C"));
+  put("screenshot",                   keyboard("f2"));
+  put("smoothCamera",                 keyboard("unknown"));
+  put("sneak",                        keyboard("left.shift"));
+  put("socialInteractions",           literal("P"));
+  put("spectatorHotbar",              mouse("middle"));
+  put("spectatorOutlines",            keyboard("unknown"));
+  put("sprint",                       keyboard("left.control"));
+  put("swapOffhand",                  literal("F"));
+  put("toggleGui",                    keyboard("f1"));
+  put("togglePerspective",            keyboard("f5"));
+  put("toggleSpectatorShaderEffects", keyboard("f4"));
+  put("use",                          mouse("right"));
+});
 
-  // multiplayer
-  "key.friends": "O",
-  "key.playerlist": "Tab",
-  "key.chat": "T",
-  "key.command": "/",
-  "key.socialInteractions": "P",
+//
 
-  // gameplay
-  "key.attack": "Left Button",
-  "key.pickItem": "Middle Button",
-  "key.use": "Right Button",
-
-  // inventory
-  "key.drop": "Q",
-  "key.hotbar.1": "1",
-  "key.hotbar.2": "2",
-  "key.hotbar.3": "3",
-  "key.hotbar.4": "4",
-  "key.hotbar.5": "5",
-  "key.hotbar.6": "6",
-  "key.hotbar.7": "7",
-  "key.hotbar.8": "8",
-  "key.hotbar.9": "9",
-  "key.inventory": "E",
-  "key.swapOffhand": "F",
-
-  // creative mode
-  "key.loadToolbarActivator": "X",
-  "key.saveToolbarActivator": "C",
-
-  // spectator
-  "key.spectatorOutlines": "Not Bound",
-  "key.spectatorHotbar": "Middle Button",
-
-  // debug
-  "key.debug.overlay": "F3",
-  "key.debug.modifier": "F3",
-  "key.debug.clearChat": "D",
-  "key.debug.copyRecreateCommand": "I",
-  "key.debug.copyLocation": "C",
-  "key.debug.spectate": "N",
-  "key.debug.crash": "C",
-  "key.debug.debugOptions": "F6",
-  "key.debug.dumpDynamicTextures": "S",
-  "key.debug.dumpVersion": "V",
-  "key.debug.switchGameMode": "F4",
-  "key.debug.reloadChunk": "A",
-  "key.debug.reloadResourcePacks": "T",
-  "key.debug.showAdvancedTooltips": "H",
-  "key.debug.showHitboxes": "B",
-  "key.debug.profiling": "L",
-  "key.debug.focusPause": "P",
-  "key.debug.profilingChart": "1",
-  "key.debug.fpsCharts": "2",
-  "key.debug.networkCharts": "3",
-
-};
+export function resolveDefaultKeybind(keybind: string): Component {
+  if (!keybind.startsWith("key.")) return Component.translatable(keybind);
+  const mapped = DEFAULT_KEYBIND_LUT.get(keybind.substring(4));
+  if (mapped) return mapped;
+  return Component.translatable(keybind);
+}

@@ -77,11 +77,13 @@ attempt to bind rendering effects within a
 [requestAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame) callback.
 If successful, special rendering is activated.
 
-|    Tag     |                                                                                                    Effect                                                                                                    |
-|:----------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| ``<obf>``  |                                           Binds the "enchantment table" font to the document, assigns it to the obfuscated text, and randomizes the text content.                                            |
-| ``<head>`` | Asynchronously renders the appropriate player head using the [CORSjang](https://corsjang.b-cdn.net/) api. The 9 [default skins](https://minecraft.wiki/w/Skin#Default_skins) are also bundled as a fallback. |
-|   others   |                           Sets a ``data-mm-misc`` property on the element containing the text component this element was rendered from. This property is reserved for future use.                            |
+|      Tag      |                                                                                                    Effect                                                                                                    |
+|:-------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|   ``<obf>``   |                                           Binds the "enchantment table" font to the document, assigns it to the obfuscated text, and randomizes the text content.                                            |
+|  ``<head>``   | Asynchronously renders the appropriate player head using the [CORSjang](https://corsjang.b-cdn.net/) api. The 9 [default skins](https://minecraft.wiki/w/Skin#Default_skins) are also bundled as a fallback. |
+| ``<sprite>``  |                               Uses the `ResourcePacks` to resolve sprites (static and animated) as an HTML canvas. If a sprite cannot be resolved, uses a replacement texture.                               |
+| ``<keybind>`` |    Simply writes a ``data-mm-keybind`` property containing the original keybind key before resolution, so as to not lose information. You could theoretically use this information to display a tooltip.     |
+|    others     |                           Sets a ``data-mm-misc`` property on the element containing the text component this element was rendered from. This property is reserved for future use.                            |
 
 ### Translations
 The HTML renderer may be configured to use a specified translation map
@@ -101,6 +103,34 @@ const mini = MiniMessage.builder()
 const translatable = Component.translatable("block.minecraft.diamond_block");
 mini.toHTML(translatable); // <span>Diamond Block</span>
 ```
+
+### Resource Packs
+The HTML renderer may be configured to use a specified set of ZIP files representing
+resource packs to resolve sprite components. The only supported way of doing this is
+through the `@minimessage-js/pack-loader`, like so:
+
+```ts
+import { MiniMessage } from "minimessage-js";
+import loadResourcePacks from "@minimessage-js/pack-loader";
+
+// 26.3 vanilla client JAR
+const vanilla = await loadResourcePacks("https://piston-data.mojang.com/v1/objects/e877b6a07acd633fb3bb475002175cec036e7b87/client.jar");
+const mini = MiniMessage.builder()
+    .resourcePacks(vanilla)
+    .build();
+
+// Render a <sprite> tag
+const tag = mini.deserialize(`<sprite:block/magenta_wool>`);
+mini.toHTML(component, element);
+```
+
+> [!NOTE]
+> The `loadResourcePacks` function scales with the number of entries in the ZIP
+> file(s), not necessarily the size in bytes. The vanilla client JAR currently has 34,245
+> entries with only 4,384 addressable by this library (~12.8%) so loading it takes
+> significantly longer than strictly necessary. In your app, you may want to extract
+> only the `assets/minecraft/textures` and `assets/minecraft/atlases` into a more efficient
+> ZIP.
 
 ## License
 ```text

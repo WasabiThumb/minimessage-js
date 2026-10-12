@@ -7,6 +7,8 @@ import {type MiniMessage} from "../mini";
 
 export interface HtmlWriter {
 
+    readonly minimessage: MiniMessage;
+
     openTag(tagName: string): this;
 
     closeTag(): this;
@@ -21,8 +23,8 @@ export interface HtmlWriter {
 
 export namespace HtmlWriter {
 
-    export function string(): StringHtmlWriter {
-        return new StringHtmlWriter();
+    export function string(instance: MiniMessage): StringHtmlWriter {
+        return new StringHtmlWriter(instance);
     }
 
     export function dom(

@@ -84,7 +84,7 @@ export class MiniMessageImpl implements MiniMessage {
             renderer.render(component, writer);
         }
 
-        const writer = HtmlWriter.string();
+        const writer = HtmlWriter.string(this);
         renderer.render(component, writer);
         return writer.toString();
     }

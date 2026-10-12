@@ -57,6 +57,10 @@ export class DomHTMLWriter implements HtmlWriter {
 
     //
 
+    get minimessage(): MiniMessage {
+        return this._instance;
+    }
+
     openTag(tagName: string): this {
         const element: HTMLElement = this._elementFactory(tagName as keyof HTMLElementTagNameMap);
         this._stack.push([ element, { ...this._styles } ]);

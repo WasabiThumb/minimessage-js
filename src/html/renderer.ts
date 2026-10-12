@@ -13,7 +13,7 @@ import {SpriteObjectContents} from "../text/object/sprite";
 import {ResourcePacks} from "../resourcePacks";
 import {DomEffects} from "./effects";
 import {assertNever} from "../util/assertions";
-import {KEYBIND_TO_LITERAL, KEYBIND_TO_TRANSLATABLE} from "../data/defaultKeybinds";
+import {resolveDefaultKeybind} from "../data/defaultKeybinds";
 
 //
 
@@ -23,13 +23,13 @@ export class HtmlComponentRenderer extends AbstractComponentRenderer<HtmlWriter>
         const handlers = new HoverEvent.Handlers<{ writer: HtmlWriter, renderer: HtmlComponentRenderer }, void>();
         
         handlers.register(HoverEvent.Action.SHOW_TEXT, (event, { writer, renderer }) => {
-            const inner = HtmlWriter.string();
+            const inner = HtmlWriter.string(writer.minimessage);
             renderer.render(event.value(), inner);
             writer.property("data-mc-tooltip", inner.toString());
         });
         handlers.register(HoverEvent.Action.SHOW_ENTITY, (event, { writer, renderer }) => {
             const name = event.value().name();
-            const inner = HtmlWriter.string();
+            const inner = HtmlWriter.string(writer.minimessage);
             if (name !== null) {
                 renderer.render(name, inner);
             } else {
@@ -125,9 +125,10 @@ export class HtmlComponentRenderer extends AbstractComponentRenderer<HtmlWriter>
 
     protected renderKeybind(component: KeybindComponent, writer: HtmlWriter): Component {
         this._open(component, writer);
-        DomEffects.writeProperty(writer, "misc", component);
         const key = component.keybind();
-        writer.content(KEYBIND_TO_LITERAL[key] ?? KEYBIND_TO_TRANSLATABLE[key] ?? key);
+        DomEffects.writeProperty(writer, "keybind", key);
+        const resolved = resolveDefaultKeybind(key);
+        this.render(resolved, writer);
         this._close(component, writer);
         return component;
     }
@@ -142,7 +143,6 @@ export class HtmlComponentRenderer extends AbstractComponentRenderer<HtmlWriter>
                 DomEffects.writeProperty(writer, "player-head", contents);
                 break;
             case "sprite":
-                DomEffects.writeProperty(writer, "misc", component);
                 this._writeSprite(contents, writer);
                 break;
             default:
