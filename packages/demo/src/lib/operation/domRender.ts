@@ -1,7 +1,7 @@
 import type {Operation} from "../operation.ts";
 import {type ComponentUnit, type RichUnit, Unit} from "../unit.ts";
 import {Argument, type ArgumentMap} from "../argument.ts";
-import {HtmlComponentRenderer, HtmlWriter} from "minimessage-js";
+import {MiniMessage} from "minimessage-js";
 
 //
 
@@ -27,18 +27,15 @@ class DomRenderOperationImpl implements DomRenderOperation {
     execute(unit: ComponentUnit, args: Args): RichUnit {
         let { value } = unit;
         const { unsafe } = args;
-        const renderer = HtmlComponentRenderer.renderer();
+        const mm = MiniMessage.miniMessage();
 
         if (unsafe) {
             return Unit.rich((element) => {
-                const writer = HtmlWriter.string();
-                renderer.render(value, writer);
-                element.innerHTML = writer.toString();
+                element.innerHTML = mm.toHTML(value);
             });
         } else {
             return Unit.rich((element) => {
-                const writer = HtmlWriter.dom(element);
-                renderer.render(value, writer);
+                mm.toHTML(value, element);
             });
         }
     }
