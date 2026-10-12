@@ -27,6 +27,7 @@ export class HtmlComponentRenderer extends AbstractComponentRenderer<HtmlWriter>
             renderer.render(event.value(), inner);
             writer.property("data-mc-tooltip", inner.toString());
         });
+
         handlers.register(HoverEvent.Action.SHOW_ENTITY, (event, { writer, renderer }) => {
             const name = event.value().name();
             const inner = HtmlWriter.string(writer.minimessage);
@@ -37,17 +38,19 @@ export class HtmlComponentRenderer extends AbstractComponentRenderer<HtmlWriter>
             }
             writer.property("data-mc-tooltip", inner.toString());
         });
+
         handlers.register(HoverEvent.Action.SHOW_ITEM, (event, { writer }) => {
             let text = event.value().item().asString();
             const count = event.value().count();
             if (count !== 1) text += ` x${count}`;
             writer.property("data-mc-tooltip", `<span>${text}</span>`);
         });
+
         return handlers;
     })();
 
     private static readonly CLICK_EVENT_RENDERER = (() => {
-        const handlers = new ClickEvent.Handlers<{ writer: HtmlWriter}, void>();
+        const handlers = new ClickEvent.Handlers<{ writer: HtmlWriter }, void>();
 
         handlers.register(ClickEvent.Action.OPEN_URL, (event, { writer }) => {
             writer.property("data-mc-click-action", "open_url");

@@ -4,34 +4,7 @@ import { Character } from "./char";
 
 type PutFunction<K, V> = (key: K, value: V) => void;
 type PopulateFunction<K, V> = (put: PutFunction<K, V>) => void;
-
-type BucketRef<K, V> = Bucket<K, V> | null;
-type Bucket<K, V> = {
-    readonly key: K,
-    readonly value: V,
-    next: BucketRef<K, V>
-};
-type Buckets<K, V> = BucketRef<K, V>[];
-
-//
-
-const LOAD_FACTOR = 0.75;
-
-const mod = ((a: number, b: number) => {
-    return ((a % b) + b) % b;
-});
-
-const hashNumber = (() => {
-    const buf = new ArrayBuffer(8);
-    const i32 = new Int32Array(buf);
-    const f64 = new Float64Array(buf);
-
-    return ((n: number) => {
-        if (Number.isSafeInteger(n)) return n;
-        f64[0] = n;
-        return i32[0] ^ i32[1];
-    });
-})();
+type Entries<K, V> = (K | V)[];
 
 const uav = Character.UPPERCASE_A.value;
 const uzv = Character.UPPERCASE_Z.value;
@@ -41,80 +14,77 @@ const ulo = Character.LOWERCASE_A.value - Character.UPPERCASE_A.value;
 
 /** @internal */
 export interface LookupTable<K, V> {
-
     has(key: K): boolean;
-
     get(key: K): V | null;
-
 }
 
 //
 
 abstract class AbstractLookupTable<K, V> implements LookupTable<K, V> {
 
-    private readonly _buckets: Buckets<K, V>;
-    private readonly _capacity: number;
+    private readonly _entries: Entries<K, V>;
 
     protected constructor(populate: PopulateFunction<K, V>) {
-        const queue: [ K, V ][] = [];
-        const put: PutFunction<K, V> = ((k, v) => queue.push([ k, v ]));
-        populate(put);
-
-        const length = queue.length;
-        const capacity = Math.ceil(length / LOAD_FACTOR);
-        const buckets: Buckets<K, V> = new Array(capacity);
-        buckets.fill(null);
-
-        for (const entry of queue) {
-            const [key, value] = entry;
-            const newBucket: Bucket<K, V> = { key, value, next: null };
-
-            const index = mod(this.hash(key), capacity);
-            const existing = buckets[index];
-            if (!existing) {
-                buckets[index] = newBucket;
-                continue;
-            }
-
-            let parent: Bucket<K, V> = existing;
-            while (true) {
-                if (this.eq(key, parent.key)) throw new Error(`Duplicate key (${value})`);
-                const next = parent.next;
-                if (!next) break;
-                parent = next;
-            }
-            parent.next = newBucket;
-        }
-
-        this._buckets = buckets;
-        this._capacity = capacity;
+        let entries: Entries<K, V> = [];
+        populate((k, v) => {
+            this._search(
+                entries,
+                k,
+                () => {
+                    throw new Error(`duplicate entry: ${k}`)
+                },
+                (o) => {
+                    entries.splice(o, 0, k, v)
+                }
+            );
+        });
+        this._entries = entries;
     }
 
     //
 
     has(key: K): boolean {
-        const index = mod(this.hash(key), this._capacity);
-        let bucket: BucketRef<K, V> = this._buckets[index];
-        while (bucket) {
-            if (this.eq(key, bucket.key)) return true;
-            bucket = bucket.next;
-        }
-        return false;
+        return this._search(
+            this._entries,
+            key,
+            () => true,
+            () => false
+        );
     }
 
     get(key: K): V | null {
-        const index = mod(this.hash(key), this._capacity);
-        let bucket: BucketRef<K, V> = this._buckets[index];
-        while (bucket) {
-            if (this.eq(key, bucket.key)) return bucket.value;
-            bucket = bucket.next;
-        }
-        return null;
+        return this._search(
+            this._entries,
+            key,
+            (o) => this._entries[o | 1] as V,
+            () => null
+        );
     }
 
-    protected abstract hash(value: K): number;
+    protected abstract cmp(a: K, b: K): number;
 
-    protected abstract eq(a: K, b: K): boolean;
+    private _search<R>(
+        haystack: Entries<K, V>,
+        needle: K,
+        hit: (offset: number) => R,
+        miss: (offset: number) => R
+    ): R {
+        let len = haystack.length >>> 1;
+        let off = 0;
+        while (len > 0) {
+            const hl = len >>> 1;
+            const q = (off + hl) << 1;
+            const c = this.cmp(needle, haystack[q] as K);
+            if (c === 0) return hit(q);
+            if (c < 0) {
+                len = hl;
+            } else {
+                off += hl + 1;
+                len -= hl + 1;
+            }
+        }
+        return miss(off << 1);
+    }
 
 }
 
@@ -126,12 +96,8 @@ class NumberLookupTable<V> extends AbstractLookupTable<number, V> {
 
     //
 
-    protected eq(a: number, b: number): boolean {
-        return a === b;
-    }
-
-    protected hash(k: number): number {
-        return hashNumber(k);
+    protected cmp(a: number, b: number): number {
+        return a - b;
     }
 
 }
@@ -147,39 +113,20 @@ class StringLookupTable<V> extends AbstractLookupTable<string, V> {
 
     //
 
-    protected eq(a: string, b: string): boolean {
-        if (!this._asciiCaseInsensitive)
-            return a === b;
-
-        const length = a.length;
-        if (length !== b.length)
-            return false;
-
-        let ac: number;
-        let bc: number;
-
-        for (let i = 0; i < length; i++) {
-            ac = a.charCodeAt(i);
-            bc = b.charCodeAt(i);
-
-            if (uav <= ac && ac <= uzv) ac += ulo;
-            if (uav <= bc && bc <= uzv) bc += ulo;
-
-            if (ac !== bc)
-                return false;
+    protected cmp(a: string, b: string): number {
+        const al = a.length;
+        const bl = b.length;
+        for (let i = 0; i < Math.min(al, bl); i++) {
+            let ac: number = a.charCodeAt(i);
+            let bc: number = b.charCodeAt(i);
+            if (this._asciiCaseInsensitive) {
+                if (uav <= ac && ac <= uzv) ac += ulo;
+                if (uav <= bc && bc <= uzv) bc += ulo;
+            }
+            const c = ac - bc;
+            if (c !== 0) return c;
         }
-
-        return true;
-    }
-
-    protected hash(value: string): number {
-        let h: number = 7;
-        for (let i = 0; i < value.length; i++) {
-            let c: number = value.charCodeAt(i);
-            if (this._asciiCaseInsensitive && uav <= c && c <= uzv) c += ulo;
-            h = 31 * h + c;
-        }
-        return h;
+        return al - bl;
     }
 
 }

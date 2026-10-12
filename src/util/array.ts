@@ -46,23 +46,10 @@ export namespace ArrayUtil {
 
     export function insertAtStart<T>(
         dest: T[],
-        src: T[]
+        src: readonly T[]
     ): void {
-        if (src === dest) throw new Error(`'dest' and 'src' must be distinct`);
-
-        const count = src.length;
-        if (count === 0) return;
-
-        const length = dest.length;
-        dest.length = length + count;
-
-        for (let i = (length - 1); i >= 0; i--) {
-            dest[i + count] = dest[i];
-        }
-
-        for (let i = 0; i < count; i++) {
-            dest[i] = src[i];
-        }
+        if (Object.is(dest, src)) throw new Error(`'dest' and 'src' must be distinct`);
+        dest.unshift.apply(dest, src as T[]);
     }
 
 }
