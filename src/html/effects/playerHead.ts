@@ -220,9 +220,16 @@ class PolyImage {
 
         (async () => {
             let r = await task(controller.signal);
-            if (!r || controller.signal.aborted) return;
+            if (!r) return;
+            if (controller.signal.aborted) {
+                if (r.revoke) URL.revokeObjectURL(r.src);
+                return;
+            }
             r = await this._tint(r);
-            if (controller.signal.aborted) return;
+            if (controller.signal.aborted) {
+                if (r.revoke) URL.revokeObjectURL(r.src);
+                return;
+            }
             this._useResult(r, priority, controller);
         })().catch((e) => {
             if (`${e}`.indexOf("aborted") !== -1) return;
