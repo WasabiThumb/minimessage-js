@@ -248,7 +248,10 @@ class PolyImage {
     private _useResult(result: PolyImageTaskResult, priority: number, controller: AbortController): void {
         const { element } = this;
         const { src, alt, revoke } = result;
-        if (priority <= this._activePriority) return;
+        if (priority <= this._activePriority) {
+            this._destroyArbitraryController(controller);
+            return;
+        }
 
         // Abort all other controllers of lesser or equal priority, set active priority
         this._activePriority = priority;
