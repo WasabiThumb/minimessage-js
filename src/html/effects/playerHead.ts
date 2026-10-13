@@ -11,14 +11,23 @@ class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
     apply(element: Element, data: PlayerHeadObjectContents): void {
         const tint = this._resolveColor(element);
         const image = this._createImage(data, tint);
-        image.style.display = `inline-block`;
-        image.style.width = `1em`;
-        image.style.height = `1em`;
-        image.style.verticalAlign = `-7%`;
-        image.style.objectFit = `contain`;
-        image.style.objectPosition = `center`;
-        image.style.imageRendering = `pixelated`;
-        element.appendChild(image);
+        const imageElement = image.element;
+        imageElement.style.display = `inline-block`;
+        imageElement.style.width = `1em`;
+        imageElement.style.height = `1em`;
+        imageElement.style.verticalAlign = `-7%`;
+        imageElement.style.objectFit = `contain`;
+        imageElement.style.objectPosition = `center`;
+        imageElement.style.imageRendering = `pixelated`;
+        element.appendChild(imageElement);
+
+        // Detect when the image leaves the DOM to destroy the PolyImage
+        const observer = new MutationObserver(() => {
+            if (imageElement.isConnected) return;
+            image.cancel();
+            observer.disconnect();
+        });
+        observer.observe(element);
     }
 
     serialize(data: PlayerHeadObjectContents): string {
@@ -76,7 +85,7 @@ class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
         return name as VanillaHeads.Name;
     }
 
-    private _createImage(data: PlayerHeadObjectContents, tintColor: string | null): HTMLImageElement {
+    private _createImage(data: PlayerHeadObjectContents, tintColor: string | null): PolyImage {
         const image = new PolyImage(tintColor);
 
         // Submit the alex head with priority 0
@@ -152,7 +161,7 @@ class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
             }
         }
 
-        return image.element;
+        return image;
     }
 
 }
@@ -193,7 +202,7 @@ class PolyImage {
 
     readonly element: HTMLImageElement;
     private _activePriority: number;
-    private readonly _controllers: PolyImagePrioritizedController[] = [];
+    private readonly _controllers: PolyImagePrioritizedController[];
     private readonly _tintColor: string | null;
 
     constructor(tintColor: string | null = null) {
@@ -211,13 +220,20 @@ class PolyImage {
 
         (async () => {
             let r = await task(controller.signal);
-            if (!r) return;
+            if (!r || controller.signal.aborted) return;
             r = await this._tint(r);
+            if (controller.signal.aborted) return;
             this._useResult(r, priority, controller);
         })().catch((e) => {
             if (`${e}`.indexOf("aborted") !== -1) return;
             console.warn(`failed to process player head image with priority ${priority}`, e);
         });
+    }
+
+    cancel(): void {
+        for (const entry of this._controllers.splice(0)) {
+            entry.controller.abort();
+        }
     }
 
     private _useResult(result: PolyImageTaskResult, priority: number, controller: AbortController): void {
@@ -266,7 +282,6 @@ class PolyImage {
         await new Promise<void>((resolve, reject) => {
             const abort = new AbortController();
             img.addEventListener("load", () => {
-                if (revoke) URL.revokeObjectURL(src);
                 abort.abort();
                 resolve();
             }, { signal: abort.signal, once: true });
@@ -292,7 +307,10 @@ class PolyImage {
         ctx.globalCompositeOperation = "destination-in";
         ctx.drawImage(img, 0, 0);
 
-        // Create the object URL
+        // Revoke the old URL
+        if (revoke) URL.revokeObjectURL(src);
+
+        // Create the new URL
         const blob = await canvas.convertToBlob({ type: "image/png" });
         return { src: URL.createObjectURL(blob), revoke: true, alt };
     }
