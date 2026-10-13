@@ -474,12 +474,13 @@ export default async function loadResourcePacks(...sources: ResourcePacks.Source
 
     // Load all ZIPs
     const controller = new AbortController();
+    const { signal } = controller;
     let ok: boolean = false;
     try {
         await Promise.all(sources.map((v) => (async (source: ResourcePacks.Source) => {
             const zip = await wrauz(source, {
-                filter: (n) => /^assets\/([^\/]+)\/(textures|atlases)\/.*/i.test(n),
-                signal: controller.signal
+                signal,
+                filter: (n) => /^assets\/([^\/]+)\/(textures|atlases)\/.*/i.test(n)
             });
 
             for (const nse of zip.list("assets/")) {
@@ -501,6 +502,7 @@ export default async function loadResourcePacks(...sources: ResourcePacks.Source
                         } catch (ignored) { }
                     }
 
+                    if (signal.aborted) return;
                     const texture = new Texture(zip, entry, meta);
                     textures.put(Key.key(namespace, path), texture);
                 }
@@ -512,10 +514,12 @@ export default async function loadResourcePacks(...sources: ResourcePacks.Source
                     try {
                         data = JSON.parse(await zip.read(entry, "utf8"));
                     } catch (ignored) { }
+                    if (signal.aborted) return;
                     rawAtlases.put(Key.key(namespace, path), data as AtlasJson);
                 }
             }
         })(v)));
+        ok = true;
     } finally {
         if (!ok) controller.abort();
     }
