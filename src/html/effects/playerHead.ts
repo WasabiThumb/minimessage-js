@@ -205,7 +205,7 @@ class PolyImage {
 
     constructor(tintColor: string | null = null) {
         this.element = document.createElement("img");
-        this._activePriority = Number.MIN_VALUE;
+        this._activePriority = Number.NEGATIVE_INFINITY;
         this._controllers = [];
         this._tintColor = tintColor;
     }
@@ -226,7 +226,7 @@ class PolyImage {
                 if (r.revoke) URL.revokeObjectURL(r.src);
                 return;
             }
-            r = await this._tint(r);
+            r = await this._tint(r, controller.signal);
             if (controller.signal.aborted) {
                 if (r.revoke) URL.revokeObjectURL(r.src);
                 return;
@@ -240,6 +240,7 @@ class PolyImage {
     }
 
     cancel(): void {
+        this._activePriority = Number.NEGATIVE_INFINITY;
         for (const entry of this._controllers.splice(0)) {
             entry.controller.abort();
         }
@@ -249,6 +250,7 @@ class PolyImage {
         const { element } = this;
         const { src, alt, revoke } = result;
         if (priority <= this._activePriority) {
+            if (revoke) URL.revokeObjectURL(src);
             this._destroyArbitraryController(controller);
             return;
         }
@@ -284,7 +286,7 @@ class PolyImage {
         }
     }
 
-    private async _tint(v: PolyImageTaskResult): Promise<PolyImageTaskResult> {
+    private async _tint(v: PolyImageTaskResult, signal: AbortSignal): Promise<PolyImageTaskResult> {
         const color = this._tintColor;
         if (!color) return v;
         const { src, revoke, alt } = v;
@@ -305,25 +307,34 @@ class PolyImage {
             img.src = src;
         });
 
+        if (signal.aborted) {
+            if (revoke) URL.revokeObjectURL(src);
+            throw new Error("aborted");
+        }
+
         // Create offscreen canvas
-        const w = img.naturalWidth;
-        const h = img.naturalHeight;
-        const canvas = new OffscreenCanvas(w, h);
-        const ctx = canvas.getContext("2d")!;
+        let canvas: OffscreenCanvas;
+        try {
+            const w = img.naturalWidth;
+            const h = img.naturalHeight;
+            canvas = new OffscreenCanvas(w, h);
+            const ctx = canvas.getContext("2d")!;
 
-        // Draw the tinted image
-        ctx.drawImage(img, 0, 0);
-        ctx.globalCompositeOperation = "multiply";
-        ctx.fillStyle = color;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.globalCompositeOperation = "destination-in";
-        ctx.drawImage(img, 0, 0);
-
-        // Revoke the old URL
-        if (revoke) URL.revokeObjectURL(src);
+            // Draw the tinted image
+            ctx.drawImage(img, 0, 0);
+            ctx.globalCompositeOperation = "multiply";
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = "destination-in";
+            ctx.drawImage(img, 0, 0);
+        } finally {
+            // Revoke the old URL
+            if (revoke) URL.revokeObjectURL(src);
+        }
 
         // Create the new URL
         const blob = await canvas.convertToBlob({ type: "image/png" });
+        if (signal.aborted) throw new Error("aborted");
         return { src: URL.createObjectURL(blob), revoke: true, alt };
     }
 
