@@ -41,9 +41,9 @@ export namespace OnlineHeads {
      * face texture of the given online user, with or without
      * the hat layer.
      */
-    export async function get(id: UUID, hat: boolean): Promise<string | null> {
+    export async function get(id: UUID, hat: boolean, signal: AbortSignal): Promise<string | null> {
         const url = `https://corsjangsessionserver.b-cdn.net/session/minecraft/profile/${id.toString(true)}`;
-        const response = await fetch(url, { cache: "force-cache" });
+        const response = await fetch(url, { signal, cache: "force-cache" });
         if (response.status !== 200) return null;
 
         const json = await response.json();
@@ -59,7 +59,7 @@ export namespace OnlineHeads {
         let skinUrl = skin.url;
         skinUrl = upgradeHTTP(skinUrl);
 
-        const bitmap = await fetch(skinUrl, { cache: "force-cache" })
+        const bitmap = await fetch(skinUrl, { signal, cache: "force-cache" })
             .then((r) => r.blob())
             .then((blob) => createImageBitmap(blob));
 
