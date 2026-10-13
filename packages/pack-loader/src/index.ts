@@ -473,42 +473,51 @@ export default async function loadResourcePacks(...sources: ResourcePacks.Source
     const rawAtlases = new KeyMap<AtlasJson>();
 
     // Load all ZIPs
-    for (const source of sources) {
-        const zip = await wrauz(source);
+    const controller = new AbortController();
+    let ok: boolean = false;
+    try {
+        await Promise.all(sources.map((v) => (async (source: ResourcePacks.Source) => {
+            const zip = await wrauz(source, {
+                filter: (n) => /^assets\/([^\/]+)\/(textures|atlases)\/.*/i.test(n),
+                signal: controller.signal
+            });
 
-        for (const nse of zip.list("assets/")) {
-            if (!nse.name.endsWith("/")) continue;
-            const namespace = nse.name.substring(7, nse.name.length - 1);
-            const texturesPrefix = nse.name + "textures/";
-            const atlasesPrefix = nse.name + "atlases/";
+            for (const nse of zip.list("assets/")) {
+                if (!nse.name.endsWith("/")) continue;
+                const namespace = nse.name.substring(7, nse.name.length - 1);
+                const texturesPrefix = nse.name + "textures/";
+                const atlasesPrefix = nse.name + "atlases/";
 
-            for (const entry of zip.list(texturesPrefix, true)) {
-                if (!entry.name.endsWith(".png")) continue;
-                const path = entry.name.substring(texturesPrefix.length, entry.name.length - 4);
-                let meta: RelevantMcMeta | null = null;
+                for (const entry of zip.list(texturesPrefix, true)) {
+                    if (!entry.name.endsWith(".png")) continue;
+                    const path = entry.name.substring(texturesPrefix.length, entry.name.length - 4);
+                    let meta: RelevantMcMeta | null = null;
 
-                const metaEntry = zip.entry(entry.name + ".mcmeta");
-                if (metaEntry) {
-                    try {
-                        const json = JSON.parse(await zip.read(metaEntry, "utf8"));
-                        meta = json as RelevantMcMeta;
-                    } catch (ignored) { }
+                    const metaEntry = zip.entry(entry.name + ".mcmeta");
+                    if (metaEntry) {
+                        try {
+                            const json = JSON.parse(await zip.read(metaEntry, "utf8"));
+                            meta = json as RelevantMcMeta;
+                        } catch (ignored) { }
+                    }
+
+                    const texture = new Texture(zip, entry, meta);
+                    textures.put(Key.key(namespace, path), texture);
                 }
 
-                const texture = new Texture(zip, entry, meta);
-                textures.put(Key.key(namespace, path), texture);
+                for (const entry of zip.list(atlasesPrefix, true)) {
+                    if (!entry.name.endsWith(".json")) continue;
+                    const path = entry.name.substring(atlasesPrefix.length, entry.name.length - 5);
+                    let data;
+                    try {
+                        data = JSON.parse(await zip.read(entry, "utf8"));
+                    } catch (ignored) { }
+                    rawAtlases.put(Key.key(namespace, path), data as AtlasJson);
+                }
             }
-
-            for (const entry of zip.list(atlasesPrefix, true)) {
-                if (!entry.name.endsWith(".json")) continue;
-                const path = entry.name.substring(atlasesPrefix.length, entry.name.length - 5);
-                let data;
-                try {
-                    data = JSON.parse(await zip.read(entry, "utf8"));
-                } catch (ignored) { }
-                rawAtlases.put(Key.key(namespace, path), data as AtlasJson);
-            }
-        }
+        })(v)));
+    } finally {
+        if (!ok) controller.abort();
     }
 
     // Resolve the atlas

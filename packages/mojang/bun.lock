@@ -6,13 +6,13 @@
       "name": "@minimessage-js/mojang",
       "dependencies": {
         "json-stream-es": "^1.2.1",
-        "wrauz": "^0.1.1",
+        "wrauz": "^0.2.0",
       },
     },
   },
   "packages": {
     "json-stream-es": ["json-stream-es@1.2.1", "", {}, "sha512-Nugv+UpZl72pq+Wqy+kA5NjqYYS6JgjJnnXGCX0f5BbISUiIQfMTqaNM8QgO2BX4uVWlpxlXvC8kLtOtvragUw=="],
 
-    "wrauz": ["wrauz@0.1.1", "", {}, "sha512-U5ABnIn9Jgxk8MpTL7L+kWo04YMJ5HGQX4rdTyrRa0it74aPeOwNsaY3tI5z/jeFoJI5AN90Bepw34i1HrlnSw=="],
+    "wrauz": ["wrauz@0.2.0", "", {}, "sha512-XxW0B488evQQUChFrfnDH4TNwD3MKCyQM588ZG8MN4Mc/YSVgenAXdsaKc3KBKlPxiYjjxXX6x1wfP7fJDnfCg=="],
   }
 }

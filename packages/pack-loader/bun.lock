@@ -5,8 +5,8 @@
     "": {
       "name": "@minimessage-js/pack-loader",
       "dependencies": {
-        "minimessage-js": "^2.0.1",
-        "wrauz": "^0.1.1",
+        "minimessage-js": "^2.1.0",
+        "wrauz": "^0.2.0",
       },
       "devDependencies": {
         "typescript": "^6.0.3",
@@ -14,10 +14,10 @@
     },
   },
   "packages": {
-    "minimessage-js": ["minimessage-js@2.0.1", "", {}, "sha512-9rkMlqu2iXJYWyRhselioOsXWhDyqb3qBvG/vCQtRHMvClJ1RGGkS2tU1gfvo0zSiKiU2k3EnH+Q2UR/CWU1RA=="],
+    "minimessage-js": ["minimessage-js@2.1.0", "", {}, "sha512-2K+yQSMQQCSn0ABxGVIev4668b0k+RqaG0gdkxz9zAHtOm7yRLiXZ4xyZVBjkHNKdqahENyJykJVlcQc0ttxkw=="],
 
     "typescript": ["typescript@6.0.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw=="],
 
-    "wrauz": ["wrauz@0.1.1", "", {}, "sha512-U5ABnIn9Jgxk8MpTL7L+kWo04YMJ5HGQX4rdTyrRa0it74aPeOwNsaY3tI5z/jeFoJI5AN90Bepw34i1HrlnSw=="],
+    "wrauz": ["wrauz@0.2.0", "", {}, "sha512-XxW0B488evQQUChFrfnDH4TNwD3MKCyQM588ZG8MN4Mc/YSVgenAXdsaKc3KBKlPxiYjjxXX6x1wfP7fJDnfCg=="],
   }
 }
