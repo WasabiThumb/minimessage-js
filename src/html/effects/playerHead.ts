@@ -68,13 +68,9 @@ class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
     }
 
     private _resolveColor(element: Element): string | null {
-        let current: Element | null = element;
-        while (current !== null) {
-            const color = (current as HTMLElement).style?.color;
-            if (color) return color;
-            current = current.parentElement;
-        }
-        return null;
+        const color = window.getComputedStyle(element).color;
+        if (!color || `rgb(255, 255, 255)` === color) return null;
+        return color;
     }
 
     private _nameOfTexture(texture: Key): VanillaHeads.Name | null {
