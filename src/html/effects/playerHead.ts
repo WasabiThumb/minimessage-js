@@ -218,7 +218,10 @@ class PolyImage {
 
         (async () => {
             let r = await task(controller.signal);
-            if (!r) return;
+            if (!r) {
+                this._destroyArbitraryController(controller);
+                return;
+            }
             if (controller.signal.aborted) {
                 if (r.revoke) URL.revokeObjectURL(r.src);
                 return;
@@ -230,6 +233,7 @@ class PolyImage {
             }
             this._useResult(r, priority, controller);
         })().catch((e) => {
+            this._destroyArbitraryController(controller);
             if (`${e}`.indexOf("aborted") !== -1) return;
             console.warn(`failed to process player head image with priority ${priority}`, e);
         });
@@ -262,9 +266,7 @@ class PolyImage {
         // Listen for the image to load after property set before revoking
         const onSettled = (() => {
             if (revoke) URL.revokeObjectURL(src);
-            controller.abort();
-            const idx = this._controllers.findIndex((entry) => Object.is(entry.controller, controller));
-            if (idx !== -1) this._controllers.splice(idx, 1);
+            this._destroyArbitraryController(controller);
         });
         element.addEventListener("load", onSettled, { signal: controller.signal, once: true });
         element.addEventListener("error", onSettled, { signal: controller.signal, once: true });
@@ -320,6 +322,12 @@ class PolyImage {
         // Create the new URL
         const blob = await canvas.convertToBlob({ type: "image/png" });
         return { src: URL.createObjectURL(blob), revoke: true, alt };
+    }
+
+    private _destroyArbitraryController(controller: AbortController): void {
+        const idx = this._controllers.findIndex((entry) => Object.is(entry.controller, controller));
+        if (idx !== -1) this._controllers.splice(idx, 1);
+        controller.abort();
     }
 
 }
