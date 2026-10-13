@@ -3,6 +3,7 @@
   "version": "2.1.0",
   "description": "Web demo for minimessage-js",
   "private": true,
+  "type": "module",
   "author": "wasabithumbs",
   "license": "Apache-2.0",
   "repository": {

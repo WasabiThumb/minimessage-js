@@ -27,7 +27,9 @@ class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
             image.cancel();
             observer.disconnect();
         });
-        observer.observe(element);
+        observer.observe(element, {
+            childList: true
+        });
     }
 
     serialize(data: PlayerHeadObjectContents): string {
