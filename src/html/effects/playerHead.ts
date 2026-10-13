@@ -256,8 +256,10 @@ class PolyImage {
 
         // Listen for the image to load after property set before revoking
         const onSettled = (() => {
-            controller.abort();
             if (revoke) URL.revokeObjectURL(src);
+            controller.abort();
+            const idx = this._controllers.findIndex((entry) => Object.is(entry.controller, controller));
+            if (idx !== -1) this._controllers.splice(idx, 1);
         });
         element.addEventListener("load", onSettled, { signal: controller.signal, once: true });
         element.addEventListener("error", onSettled, { signal: controller.signal, once: true });
