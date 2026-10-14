@@ -31,6 +31,7 @@ jobs:
     - name: Build Library
       run: |
         bun install --frozen-lockfile
+        bun link minimessage-js
 
     - name: Build Demo
       run: |

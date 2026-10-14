@@ -23,3 +23,6 @@ declare global {
         configurable: false,
     });
 })(typeof globalThis === "object" ? globalThis : window);
+
+//@ts-ignore
+if (typeof module === "object") module.exports = adventure;

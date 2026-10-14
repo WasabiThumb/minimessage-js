@@ -1,5 +1,4 @@
 import { MiniMessage } from "minimessage-js";
-
 import { Argument, type ArgumentMap } from "../argument.ts";
 import type { Operation } from "../operation.ts";
 import { type ComponentUnit, type RichUnit, Unit } from "../unit.ts";

@@ -15,12 +15,12 @@
     "email": "wasabithumbs@gmail.com"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "build-pages": "vite build --base /minimessage-js/"
+    "dev": "bunx --bun vite",
+    "build": "bunx --bun vite build",
+    "build-pages": "bunx --bun vite build --base /minimessage-js/"
   },
   "dependencies": {
-    "minimessage-js": "file:../.."
+    "minimessage-js": "link:minimessage-js"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
