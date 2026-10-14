@@ -1,6 +1,6 @@
 {
   "name": "@minimessage-js/pack-loader",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Loads resource packs for minimessage-js",
   "type": "module",
   "main": "dist/index.js",

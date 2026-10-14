@@ -1,6 +1,6 @@
 {
   "name": "@minimessage-js/mojang",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Internal utility for minimessage-js",
   "type": "module",
   "main": "src/index.mjs",
