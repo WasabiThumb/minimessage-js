@@ -17,6 +17,6 @@
   },
   "dependencies": {
     "json-stream-es": "^1.2.1",
-    "wrauz": "^0.1.1"
+    "wrauz": "^0.2.0"
   }
 }

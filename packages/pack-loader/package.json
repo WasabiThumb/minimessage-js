@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "minimessage-js": "^2.1.0",
-    "wrauz": "^0.1.1"
+    "wrauz": "^0.2.0"
   },
   "devDependencies": {
     "typescript": "^6.0.3"
