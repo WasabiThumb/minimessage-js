@@ -1,4 +1,3 @@
-
 export type AttributeMap<K extends string> = { [k in K]: number };
 export type UniformMap<K extends string> = { [k in K]: WebGLUniformLocation };
 export type BufferMap<K extends string> = { [k in K]: WebGLBuffer };
@@ -7,7 +6,7 @@ type BufferInit<K extends string> = { [k in K]: number[] };
 function createShader(
     gl: WebGLRenderingContext,
     source: string,
-    type: "VERTEX_SHADER" | "FRAGMENT_SHADER"
+    type: "VERTEX_SHADER" | "FRAGMENT_SHADER",
 ): WebGLShader {
     const shader = gl.createShader(gl[type]);
     if (shader === null) throw new Error(`Failed to create shader (${gl.getError()})`);
@@ -20,11 +19,7 @@ function createShader(
     return shader;
 }
 
-function createProgram(
-    gl: WebGLRenderingContext,
-    vertSource: string,
-    fragSource: string
-): WebGLProgram {
+function createProgram(gl: WebGLRenderingContext, vertSource: string, fragSource: string): WebGLProgram {
     const vert = createShader(gl, vertSource, "VERTEX_SHADER");
     const frag = createShader(gl, fragSource, "FRAGMENT_SHADER");
     const program = gl.createProgram();
@@ -38,30 +33,19 @@ function createProgram(
     return program;
 }
 
-function getAttribLocation(
-    gl: WebGLRenderingContext,
-    program: WebGLProgram,
-    name: string
-): GLint {
+function getAttribLocation(gl: WebGLRenderingContext, program: WebGLProgram, name: string): GLint {
     const location = gl.getAttribLocation(program, name);
     if (location === -1) throw new Error(`Failed to locate attribute: ${name}`);
     return location;
 }
 
-function getUniformLocation(
-    gl: WebGLRenderingContext,
-    program: WebGLProgram,
-    name: string
-): WebGLUniformLocation {
+function getUniformLocation(gl: WebGLRenderingContext, program: WebGLProgram, name: string): WebGLUniformLocation {
     const location = gl.getUniformLocation(program, name);
     if (location === null) throw new Error(`Failed to locate uniform: ${name}`);
     return location;
 }
 
-function createArrayBufferFromFloats(
-    gl: WebGLRenderingContext,
-    floats: number[]
-): WebGLBuffer {
+function createArrayBufferFromFloats(gl: WebGLRenderingContext, floats: number[]): WebGLBuffer {
     const ret = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, ret);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(floats), gl.STATIC_DRAW);
@@ -71,15 +55,9 @@ function createArrayBufferFromFloats(
 //
 
 /**
- * Combines a WebGL surface with a
- * 2D canvas for complex effects
+ * Combines a WebGL surface with a 2D canvas for complex effects.
  */
-export abstract class ShaderRenderer<
-    A extends string,
-    U extends string,
-    B extends string
-> {
-
+export abstract class ShaderRenderer<A extends string, U extends string, B extends string> {
     private readonly _ctx: CanvasRenderingContext2D;
     private readonly _surface: OffscreenCanvas;
     private readonly _surfaceCtx: WebGLRenderingContext;
@@ -98,13 +76,13 @@ export abstract class ShaderRenderer<
         fragSrc: string,
         attributeNames: A[],
         uniformNames: U[],
-        bufferInit: BufferInit<B>
+        bufferInit: BufferInit<B>,
     ) {
         const ctx = element.getContext("2d");
         if (ctx === null) throw new Error(`Failed to create 2D context`);
 
         const surface = new OffscreenCanvas(surfaceWidth, surfaceHeight);
-        let surfaceCtx: WebGLRenderingContext | null = surface.getContext("webgl", { });
+        let surfaceCtx: WebGLRenderingContext | null = surface.getContext("webgl", {});
         if (surfaceCtx === null) throw new Error(`Failed to create WebGL context`);
 
         this._ctx = ctx;
@@ -129,11 +107,7 @@ export abstract class ShaderRenderer<
         this._shouldRender = should;
     }
 
-    protected spin(
-        _ctx: CanvasRenderingContext2D,
-        surface: OffscreenCanvas,
-        gl: WebGLRenderingContext
-    ): void {
+    protected spin(_ctx: CanvasRenderingContext2D, surface: OffscreenCanvas, gl: WebGLRenderingContext): void {
         const rect = this.element.getBoundingClientRect();
         this.element.width = rect.width;
         this.element.height = rect.height;
@@ -146,20 +120,17 @@ export abstract class ShaderRenderer<
         program: WebGLProgram,
         attributes: AttributeMap<A>,
         uniforms: UniformMap<U>,
-        buffers: BufferMap<B>
+        buffers: BufferMap<B>,
     ): void;
 
-    protected abstract renderElement(
-        ctx: CanvasRenderingContext2D,
-        surface: OffscreenCanvas
-    ): void;
+    protected abstract renderElement(ctx: CanvasRenderingContext2D, surface: OffscreenCanvas): void;
 
     private _renderLoop(): void {
         if (this._rendering) return;
         this._rendering = true;
         this.spin(this._ctx, this._surface, this._surfaceCtx);
 
-        const frame = (() => {
+        const frame = () => {
             try {
                 this.renderSurface(
                     this._surface,
@@ -167,12 +138,9 @@ export abstract class ShaderRenderer<
                     this._program,
                     this._attributes,
                     this._uniforms,
-                    this._buffers
+                    this._buffers,
                 );
-                this.renderElement(
-                    this._ctx,
-                    this._surface
-                );
+                this.renderElement(this._ctx, this._surface);
             } finally {
                 if (this._shouldRender) {
                     window.requestAnimationFrame(frame);
@@ -180,7 +148,7 @@ export abstract class ShaderRenderer<
                     this._rendering = false;
                 }
             }
-        });
+        };
         window.requestAnimationFrame(frame);
     }
 
@@ -213,5 +181,4 @@ export abstract class ShaderRenderer<
         }
         return ret as BufferMap<B>;
     }
-
 }

@@ -1,33 +1,30 @@
-import {Token} from "./token";
-import {RootNode} from "./tree/root";
-import {ElementNode} from "./tree/element";
-import {TagNode} from "./tree/tag";
-import {TextColor} from "../text/style/textColor";
+import { TextColor } from "../text/style/textColor";
+import { Token } from "./token";
+import { ElementNode } from "./tree/element";
+import { RootNode } from "./tree/root";
+import { TagNode } from "./tree/tag";
 
 //
 
-export type HighlightKind =
-    | "text"
-    | "punctuation"
-    | "tag-name"
-    | "tag-arg";
+export type HighlightKind = "text" | "punctuation" | "tag-name" | "tag-arg";
 
 export interface HighlightSpan {
     start: number;
     end: number;
     kind: HighlightKind;
-    /** Nesting depth of the *tag this span belongs to* (0 = top level). Not meaningful for "text". */
+    /**
+     * Nesting depth of the _tag this span belongs to_ (0 = top level). Not meaningful for "text".
+     */
     depth: number;
     /**
-     * Shared between an opening tag's punctuation/name/arg spans and its matching
-     * closing tag's punctuation/name/arg spans. Undefined for plain text and for
-     * tags with no matching close (self-closing, or left open / reset).
+     * Shared between an opening tag's punctuation/name/arg spans and its matching closing tag's punctuation/name/arg
+     * spans. Undefined for plain text and for tags with no matching close (self-closing, or left open / reset).
      */
     pairId?: number;
     /**
-     * Resolved literal color, only ever set on a "tag-name" span for a tag that
-     * resolves to a single static color (e.g. <red>, <color:#FF8652>). Never set
-     * for positional tags like <gradient> or <rainbow> — those don't have one color.
+     * Resolved literal color, only ever set on a "tag-name" span for a tag that resolves to a single static color (e.g.
+     * <red>, [color:#FF8652](color:#FF8652)). Never set for positional tags like <gradient> or <rainbow> — those don't
+     * have one color.
      */
     color?: TextColor;
 }
@@ -35,10 +32,9 @@ export interface HighlightSpan {
 //
 
 /**
- * Produces a flat, source-order list of highlight spans covering the entire input,
- * suitable for driving a syntax-highlighting overlay. `root` should come from
- * whatever already runs `MiniMessageParser.parseToTree` (tags are expected to
- * already be resolved via `TagNode.tag()`).
+ * Produces a flat, source-order list of highlight spans covering the entire input, suitable for driving a
+ * syntax-highlighting overlay. `root` should come from whatever already runs `MiniMessageParser.parseToTree` (tags are
+ * expected to already be resolved via `TagNode.tag()`).
  */
 export function highlightTree(root: RootNode, input: string): HighlightSpan[] {
     const spans: HighlightSpan[] = [];
@@ -55,8 +51,15 @@ export function highlightTree(root: RootNode, input: string): HighlightSpan[] {
         return id;
     }
 
-    /** Splits one tag token (open, close, or open-close) into punctuation/name/arg spans. */
-    function pushTagTokenSpans(token: Token, depth: number, pairId: number | undefined, color: TextColor | undefined): void {
+    /**
+     * Splits one tag token (open, close, or open-close) into punctuation/name/arg spans.
+     */
+    function pushTagTokenSpans(
+        token: Token,
+        depth: number,
+        pairId: number | undefined,
+        color: TextColor | undefined,
+    ): void {
         const children = token.childTokens();
         if (children === null || children.length === 0) {
             // Shouldn't happen for real tag tokens, but fall back to one punctuation span.
@@ -80,7 +83,7 @@ export function highlightTree(root: RootNode, input: string): HighlightSpan[] {
                 kind,
                 depth,
                 pairId,
-                color: kind === "tag-name" ? color : undefined
+                color: kind === "tag-name" ? color : undefined,
             });
 
             cursor = child.endIndex();
@@ -91,7 +94,9 @@ export function highlightTree(root: RootNode, input: string): HighlightSpan[] {
         }
     }
 
-    /** Pure/safe: only ever set for single-color "inserting" tags, never gradient/rainbow. */
+    /**
+     * Pure/safe: only ever set for single-color "inserting" tags, never gradient/rainbow.
+     */
     function resolvedColorOf(node: TagNode): TextColor | undefined {
         const tag = node.tag();
         if (tag.type !== "inserting") return undefined;

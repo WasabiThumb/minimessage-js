@@ -1,15 +1,16 @@
+import { Key, KeyLike } from "../../key";
+import { defineAccessor, defineContextualAccessor } from "../../util/accessor";
+import { ArrayUtil } from "../../util/array";
 import type { Component, ComponentLike } from "../component";
-import { Style, TextColor, ShadowColor, TextDecoration, HoverEvent, ClickEvent } from "../style";
-import {defineAccessor, defineContextualAccessor} from "../../util/accessor";
-import {ArrayUtil} from "../../util/array";
-import {ComponentCompaction} from "./compaction";
-import {Key, KeyLike} from "../../key";
+import { ClickEvent, HoverEvent, ShadowColor, Style, TextColor, TextDecoration } from "../style";
+import { ComponentCompaction } from "./compaction";
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export interface ScopedComponent<C extends ScopedComponent<C>> extends ComponentLike {
-
     children(): Component[];
 
     children(children: ComponentLike[]): Component;
@@ -65,23 +66,22 @@ export interface ScopedComponent<C extends ScopedComponent<C>> extends Component
     compact(parentStyle?: Style | null): Component;
 
     // TODO: replaceText
-
 }
 
 //
 
-/** @internal */
-export abstract class AbstractScopedComponent<C extends ScopedComponent<C>, E extends Record<string, any>> implements ScopedComponent<C> {
-
+/**
+ * @internal
+ */
+export abstract class AbstractScopedComponent<
+    C extends ScopedComponent<C>,
+    E extends Record<string, any>,
+> implements ScopedComponent<C> {
     protected readonly _extra: E;
     private readonly _children: Component[];
     private readonly _style: Style;
 
-    protected constructor(
-        extra: E,
-        children: Component[] = [],
-        style: Style = Style.empty()
-    ) {
+    protected constructor(extra: E, children: Component[] = [], style: Style = Style.empty()) {
         this._children = children;
         this._style = style;
         this._extra = extra;
@@ -99,8 +99,8 @@ export abstract class AbstractScopedComponent<C extends ScopedComponent<C>, E ex
             const normalized: Component[] = new Array(children.length);
             for (let i = 0; i < children.length; i++) normalized[i] = children[i].asComponent();
             return this._mutate(this._extra, normalized, this._style);
-        }
-    )
+        },
+    );
 
     append(...components: ComponentLike[]): C {
         const current = this._children.length;
@@ -112,17 +112,17 @@ export abstract class AbstractScopedComponent<C extends ScopedComponent<C>, E ex
 
     style = defineAccessor<Style>(
         () => this._style,
-        (style) => this._mutate(this._extra, this._children, style)
+        (style) => this._mutate(this._extra, this._children, style),
     );
 
     font = defineAccessor<Key | null, KeyLike | null>(
         () => this._style.font(),
-        (font) => this._mutateStyle((s) => s.font(font))
+        (font) => this._mutateStyle((s) => s.font(font)),
     );
 
     color = defineAccessor<TextColor | null>(
         () => this._style.color(),
-        (color) => this._mutateStyle((s) => s.color(color))
+        (color) => this._mutateStyle((s) => s.color(color)),
     );
 
     colorIfAbsent(color: TextColor | null): C {
@@ -131,7 +131,7 @@ export abstract class AbstractScopedComponent<C extends ScopedComponent<C>, E ex
 
     shadowColor = defineAccessor<ShadowColor | null>(
         () => this._style.shadowColor(),
-        (shadowColor) => this._mutateStyle((s) => s.shadowColor(shadowColor))
+        (shadowColor) => this._mutateStyle((s) => s.shadowColor(shadowColor)),
     );
 
     shadowColorIfAbsent(shadowColor: ShadowColor | null): C {
@@ -148,31 +148,34 @@ export abstract class AbstractScopedComponent<C extends ScopedComponent<C>, E ex
 
     decoration = defineContextualAccessor<TextDecoration, TextDecoration.State, TextDecoration.State | boolean>(
         (decoration) => this._style.decoration(decoration),
-        (decoration, state) => this._mutateStyle((s) => s.decoration(decoration, state))
+        (decoration, state) => this._mutateStyle((s) => s.decoration(decoration, state)),
     );
 
     decorationIfAbsent(decoration: TextDecoration, state: boolean | TextDecoration.State): C {
         return this._mutateStyle((s) => s.decorationIfAbsent(decoration, state));
     }
 
-    decorations = defineAccessor<Record<TextDecoration, TextDecoration.State>, Partial<Record<TextDecoration, TextDecoration.State>>>(
+    decorations = defineAccessor<
+        Record<TextDecoration, TextDecoration.State>,
+        Partial<Record<TextDecoration, TextDecoration.State>>
+    >(
         () => this._style.decorations(),
-        (decorations) => this._mutateStyle((s) => s.decorations(decorations))
+        (decorations) => this._mutateStyle((s) => s.decorations(decorations)),
     );
 
     clickEvent = defineAccessor<ClickEvent<any> | null>(
         () => this._style.clickEvent(),
-        (clickEvent) => this._mutateStyle((s) => s.clickEvent(clickEvent))
+        (clickEvent) => this._mutateStyle((s) => s.clickEvent(clickEvent)),
     );
 
     hoverEvent = defineAccessor<HoverEvent<any> | null>(
         () => this._style.hoverEvent(),
-        (hoverEvent) => this._mutateStyle((s) => s.hoverEvent(hoverEvent))
+        (hoverEvent) => this._mutateStyle((s) => s.hoverEvent(hoverEvent)),
     );
 
     insertion = defineAccessor<string | null>(
         () => this._style.insertion(),
-        (insertion) => this._mutateStyle((s) => s.insertion(insertion))
+        (insertion) => this._mutateStyle((s) => s.insertion(insertion)),
     );
 
     compact(parentStyle?: Style | null): Component {
@@ -196,5 +199,4 @@ export abstract class AbstractScopedComponent<C extends ScopedComponent<C>, E ex
     private _mutateStyle(fn: (style: Style) => Style): C {
         return this._mutate(this._extra, this._children, fn(this._style));
     }
-
 }

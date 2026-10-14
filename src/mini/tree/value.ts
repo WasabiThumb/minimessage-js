@@ -1,19 +1,15 @@
-import {ElementNode} from "./element";
-import {Token} from "../token";
+import { Token } from "../token";
+import { ElementNode } from "./element";
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export abstract class ValueNode extends ElementNode {
-
     private readonly _value: string;
 
-    constructor(
-        parent: ElementNode | null,
-        token: Token | null,
-        sourceMessage: string,
-        value: string
-    ) {
+    constructor(parent: ElementNode | null, token: Token | null, sourceMessage: string, value: string) {
         super(parent, token, sourceMessage);
         this._value = value;
     }
@@ -31,5 +27,4 @@ export abstract class ValueNode extends ElementNode {
         if (token === null) throw new Error(`token is not set`);
         return token;
     }
-
 }

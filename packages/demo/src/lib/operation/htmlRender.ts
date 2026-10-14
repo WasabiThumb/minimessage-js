@@ -1,7 +1,8 @@
-import {Operation} from "../operation.ts";
-import {type ComponentUnit, type StringUnit, Unit} from "../unit.ts";
-import type {ArgumentMap} from "../argument.ts";
-import {HtmlComponentRenderer, HtmlWriter} from "minimessage-js";
+import { HtmlComponentRenderer, HtmlWriter } from "minimessage-js";
+
+import type { ArgumentMap } from "../argument.ts";
+import { Operation } from "../operation.ts";
+import { type ComponentUnit, type StringUnit, Unit } from "../unit.ts";
 
 //
 
@@ -10,7 +11,6 @@ type Args = {
 };
 
 class HtmlRenderOperationImpl implements HtmlRenderOperation {
-
     readonly id = HtmlRenderOperation.ID;
     readonly name = "Render to HTML String";
     readonly accepts = "component";
@@ -27,7 +27,6 @@ class HtmlRenderOperationImpl implements HtmlRenderOperation {
         renderer.render(unit.value, writer);
         return Unit.string(writer.toString());
     }
-
 }
 
 //

@@ -1,23 +1,20 @@
-import {Node} from "../tree";
-import {Token, TokenType} from "../token";
-import {ArrayUtil} from "../../util/array";
-import {TextNodeFactory} from "./hacks";
+import { ArrayUtil } from "../../util/array";
+import { Token, TokenType } from "../token";
+import { Node } from "../tree";
+import { TextNodeFactory } from "./hacks";
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export class ElementNode implements Node {
-
     private readonly _parent: ElementNode | null;
     private readonly _token: Token | null;
     private readonly _sourceMessage: string;
     private readonly _children: ElementNode[];
 
-    protected constructor(
-        parent: ElementNode | null,
-        token: Token | null,
-        sourceMessage: string
-    ) {
+    protected constructor(parent: ElementNode | null, token: Token | null, sourceMessage: string) {
         this._parent = parent;
         this._token = token;
         this._sourceMessage = sourceMessage;
@@ -48,7 +45,11 @@ export class ElementNode implements Node {
 
     addChild(childNode: ElementNode): void {
         const last = this._children.length - 1;
-        if (!TextNodeFactory.isTextNode(childNode) || this._children.length === 0 || !TextNodeFactory.isTextNode(this._children[last])) {
+        if (
+            !TextNodeFactory.isTextNode(childNode) ||
+            this._children.length === 0 ||
+            !TextNodeFactory.isTextNode(this._children[last])
+        ) {
             this._children.push(childNode);
         } else {
             const lastNode = this._children.splice(last, 1)[0];
@@ -56,7 +57,7 @@ export class ElementNode implements Node {
                 const replace = new Token(
                     lastNode.token()!.startIndex(),
                     childNode.token()!.endIndex(),
-                    TokenType.TEXT
+                    TokenType.TEXT,
                 );
                 this._children.push(TextNodeFactory.create(this, replace, lastNode.sourceMessage()));
             } else {
@@ -64,5 +65,4 @@ export class ElementNode implements Node {
             }
         }
     }
-
 }

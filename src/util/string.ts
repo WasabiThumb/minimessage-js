@@ -1,31 +1,27 @@
-import {Character, CharacterLike} from "./char";
+import { Character, CharacterLike } from "./char";
 
 //
 
-export function codePointCount(
-    data: string,
-    from: number = 0,
-    to: number = data.length
-): number {
+export function codePointCount(data: string, from: number = 0, to: number = data.length): number {
     let ret: number = 0;
     let codePoint: number;
 
     for (let i = from; i < to; i++) {
         codePoint = data.codePointAt(i)!;
         ret++;
-        if (codePoint > 0xFFFF) i++;
+        if (codePoint > 0xffff) i++;
     }
 
     return ret;
 }
 
 /**
- * A procedural StringBuilder, similar to the class of the same name in Java.
- * Internally uses a growing Uint16Array of UTF-16 code points.
+ * A procedural StringBuilder, similar to the class of the same name in Java. Internally uses a growing Uint16Array of
+ * UTF-16 code points.
+ *
  * @internal
  */
 export class StringBuilder {
-
     private static readonly LOAD_FACTOR: number = 0.75;
     private _u16: Uint16Array;
     private readonly _initialCapacity: number;
@@ -96,15 +92,11 @@ export class StringBuilder {
         return this;
     }
 
-    appendString(
-        value: string,
-        start: number = 0,
-        end: number = value.length
-    ): this {
+    appendString(value: string, start: number = 0, end: number = value.length): this {
         const length = end - start;
         if (length < 0) throw new Error(`Negative range`);
         this.provision(length);
-        for (let i= start; i < end; i++) {
+        for (let i = start; i < end; i++) {
             this._u16[this._length++] = value.charCodeAt(i);
         }
         return this;
@@ -129,9 +121,9 @@ export class StringBuilder {
 
         let z: number = 0;
 
-        for (let i=0; i < this._length; i++) {
+        for (let i = 0; i < this._length; i++) {
             if (value.charCodeAt(z) === this._u16[i]) {
-                if ((++z) === l) return i - l + 1;
+                if (++z === l) return i - l + 1;
             } else {
                 z = 0;
             }
@@ -140,7 +132,7 @@ export class StringBuilder {
     }
 
     indexOfChar(char: number): number | -1 {
-        for (let i=0; i < this._length; i++) {
+        for (let i = 0; i < this._length; i++) {
             if (char === this._u16[i]) return i;
         }
         return -1;
@@ -148,6 +140,7 @@ export class StringBuilder {
 
     /**
      * Converts the StringBuilder into a string.
+     *
      * @param offset Offset into the string (in codepoints) to start converting. Default is 0.
      * @param length Length (number of codepoints) to convert. Default is the length of the internal array.
      */
@@ -161,11 +154,11 @@ export class StringBuilder {
         }
 
         if (typeof length === "undefined") {
-            length = (this._length - offset);
+            length = this._length - offset;
             if (length < 0) throw new Error(`Offset ${offset} out of bounds for length ${this._length}`);
         } else if (length < 0) {
             throw new Error(`Length cannot be negative`);
-        } else if (length > (this._length - offset)) {
+        } else if (length > this._length - offset) {
             throw new Error(`Index ${length + offset - 1} out of bounds for length ${this._length}`);
         }
 
@@ -187,12 +180,12 @@ export class StringBuilder {
         let code: number;
         let i: number = 0;
         while (i < length) {
-            code = this._u16[(i++) + offset];
+            code = this._u16[i++ + offset];
 
             // Surrogate pairs
-            if (code >= 0xD800 && code <= 0xDFFF && i < length) {
-                let lo: number = this._u16[(i++) + offset];
-                code = ((code - 0xD800) << 10) + lo + 0x2400;
+            if (code >= 0xd800 && code <= 0xdfff && i < length) {
+                let lo: number = this._u16[i++ + offset];
+                code = ((code - 0xd800) << 10) + lo + 0x2400;
             }
 
             codePointBuffer[codePointBufferPos++] = code;
@@ -209,5 +202,4 @@ export class StringBuilder {
 
         return ret;
     }
-
 }

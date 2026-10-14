@@ -1,8 +1,8 @@
-import {AbstractScopedComponent, ScopedComponent} from "./scoped";
+import { defineAccessor } from "../../util/accessor";
+import { ArrayUtil } from "../../util/array";
 import type { Component } from "../component";
-import {Style} from "../style";
-import {defineAccessor} from "../../util/accessor";
-import {ArrayUtil} from "../../util/array";
+import { Style } from "../style";
+import { AbstractScopedComponent, ScopedComponent } from "./scoped";
 
 //
 
@@ -13,7 +13,6 @@ export namespace TranslatableComponent {
 }
 
 export interface TranslatableComponent extends ScopedComponent<TranslatableComponent> {
-
     readonly type: typeof TranslatableComponent.TYPE;
 
     key(): string;
@@ -27,20 +26,23 @@ export interface TranslatableComponent extends ScopedComponent<TranslatableCompo
     fallback(): string | null;
 
     fallback(fallback: string | null): TranslatableComponent;
-
 }
 
 //
 
 type Extra = {
-    key: string,
-    arguments: TranslationArgument[],
-    fallback: string | null
+    key: string;
+    arguments: TranslationArgument[];
+    fallback: string | null;
 };
 
-/** @internal */
-export class TranslatableComponentImpl extends AbstractScopedComponent<TranslatableComponentImpl, Extra> implements TranslatableComponent {
-
+/**
+ * @internal
+ */
+export class TranslatableComponentImpl
+    extends AbstractScopedComponent<TranslatableComponentImpl, Extra>
+    implements TranslatableComponent
+{
     readonly type = TranslatableComponent.TYPE;
 
     constructor(extra: Extra, children?: Component[], style?: Style) {
@@ -51,21 +53,20 @@ export class TranslatableComponentImpl extends AbstractScopedComponent<Translata
 
     key = defineAccessor(
         () => this._getExtra("key"),
-        (key) => this._withExtra("key", key)
+        (key) => this._withExtra("key", key),
     );
 
     arguments = defineAccessor(
         () => ArrayUtil.immutableView(this._getExtra("arguments")),
-        (args) => this._withExtra("arguments", ArrayUtil.immutableView(args))
+        (args) => this._withExtra("arguments", ArrayUtil.immutableView(args)),
     );
 
     fallback = defineAccessor(
         () => this._getExtra("fallback"),
-        (fallback) => this._withExtra("fallback", fallback)
+        (fallback) => this._withExtra("fallback", fallback),
     );
 
     protected _mutate(extra: Extra, children: Component[], style: Style): TranslatableComponentImpl {
         return new TranslatableComponentImpl(extra, children, style);
     }
-
 }

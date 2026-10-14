@@ -1,12 +1,13 @@
-import {AbstractScopedComponent, ScopedComponent} from "./scoped";
+import { defineAccessor } from "../../util/accessor";
 import type { Component, ComponentLike } from "../component";
-import {defineAccessor} from "../../util/accessor";
+import { AbstractScopedComponent, ScopedComponent } from "./scoped";
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export interface NBTComponent<C extends NBTComponent<C>> extends ScopedComponent<C> {
-
     nbtPath(): string;
 
     nbtPath(nbtPath: string): C;
@@ -18,33 +19,35 @@ export interface NBTComponent<C extends NBTComponent<C>> extends ScopedComponent
     separator(): Component | null;
 
     separator(separator: ComponentLike | null): C;
-
 }
 
 //
 
 type Extra = {
-    nbtPath: string,
-    interpret: boolean,
-    separator: Component | null
+    nbtPath: string;
+    interpret: boolean;
+    separator: Component | null;
 };
 
-/** @internal */
-export abstract class AbstractNBTComponent<C extends NBTComponent<C>, E extends Extra> extends AbstractScopedComponent<C, E> implements NBTComponent<C> {
-
+/**
+ * @internal
+ */
+export abstract class AbstractNBTComponent<C extends NBTComponent<C>, E extends Extra>
+    extends AbstractScopedComponent<C, E>
+    implements NBTComponent<C>
+{
     nbtPath = defineAccessor(
         () => this._getExtra("nbtPath"),
-        (nbtPath) => this._withExtra("nbtPath", nbtPath)
+        (nbtPath) => this._withExtra("nbtPath", nbtPath),
     );
 
     interpret = defineAccessor(
         () => this._getExtra("interpret"),
-        (interpret) => this._withExtra("interpret", interpret)
+        (interpret) => this._withExtra("interpret", interpret),
     );
 
     separator = defineAccessor(
         () => this._getExtra("separator"),
-        (separator) => this._withExtra("separator", separator)
+        (separator) => this._withExtra("separator", separator),
     );
-
 }

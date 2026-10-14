@@ -1,17 +1,17 @@
-import type {Operation} from "../operation.ts";
-import {type ComponentUnit, type RichUnit, Unit} from "../unit.ts";
-import {Argument, type ArgumentMap} from "../argument.ts";
-import {MiniMessage} from "minimessage-js";
+import { MiniMessage } from "minimessage-js";
+
+import { Argument, type ArgumentMap } from "../argument.ts";
+import type { Operation } from "../operation.ts";
+import { type ComponentUnit, type RichUnit, Unit } from "../unit.ts";
 
 //
 
 type Args = {
-    unsafe: boolean,
+    unsafe: boolean;
     // TODO: translations
 };
 
 class DomRenderOperationImpl implements DomRenderOperation {
-
     readonly id = DomRenderOperation.ID;
     readonly name = "Render to DOM";
     readonly accepts = "component";
@@ -39,7 +39,6 @@ class DomRenderOperationImpl implements DomRenderOperation {
             });
         }
     }
-
 }
 
 //

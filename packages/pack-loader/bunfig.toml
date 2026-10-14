@@ -11,6 +11,6 @@ printWidth = 120 # JetBrains convention
 tabWidth = 4 # JetBrains convention
 endOfLine = "lf"
 semi = true
-ignorePatterns = [ "packages/**", "node_modules/**", "dist/**", "types/**" ]
+ignorePatterns = [ "packages/**", "node_modules/**", "dist/**", "types/**", "*.toml", "*.json", "*.md" ]
 sortImports = true
 jsdoc = { descriptionWithDot = true, commentLineStrategy = "multiline" }

@@ -1,34 +1,35 @@
-import type {MiniMessage} from "../mini";
-import {MiniMessageParser} from "./parser";
-import {Component} from "../text/component";
-import {TagResolver} from "./tag/resolver";
-import {TranslationData, Translations} from "../i18n";
-import {StandardTags} from "./tag/standard";
-import {assertReal} from "../util/assertions";
-import {ContextImpl} from "./context";
-import {DomHTMLWriter} from "../html/writer/dom";
-import {Node} from "./tree";
-import {HtmlComponentRenderer} from "../html/renderer";
-import {HtmlWriter} from "../html/writer";
-import {MiniMessageSerializer} from "./serializer";
-import {ResourcePacks} from "../resourcePacks";
-import {highlightTree, HighlightSpan} from "./highlight";
+import { HtmlComponentRenderer } from "../html/renderer";
+import { HtmlWriter } from "../html/writer";
+import { DomHTMLWriter } from "../html/writer/dom";
+import { TranslationData, Translations } from "../i18n";
+import type { MiniMessage } from "../mini";
+import { ResourcePacks } from "../resourcePacks";
+import { Component } from "../text/component";
+import { assertReal } from "../util/assertions";
+import { ContextImpl } from "./context";
+import { HighlightSpan, highlightTree } from "./highlight";
+import { MiniMessageParser } from "./parser";
+import { MiniMessageSerializer } from "./serializer";
+import { TagResolver } from "./tag/resolver";
+import { StandardTags } from "./tag/standard";
+import { Node } from "./tree";
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export class MiniMessageImpl implements MiniMessage {
-
     readonly _parser: MiniMessageParser;
 
     constructor(
         tagResolver: TagResolver,
         readonly _strict: boolean,
         readonly _debugOutput: ((x: string) => void) | null,
-        readonly _preProcessor: ((x: string) => string),
-        readonly _postProcessor: ((x: Component) => Component),
+        readonly _preProcessor: (x: string) => string,
+        readonly _postProcessor: (x: Component) => Component,
         readonly _translations: Translations,
-        readonly _resourcePacks: ResourcePacks
+        readonly _resourcePacks: ResourcePacks,
     ) {
         this._parser = new MiniMessageParser(tagResolver);
     }
@@ -108,20 +109,20 @@ export class MiniMessageImpl implements MiniMessage {
             this,
             extraTags,
             this._preProcessor,
-            this._postProcessor
+            this._postProcessor,
         );
     }
-
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 export class MiniMessageBuilderImpl implements MiniMessage.Builder {
-
     private _tagResolver: TagResolver = StandardTags.defaults();
     private _strict: boolean = false;
     private _debug: ((x: string) => void) | null = null;
-    private _preProcessor: ((x: string) => string) = ((x) => x);
-    private _postProcessor: ((x: Component) => Component) = ((x) => x.compact());
+    private _preProcessor: (x: string) => string = (x) => x;
+    private _postProcessor: (x: Component) => Component = (x) => x.compact();
     private _translations: Translations = Translations.empty();
     private _resourcePacks: ResourcePacks = ResourcePacks.empty();
 
@@ -158,7 +159,7 @@ export class MiniMessageBuilderImpl implements MiniMessage.Builder {
         return this;
     }
 
-    debug(debugOutput: (message: string) => (void | null)): this {
+    debug(debugOutput: (message: string) => void | null): this {
         if (null !== debugOutput && typeof debugOutput !== "function")
             throw new TypeError(`'debugOutput' must be either null or a function (got ${debugOutput})`);
 
@@ -198,8 +199,7 @@ export class MiniMessageBuilderImpl implements MiniMessage.Builder {
             this._preProcessor,
             this._postProcessor,
             this._translations,
-            this._resourcePacks
+            this._resourcePacks,
         );
     }
-
 }

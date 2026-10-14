@@ -1,7 +1,7 @@
-import texturedVert from './shader/textured.vert';
-import sliderFrag from './shader/slider.frag';
-import {type AttributeMap, type BufferMap, ShaderRenderer, type UniformMap} from "./shader.ts";
-import {Color} from "./color.ts";
+import { Color } from "./color.ts";
+import { type AttributeMap, type BufferMap, ShaderRenderer, type UniformMap } from "./shader.ts";
+import sliderFrag from "./shader/slider.frag";
+import texturedVert from "./shader/textured.vert";
 
 //
 
@@ -18,7 +18,6 @@ const KNOB_HEIGHT = 0.35;
 //
 
 export class LightnessSlider extends ShaderRenderer<Attribute, Uniform, Buffer> {
-
     private readonly _value: Color;
 
     constructor(element: HTMLCanvasElement, value: Color) {
@@ -28,22 +27,12 @@ export class LightnessSlider extends ShaderRenderer<Attribute, Uniform, Buffer> 
             256,
             texturedVert,
             sliderFrag,
-            [ "aVertexPosition", "aTextureCoord" ],
-            [ "uHue", "uSaturation" ],
+            ["aVertexPosition", "aTextureCoord"],
+            ["uHue", "uSaturation"],
             {
-                vertexPosition: [
-                    -1, -1,
-                    -1,  1,
-                     1,  1,
-                     1, -1
-                ],
-                textureCoord: [
-                    0, 1,
-                    0, 0,
-                    1, 0,
-                    1, 1
-                ]
-            }
+                vertexPosition: [-1, -1, -1, 1, 1, 1, 1, -1],
+                textureCoord: [0, 1, 0, 0, 1, 0, 1, 1],
+            },
         );
         this._value = value;
         this._bindEvents();
@@ -51,11 +40,7 @@ export class LightnessSlider extends ShaderRenderer<Attribute, Uniform, Buffer> 
 
     //
 
-    protected spin(
-        ctx: CanvasRenderingContext2D,
-        surface: OffscreenCanvas,
-        gl: WebGLRenderingContext
-    ) {
+    protected spin(ctx: CanvasRenderingContext2D, surface: OffscreenCanvas, gl: WebGLRenderingContext) {
         super.spin(ctx, surface, gl);
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
@@ -67,7 +52,7 @@ export class LightnessSlider extends ShaderRenderer<Attribute, Uniform, Buffer> 
         program: WebGLProgram,
         attributes: AttributeMap<Attribute>,
         uniforms: UniformMap<Uniform>,
-        buffers: BufferMap<Buffer>
+        buffers: BufferMap<Buffer>,
     ) {
         gl.clearColor(0, 0, 0, 0);
         gl.clear(gl.COLOR_BUFFER_BIT);
@@ -89,10 +74,7 @@ export class LightnessSlider extends ShaderRenderer<Attribute, Uniform, Buffer> 
         gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
     }
 
-    protected renderElement(
-        ctx: CanvasRenderingContext2D,
-        surface: OffscreenCanvas
-    ) {
+    protected renderElement(ctx: CanvasRenderingContext2D, surface: OffscreenCanvas) {
         const { width, height } = this.element;
         const h = height / width;
         ctx.setTransform(width, 0, 0, width, 0, 0);
@@ -110,47 +92,41 @@ export class LightnessSlider extends ShaderRenderer<Attribute, Uniform, Buffer> 
         const rgb = this._value.get("rgb");
 
         const cx = 0.5;
-        const cy = PAD + ((h - PAD_2) * hsl.l);
+        const cy = PAD + (h - PAD_2) * hsl.l;
 
-        const part = ((w: number, h: number, color: string) => {
+        const part = (w: number, h: number, color: string) => {
             ctx.fillStyle = color;
             ctx.beginPath();
-            ctx.roundRect(
-                cx - (w / 2),
-                cy - (h / 2),
-                w,
-                h,
-                RADIUS
-            );
+            ctx.roundRect(cx - w / 2, cy - h / 2, w, h, RADIUS);
             ctx.fill();
-        });
+        };
 
         part(KNOB_WIDTH, KNOB_HEIGHT, `#fff`);
         part(KNOB_WIDTH - 0.05, KNOB_HEIGHT - 0.05, `#000`);
-        part(KNOB_WIDTH - 0.10, KNOB_HEIGHT - 0.10, `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
+        part(KNOB_WIDTH - 0.1, KNOB_HEIGHT - 0.1, `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
     }
 
     private _onPointer(_x: number, y: number): void {
-       const rect = this.element.getBoundingClientRect();
-       const pad = rect.width * PAD;
-       const top = rect.top + pad;
-       const bottom = rect.bottom - pad;
+        const rect = this.element.getBoundingClientRect();
+        const pad = rect.width * PAD;
+        const top = rect.top + pad;
+        const bottom = rect.bottom - pad;
 
-       let l: number;
-       if (y <= top) {
-           l = 0;
-       } else if (y >= bottom) {
-           l = 1;
-       } else {
-           l = (y - top) / (bottom - top);
-       }
+        let l: number;
+        if (y <= top) {
+            l = 0;
+        } else if (y >= bottom) {
+            l = 1;
+        } else {
+            l = (y - top) / (bottom - top);
+        }
 
-       const current = this._value.get("okhsl");
-       this._value.set("okhsl", {
-           h: current.h,
-           s: current.s,
-           l
-       });
+        const current = this._value.get("okhsl");
+        this._value.set("okhsl", {
+            h: current.h,
+            s: current.s,
+            l,
+        });
     }
 
     private _bindEvents() {
@@ -178,5 +154,4 @@ export class LightnessSlider extends ShaderRenderer<Attribute, Uniform, Buffer> 
             }
         });
     }
-
 }

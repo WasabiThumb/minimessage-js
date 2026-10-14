@@ -1,32 +1,39 @@
-import {expect, test} from "bun:test";
+import { expect, test } from "bun:test";
+
 import MinecraftTranslations from "../src";
 
 //
 
-/** Keys we can expect the translation data to have */
+/**
+ * Keys we can expect the translation data to have.
+ */
 const KNOWN_KEYS = (<T extends string>(...keys: T[]) => {
     return Object.freeze(keys);
-})(
-    "title.credits",
-    "block.minecraft.diamond_block",
-    "item.minecraft.carrot_on_a_stick",
-);
+})("title.credits", "block.minecraft.diamond_block", "item.minecraft.carrot_on_a_stick");
 
-/** A single member of KNOWN_KEYS */
+/**
+ * A single member of KNOWN_KEYS.
+ */
 type KnownKey = typeof KNOWN_KEYS extends (infer T)[] ? T : never;
 
-/** A map of KNOWN_KEYS to their lang string */
+/**
+ * A map of KNOWN_KEYS to their lang string.
+ */
 type KnownTranslationData = {
-    [K in KnownKey]: string
+    [K in KnownKey]: string;
 };
 
-/** Ensure that some translation data has all the known keys */
+/**
+ * Ensure that some translation data has all the known keys.
+ */
 function validateTranslationData(data: Record<string, string>): KnownTranslationData {
     for (const key of KNOWN_KEYS) expect(typeof data[key]).toBe("string");
     return data as KnownTranslationData;
 }
 
-/** Ensure that 2 objects have the same values for each of the known keys */
+/**
+ * Ensure that 2 objects have the same values for each of the known keys.
+ */
 function checkTranslationData(a: KnownTranslationData, b: KnownTranslationData) {
     for (const key of KNOWN_KEYS) {
         expect(a[key as KnownKey]).toBe(b[key as KnownKey]);
@@ -34,10 +41,8 @@ function checkTranslationData(a: KnownTranslationData, b: KnownTranslationData) 
 }
 
 /**
- * The library should provide a sorted list,
- * but that sorting is optimized and non-standard.
- * This is an un-optimized and standard approach to
- * ensure that the list is actually sorted properly.
+ * The library should provide a sorted list, but that sorting is optimized and non-standard. This is an un-optimized and
+ * standard approach to ensure that the list is actually sorted properly.
  */
 function checkSorted(list: string[]): void {
     const copy = [...list];

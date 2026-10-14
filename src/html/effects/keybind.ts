@@ -1,9 +1,8 @@
-import {DomEffect} from "../effects";
+import { DomEffect } from "../effects";
 
 //
 
 class KeybindDomEffectImpl implements KeybindDomEffect {
-
     apply(element: Element, data: string): void {
         // NOOP
     }
@@ -15,7 +14,6 @@ class KeybindDomEffectImpl implements KeybindDomEffect {
     deserialize(value: string): string {
         return value;
     }
-
 }
 
 export type KeybindDomEffect = DomEffect<string>;

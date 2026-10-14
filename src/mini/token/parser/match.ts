@@ -1,8 +1,9 @@
-import {TokenType} from "../../token";
+import { TokenType } from "../../token";
 
-/** @internal */
+/**
+ * @internal
+ */
 export abstract class MatchedTokenConsumer<T> {
-
     protected readonly _input: string;
     private _lastIndex: number;
 
@@ -22,5 +23,4 @@ export abstract class MatchedTokenConsumer<T> {
     lastEndIndex(): number {
         return this._lastIndex;
     }
-
 }

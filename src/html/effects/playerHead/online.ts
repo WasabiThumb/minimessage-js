@@ -1,11 +1,12 @@
-import {UUID} from "../../../util/uuid";
-import {SharedCanvas} from "./canvas";
+import { UUID } from "../../../util/uuid";
+import { SharedCanvas } from "./canvas";
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export namespace OnlineHeads {
-
     const workspace = new SharedCanvas(8, 8);
 
     //
@@ -37,9 +38,7 @@ export namespace OnlineHeads {
     }
 
     /**
-     * Provides an object URL containing the
-     * face texture of the given online user, with or without
-     * the hat layer.
+     * Provides an object URL containing the face texture of the given online user, with or without the hat layer.
      */
     export async function get(id: UUID, hat: boolean, signal: AbortSignal): Promise<string | null> {
         const url = `https://corsjangsessionserver.b-cdn.net/session/minecraft/profile/${id.toString(true)}`;
@@ -69,24 +68,12 @@ export namespace OnlineHeads {
 
             // Draw the base layer
             context.globalCompositeOperation = "copy";
-            context.drawImage(
-                bitmap,
-                8, 8,
-                8, 8,
-                0, 0,
-                8, 8
-            );
+            context.drawImage(bitmap, 8, 8, 8, 8, 0, 0, 8, 8);
 
             // Draw the hat layer
             if (hat) {
                 context.globalCompositeOperation = "source-over";
-                context.drawImage(
-                    bitmap,
-                    40, 8,
-                    8, 8,
-                    0, 0,
-                    8, 8
-                );
+                context.drawImage(bitmap, 40, 8, 8, 8, 0, 0, 8, 8);
             }
 
             // Convert to blob
@@ -108,5 +95,4 @@ export namespace OnlineHeads {
         if (typeof json === "object" && json !== null && "id" in json) return UUID.fromString(`${json["id"]}`);
         throw new Error(`Unexpected response payload (${json})`);
     }
-
 }

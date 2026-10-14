@@ -1,37 +1,29 @@
-import {ArgumentQueue} from "./resolver/argumentQueue";
-import {Tag} from "../tag";
-import {Context} from "../context";
+import { Context } from "../context";
+import { Tag } from "../tag";
+import { ArgumentQueue } from "./resolver/argumentQueue";
 
 //
 
 export interface TagResolver {
-
     has(name: string): boolean;
 
     resolve(name: string, args: ArgumentQueue, ctx: Context): Tag | null;
-
 }
 
 interface MappableResolver extends TagResolver {
-
     contributeToMap(map: Map<string, Tag>): boolean;
-
 }
 
 //
 
 export namespace TagResolver {
-
     export interface Single extends TagResolver {
-
         key(): string;
 
         tag(): Tag;
-
     }
 
     class SingleImpl implements Single, MappableResolver {
-
         private readonly _key: string;
         private readonly _tag: Tag;
 
@@ -64,14 +56,10 @@ export namespace TagResolver {
             map.set(this._key, this._tag);
             return true;
         }
-
     }
 
     class Sequential implements TagResolver {
-
-        constructor(
-            readonly resolvers: TagResolver[]
-        ) { }
+        constructor(readonly resolvers: TagResolver[]) {}
 
         //
 
@@ -85,8 +73,7 @@ export namespace TagResolver {
                     if (placeholder !== null) return placeholder;
                 } catch (e) {
                     args.reset();
-                    const error = (typeof e === "object" && e instanceof Error) ?
-                        e : ctx.newException(`${e}`, args);
+                    const error = typeof e === "object" && e instanceof Error ? e : ctx.newException(`${e}`, args);
                     if (thrown) error.cause = thrown;
                     thrown = error;
                 }
@@ -102,14 +89,10 @@ export namespace TagResolver {
             }
             return false;
         }
-
     }
 
     class OfMap implements TagResolver, MappableResolver {
-
-        constructor(
-            readonly tagMap: Map<string, Tag>
-        ) { }
+        constructor(readonly tagMap: Map<string, Tag>) {}
 
         //
 
@@ -130,10 +113,9 @@ export namespace TagResolver {
             this.tagMap.forEach((v, k) => map.set(k, v));
             return true;
         }
-
     }
 
-    const EMPTY = new class implements TagResolver, MappableResolver {
+    const EMPTY = new (class implements TagResolver, MappableResolver {
         has(name: string): boolean {
             return false;
         }
@@ -143,12 +125,11 @@ export namespace TagResolver {
         contributeToMap(map: Map<string, Tag>): boolean {
             return true;
         }
-    };
+    })();
 
     //
 
     export interface Builder {
-
         tag(name: string, tag: Tag): this;
 
         resolver(resolver: TagResolver): this;
@@ -156,12 +137,12 @@ export namespace TagResolver {
         resolvers(...resolvers: TagResolver[]): this;
 
         build(): TagResolver;
-
     }
 
-    /** @internal */
+    /**
+     * @internal
+     */
     class BuilderImpl implements Builder {
-
         private readonly _replacements: Map<string, Tag>;
         private readonly _resolvers: TagResolver[];
 
@@ -239,7 +220,6 @@ export namespace TagResolver {
             this._resolvers.push(new OfMap(new Map(this._replacements)));
             this._replacements.clear();
         }
-
     }
 
     //
@@ -256,7 +236,11 @@ export namespace TagResolver {
         return new SingleImpl(name, tag);
     }
 
-    export function dynamic(name: string, handler: (args: ArgumentQueue, ctx: Context) => Tag, ...aliases: string[]): TagResolver {
+    export function dynamic(
+        name: string,
+        handler: (args: ArgumentQueue, ctx: Context) => Tag,
+        ...aliases: string[]
+    ): TagResolver {
         let has: (name: string) => boolean;
         if (aliases.length === 0) {
             has = (n) => name === n;
@@ -271,8 +255,7 @@ export namespace TagResolver {
             resolve(n: string, args: ArgumentQueue, ctx: Context): Tag | null {
                 if (!has(n)) return null;
                 return handler(args, ctx);
-            }
-        })
+            },
+        });
     }
-
 }

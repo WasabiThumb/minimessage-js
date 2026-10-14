@@ -1,9 +1,11 @@
-import {ArrayUtil} from "../util/array";
-import {assertNever} from "../util/assertions";
+import { ArrayUtil } from "../util/array";
+import { assertNever } from "../util/assertions";
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export namespace TokenType {
     export const TEXT = Symbol("TEXT");
     export const OPEN_TAG = Symbol("OPEN_TAG");
@@ -12,17 +14,21 @@ export namespace TokenType {
     export const TAG_VALUE = Symbol("TAG_VALUE");
 }
 
-/** @internal */
-export type TokenType = typeof TokenType.TEXT |
-    typeof TokenType.OPEN_TAG |
-    typeof TokenType.CLOSE_TAG |
-    typeof TokenType.OPEN_CLOSE_TAG |
-    typeof TokenType.CLOSE_TAG |
-    typeof TokenType.TAG_VALUE;
+/**
+ * @internal
+ */
+export type TokenType =
+    | typeof TokenType.TEXT
+    | typeof TokenType.OPEN_TAG
+    | typeof TokenType.CLOSE_TAG
+    | typeof TokenType.OPEN_CLOSE_TAG
+    | typeof TokenType.CLOSE_TAG
+    | typeof TokenType.TAG_VALUE;
 
-/** @internal */
+/**
+ * @internal
+ */
 export class Token {
-
     static match<T>(
         token: Token,
         handlers: {
@@ -31,7 +37,7 @@ export class Token {
             openCloseTag(token: Token): T;
             closeTag(token: Token): T;
             tagValue(token: Token): T;
-        }
+        },
     ): T {
         const type: TokenType = token.type();
         switch (type) {
@@ -56,12 +62,8 @@ export class Token {
     private readonly _type: TokenType;
     private _childTokens: Token[] | null;
 
-    constructor(
-        startIndex: number,
-        endIndex: number,
-        type: TokenType
-    ) {
-        this._indices = new Uint32Array([ startIndex, endIndex ]);
+    constructor(startIndex: number, endIndex: number, type: TokenType) {
+        this._indices = new Uint32Array([startIndex, endIndex]);
         this._type = type;
         this._childTokens = null;
     }
@@ -88,6 +90,4 @@ export class Token {
     get(message: string): string {
         return message.substring(this._indices[0], this._indices[1]);
     }
-
 }
-

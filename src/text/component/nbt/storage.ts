@@ -1,8 +1,8 @@
-import {AbstractNBTComponent, NBTComponent} from "../nbt";
-import type {Component} from "../../component";
-import {Style} from "../../style";
-import {defineAccessor} from "../../../util/accessor";
-import {Key, KeyLike} from "../../../key";
+import { Key, KeyLike } from "../../../key";
+import { defineAccessor } from "../../../util/accessor";
+import type { Component } from "../../component";
+import { Style } from "../../style";
+import { AbstractNBTComponent, NBTComponent } from "../nbt";
 
 //
 
@@ -11,27 +11,29 @@ export namespace StorageNBTComponent {
 }
 
 export interface StorageNBTComponent extends NBTComponent<StorageNBTComponent> {
-
     readonly type: typeof StorageNBTComponent.TYPE;
 
     storage(): Key;
 
     storage(storage: KeyLike): StorageNBTComponent;
-
 }
 
 //
 
 type Extra = {
-    storage: Key,
-    nbtPath: string,
-    interpret: boolean,
-    separator: Component | null
+    storage: Key;
+    nbtPath: string;
+    interpret: boolean;
+    separator: Component | null;
 };
 
-/** @internal */
-export class StorageNBTComponentImpl extends AbstractNBTComponent<StorageNBTComponentImpl, Extra> implements StorageNBTComponent {
-
+/**
+ * @internal
+ */
+export class StorageNBTComponentImpl
+    extends AbstractNBTComponent<StorageNBTComponentImpl, Extra>
+    implements StorageNBTComponent
+{
     readonly type = StorageNBTComponent.TYPE;
 
     constructor(extra: Extra, children?: Component[], style?: Style) {
@@ -42,11 +44,10 @@ export class StorageNBTComponentImpl extends AbstractNBTComponent<StorageNBTComp
 
     storage = defineAccessor<Key, KeyLike>(
         () => this._getExtra("storage"),
-        (storage) => this._withExtra("storage", Key.key(storage))
+        (storage) => this._withExtra("storage", Key.key(storage)),
     );
 
     protected _mutate(extra: Extra, children: Component[], style: Style): StorageNBTComponentImpl {
         return new StorageNBTComponentImpl(extra, children, style);
     }
-
 }

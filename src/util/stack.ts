@@ -1,9 +1,9 @@
+type StackNode<T> = { readonly value: T; parent: StackNode<T> | null };
 
-type StackNode<T> = { readonly value: T, parent: StackNode<T> | null };
-
-/** @internal */
+/**
+ * @internal
+ */
 export class Stack<T> {
-
     private _tail: StackNode<T> | null;
     private _size: number;
 
@@ -42,5 +42,4 @@ export class Stack<T> {
         if (node === null) return null;
         return node.value;
     }
-
 }

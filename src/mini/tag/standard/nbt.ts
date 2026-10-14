@@ -1,15 +1,16 @@
-import {ArgumentQueue} from "../resolver/argumentQueue";
-import {Context} from "../../context";
-import {Tag} from "../../tag";
-import {TagResolver} from "../resolver";
-import {Component} from "../../../text/component";
-import {assertNever} from "../../../util/assertions";
-import {BlockNBTComponent} from "../../../text/component/nbt/block";
-import {NBTComponent} from "../../../text/component/nbt";
+import { Component } from "../../../text/component";
+import { NBTComponent } from "../../../text/component/nbt";
+import { BlockNBTComponent } from "../../../text/component/nbt/block";
+import { assertNever } from "../../../util/assertions";
+import { Context } from "../../context";
+import { Tag } from "../../tag";
+import { TagResolver } from "../resolver";
+import { ArgumentQueue } from "../resolver/argumentQueue";
 
-/** @internal */
+/**
+ * @internal
+ */
 export namespace NbtTag {
-
     const BLOCK = "block";
     const ENTITY = "entity";
     const STORAGE = "storage";
@@ -18,13 +19,13 @@ export namespace NbtTag {
     type Header = BlockHeader | KeyedHeader;
 
     type BlockHeader = {
-        type: typeof BLOCK,
-        pos: BlockNBTComponent.Pos
+        type: typeof BLOCK;
+        pos: BlockNBTComponent.Pos;
     };
 
     type KeyedHeader = {
-        type: typeof ENTITY | typeof STORAGE,
-        key: string
+        type: typeof ENTITY | typeof STORAGE;
+        key: string;
     };
 
     function resolve(args: ArgumentQueue, ctx: Context): Tag {
@@ -54,8 +55,7 @@ export namespace NbtTag {
                 throw ctx.newException(`Unknown nbt tag type '${type}'`, args);
         }
 
-        const nbtPath = args.popOr("An NBT path is required")
-            .value();
+        const nbtPath = args.popOr("An NBT path is required").value();
 
         let component: NBTComponent<any>;
         const headerType = header.type;
@@ -93,5 +93,4 @@ export namespace NbtTag {
     export const NBT = "nbt";
     export const DATA = "data";
     export const RESOLVER = TagResolver.dynamic(NBT, resolve, DATA);
-
 }

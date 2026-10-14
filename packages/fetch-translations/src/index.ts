@@ -1,18 +1,16 @@
 import MojangAPI from "@minimessage-js/mojang";
-import type {Asset} from "@minimessage-js/mojang/types/struct";
+import type { Asset } from "@minimessage-js/mojang/types/struct";
 
 //
 
 type TranslationData = {
-    readonly [key: string]: string
+    readonly [key: string]: string;
 };
 
 export interface MinecraftTranslations {
-
     list(): Promise<string[]>;
 
     get(locale: string): Promise<TranslationData>;
-
 }
 
 //
@@ -24,7 +22,6 @@ function isLangAsset(key: string): boolean {
 }
 
 class StringCollector {
-
     readonly array: string[];
 
     constructor() {
@@ -73,16 +70,14 @@ class StringCollector {
 
         return q;
     }
-
 }
 
 class MinecraftTranslationsImpl implements MinecraftTranslations {
-
     private readonly _cache: Record<string, Promise<TranslationData>>;
     private _assets: Promise<Record<string, Asset>> | null = null;
 
     constructor() {
-        this._cache = { };
+        this._cache = {};
         this._assets = null;
     }
 
@@ -114,7 +109,7 @@ class MinecraftTranslationsImpl implements MinecraftTranslations {
             const version = await MojangAPI.getLatestRelease();
             const u8 = await version.getResource("assets/minecraft/lang/en_us.json");
             if (u8 === null) throw new Error(`Missing en_us asset in client JAR (${version.id})`);
-            const text = (new TextDecoder()).decode(u8);
+            const text = new TextDecoder().decode(u8);
             json = JSON.parse(text);
             return Object.freeze(json as TranslationData);
         } else {
@@ -130,11 +125,9 @@ class MinecraftTranslationsImpl implements MinecraftTranslations {
     private async _getAssets(): Promise<Record<string, Asset>> {
         let promise: Promise<Record<string, Asset>> | null = this._assets;
         if (promise !== null) return promise;
-        this._assets = promise = MojangAPI.getLatestRelease()
-            .then((r) => r.getAssets(isLangAsset));
+        this._assets = promise = MojangAPI.getLatestRelease().then((r) => r.getAssets(isLangAsset));
         return promise;
     }
-
 }
 
 //

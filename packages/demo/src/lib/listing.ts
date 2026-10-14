@@ -1,29 +1,29 @@
-import {Operation, type OperationMap} from "./operation.ts";
-import {Unit} from "./unit.ts";
-import {ArgumentType, type ArgumentTypeMap} from "./argument.ts";
-import type {Colors} from "./colors.ts";
+import { ArgumentType, type ArgumentTypeMap } from "./argument.ts";
+import type { Colors } from "./colors.ts";
+import { Operation, type OperationMap } from "./operation.ts";
+import { Unit } from "./unit.ts";
 
 //
 
 type Entry = {
-    operation: Operation,
-    args: Record<string, any>,
-    element: HTMLElement
+    operation: Operation;
+    args: Record<string, any>;
+    element: HTMLElement;
 };
 
 type SerializedArgument = {
-    type: string,
-    version: number,
-    value: any
+    type: string;
+    version: number;
+    value: any;
 };
 
 type SerializedEntry = {
-    operation: string,
-    version: number,
+    operation: string;
+    version: number;
     args: Record<string, SerializedArgument>;
 };
 
-const locateTemplate = ((container: HTMLElement): HTMLElement => {
+const locateTemplate = (container: HTMLElement): HTMLElement => {
     const { children } = container;
     for (let i = 0; i < children.length; i++) {
         const child = children.item(i);
@@ -32,12 +32,11 @@ const locateTemplate = ((container: HTMLElement): HTMLElement => {
         return child as HTMLElement;
     }
     throw new Error(`Failed to locate template element`);
-});
+};
 
 //
 
 export class Listing {
-
     readonly listing: HTMLElement;
     private readonly _colorsModal: Colors;
     private readonly _template: HTMLElement;
@@ -84,7 +83,6 @@ export class Listing {
         this._stack.push({ operation, args, element });
         this._fixButtons();
         this._update();
-
     }
 
     remove(): void {
@@ -123,7 +121,7 @@ export class Listing {
                 const entry: Entry = {
                     element,
                     operation,
-                    args
+                    args,
                 };
                 this._stack.push(entry);
             }
@@ -138,7 +136,7 @@ export class Listing {
         let head: number = 0;
 
         for (const entry of this._stack) {
-            const serializedArgs: Record<string, SerializedArgument> = { };
+            const serializedArgs: Record<string, SerializedArgument> = {};
             const args = entry.operation.arguments;
             for (const key of Object.keys(args)) {
                 const arg = args[key];
@@ -147,14 +145,14 @@ export class Listing {
                 serializedArgs[key] = {
                     type: arg.type.id,
                     version: arg.type.version,
-                    value: serializedValue
+                    value: serializedValue,
                 };
             }
 
             ret[head++] = {
                 operation: entry.operation.id,
                 version: entry.operation.version,
-                args: serializedArgs
+                args: serializedArgs,
             };
         }
 
@@ -176,7 +174,7 @@ export class Listing {
         for (let i = 0; i < this._stack.length; i++) {
             const { element } = this._stack[i];
             const button = element.querySelector(`[data-role="remove"]`)! as HTMLButtonElement;
-            button.disabled = (i !== this._stack.length - 1);
+            button.disabled = i !== this._stack.length - 1;
         }
     }
 
@@ -207,23 +205,23 @@ export class Listing {
             argElementName.innerText = `${argSpec.description.toUpperCase()}`;
 
             const argElementValue = argElement.querySelector(`[data-role="value"]`)! as HTMLElement;
-            let updateArgs: (() => void);
+            let updateArgs: () => void;
             switch (argType) {
                 case "text":
                     const area = argElementValue as HTMLTextAreaElement;
                     area.value = `${args[argKey]}`;
-                    updateArgs = (() => {
+                    updateArgs = () => {
                         args[argKey] = area.value;
-                    });
+                    };
                     const widgets = argElement.querySelector(`[data-role="widgets"]`)! as HTMLElement;
                     this._bindWidgets(area, widgets);
                     break;
                 case "bool":
                     const input = argElementValue as HTMLInputElement;
                     input.checked = !!args[argKey];
-                    updateArgs = (() => {
+                    updateArgs = () => {
                         args[argKey] = input.checked;
-                    });
+                    };
                     break;
                 default:
                     this._unhandledArgumentType(argType);
@@ -292,12 +290,9 @@ export class Listing {
                 document.execCommand(
                     "insertText",
                     false,
-                    `<${tag}>${value.substring(selectionStart, selectionEnd)}</${tag}>`
+                    `<${tag}>${value.substring(selectionStart, selectionEnd)}</${tag}>`,
                 );
-                text.setSelectionRange(
-                    selectionStart + tag.length + 2,
-                    selectionEnd + tag.length + 2
-                );
+                text.setSelectionRange(selectionStart + tag.length + 2, selectionEnd + tag.length + 2);
             }
         } else {
             let newValue: string;
@@ -331,5 +326,4 @@ export class Listing {
     private _unhandledArgumentType(argumentType: never) {
         throw new Error(`Unhandled argument type: '${argumentType}'`);
     }
-
 }

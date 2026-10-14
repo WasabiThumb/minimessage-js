@@ -1,15 +1,14 @@
-import type {Operation} from "../operation.ts";
-import {type NothingUnit, type StringUnit, Unit} from "../unit.ts";
-import {Argument, type ArgumentMap} from "../argument.ts";
+import { Argument, type ArgumentMap } from "../argument.ts";
+import type { Operation } from "../operation.ts";
+import { type NothingUnit, type StringUnit, Unit } from "../unit.ts";
 
 //
 
 type Args = {
-    value: string
+    value: string;
 };
 
 class LiteralStringOperationImpl implements LiteralStringOperation {
-
     readonly id = LiteralStringOperation.ID;
     readonly name = "String";
     readonly accepts = "nothing";
@@ -18,7 +17,7 @@ class LiteralStringOperationImpl implements LiteralStringOperation {
 
     get arguments(): ArgumentMap<Args> {
         return {
-            value: Argument.text("Value")
+            value: Argument.text("Value"),
         };
     }
 
@@ -26,7 +25,6 @@ class LiteralStringOperationImpl implements LiteralStringOperation {
         const { value } = args;
         return Unit.string(value);
     }
-
 }
 
 //

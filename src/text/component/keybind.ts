@@ -1,7 +1,7 @@
-import type {Component} from "../component";
-import {AbstractScopedComponent, ScopedComponent} from "./scoped";
-import {defineAccessor} from "../../util/accessor";
-import {Style} from "../style";
+import { defineAccessor } from "../../util/accessor";
+import type { Component } from "../component";
+import { Style } from "../style";
+import { AbstractScopedComponent, ScopedComponent } from "./scoped";
 
 //
 
@@ -10,24 +10,26 @@ export namespace KeybindComponent {
 }
 
 export interface KeybindComponent extends ScopedComponent<KeybindComponent> {
-
     readonly type: typeof KeybindComponent.TYPE;
 
     keybind(): string;
 
     keybind(keybind: string): KeybindComponent;
-
 }
 
 //
 
 type Extra = {
-    keybind: string
+    keybind: string;
 };
 
-/** @internal */
-export class KeybindComponentImpl extends AbstractScopedComponent<KeybindComponentImpl, Extra> implements KeybindComponent {
-
+/**
+ * @internal
+ */
+export class KeybindComponentImpl
+    extends AbstractScopedComponent<KeybindComponentImpl, Extra>
+    implements KeybindComponent
+{
     readonly type = KeybindComponent.TYPE;
 
     constructor(extra: Extra, children?: Component[], style?: Style) {
@@ -38,11 +40,10 @@ export class KeybindComponentImpl extends AbstractScopedComponent<KeybindCompone
 
     keybind = defineAccessor(
         () => this._getExtra("keybind"),
-        (keybind) => this._withExtra("keybind", keybind)
+        (keybind) => this._withExtra("keybind", keybind),
     );
 
     protected _mutate(extra: Extra, children: Component[], style: Style): KeybindComponentImpl {
         return new KeybindComponentImpl(extra, children, style);
     }
-
 }

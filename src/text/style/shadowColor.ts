@@ -1,10 +1,9 @@
-import {TextColor} from "./textColor";
-import {Character} from "../../util/char";
+import { Character } from "../../util/char";
+import { TextColor } from "./textColor";
 
 //
 
 export interface ShadowColor {
-
     value(): number;
 
     asHexString(): string;
@@ -16,12 +15,12 @@ export interface ShadowColor {
     blue(): number;
 
     alpha(): number;
-
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 class ShadowColorImpl implements ShadowColor {
-
     private readonly _buffer: DataView;
 
     constructor(value: number) {
@@ -60,19 +59,17 @@ class ShadowColorImpl implements ShadowColor {
     }
 
     asHexString(): string {
-        const component = ((n: number) => {
+        const component = (n: number) => {
             const v = this._buffer.getUint8(n);
             const hex = v.toString(16);
             if (hex.length === 1) return `0${hex}`;
             return hex;
-        });
+        };
         return `#${component(1)}${component(2)}${component(3)}${component(0)}`;
     }
-
 }
 
 export namespace ShadowColor {
-
     const NONE_VALUE = 0;
     const NONE = new ShadowColorImpl(NONE_VALUE);
 
@@ -80,7 +77,9 @@ export namespace ShadowColor {
         return NONE;
     }
 
-    /** @internal */
+    /**
+     * @internal
+     */
     type ShadowColorFunc = {
         (argb: number): ShadowColor;
         (rgb: TextColor, alpha: number): ShadowColor;
@@ -92,17 +91,17 @@ export namespace ShadowColor {
         let value: number;
 
         if (nargs === 1) {
-            value = (Number(arguments[0]) || 0) & 0xFFFFFFFF;
+            value = (Number(arguments[0]) || 0) & 0xffffffff;
         } else if (nargs === 2) {
             const rgb = arguments[0] as unknown as TextColor;
-            const alpha = (Number(arguments[1]) || 0) & 0xFF;
-            const rgbValue = Number(rgb.value()) & 0xFFFFFF;
+            const alpha = (Number(arguments[1]) || 0) & 0xff;
+            const rgbValue = Number(rgb.value()) & 0xffffff;
             value = (alpha << 24) | rgbValue;
         } else if (nargs === 4) {
-            const r = (Number(arguments[0]) || 0) & 0xFF;
-            const g = (Number(arguments[1]) || 0) & 0xFF;
-            const b = (Number(arguments[2]) || 0) & 0xFF;
-            const a = (Number(arguments[3]) || 0) & 0xFF;
+            const r = (Number(arguments[0]) || 0) & 0xff;
+            const g = (Number(arguments[1]) || 0) & 0xff;
+            const b = (Number(arguments[2]) || 0) & 0xff;
+            const a = (Number(arguments[3]) || 0) & 0xff;
             value = (a << 24) | (r << 16) | (g << 8) | b;
         } else {
             throw new Error(`Expected 1, 2, or 4 arguments (got ${nargs})`);
@@ -123,5 +122,4 @@ export namespace ShadowColor {
         if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(a)) return null;
         return shadowColor(r, g, b, a);
     }
-
 }

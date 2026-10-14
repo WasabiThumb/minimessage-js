@@ -1,26 +1,20 @@
-import {ArrayUtil} from "../../util/array";
+import { ArrayUtil } from "../../util/array";
 
-export type TextDecoration = typeof TextDecoration.OBFUSCATED |
-    typeof TextDecoration.BOLD |
-    typeof TextDecoration.STRIKETHROUGH |
-    typeof TextDecoration.UNDERLINED |
-    typeof TextDecoration.ITALIC;
+export type TextDecoration =
+    | typeof TextDecoration.OBFUSCATED
+    | typeof TextDecoration.BOLD
+    | typeof TextDecoration.STRIKETHROUGH
+    | typeof TextDecoration.UNDERLINED
+    | typeof TextDecoration.ITALIC;
 
 export namespace TextDecoration {
-
     export const OBFUSCATED = "obfuscated";
     export const BOLD = "bold";
     export const STRIKETHROUGH = "strikethrough";
     export const UNDERLINED = "underlined";
     export const ITALIC = "italic";
 
-    const VALUES: TextDecoration[] = ArrayUtil.immutableView([
-        OBFUSCATED,
-        BOLD,
-        STRIKETHROUGH,
-        UNDERLINED,
-        ITALIC
-    ]);
+    const VALUES: TextDecoration[] = ArrayUtil.immutableView([OBFUSCATED, BOLD, STRIKETHROUGH, UNDERLINED, ITALIC]);
 
     const MAP = (() => {
         const ret = {} as Partial<Record<TextDecoration, number>>;
@@ -32,13 +26,17 @@ export namespace TextDecoration {
         return VALUES;
     }
 
-    /** @internal */
+    /**
+     * @internal
+     */
     export function ordinal(decoration: TextDecoration | string): number {
         if (!(decoration in MAP)) throw new Error(`Unknown decoration \"${decoration}\"`);
         return MAP[decoration as TextDecoration];
     }
 
-    /** @internal */
+    /**
+     * @internal
+     */
     export function fromOrdinal(ordinal: number): TextDecoration {
         if (ordinal < 0 || ordinal >= VALUES.length) throw new Error(`Illegal ordinal: ${ordinal}`);
         return VALUES[ordinal];
@@ -46,21 +44,14 @@ export namespace TextDecoration {
 
     //
 
-    export type State = typeof State.NOT_SET |
-        typeof State.FALSE |
-        typeof State.TRUE;
+    export type State = typeof State.NOT_SET | typeof State.FALSE | typeof State.TRUE;
 
     export namespace State {
-
         export const NOT_SET = "not_set";
         export const FALSE = "false";
         export const TRUE = "true";
 
-        const VALUES: State[] = [
-            NOT_SET,
-            FALSE,
-            TRUE
-        ];
+        const VALUES: State[] = [NOT_SET, FALSE, TRUE];
 
         const MAP = (() => {
             const ret = {} as Partial<Record<State, number>>;
@@ -68,13 +59,17 @@ export namespace TextDecoration {
             return Object.freeze(ret as Record<State, number>);
         })();
 
-        /** @internal */
+        /**
+         * @internal
+         */
         export function ordinal(decoration: State | string): number {
             if (!(decoration in MAP)) throw new Error(`Unknown state \"${decoration}\"`);
             return MAP[decoration as State];
         }
 
-        /** @internal */
+        /**
+         * @internal
+         */
         export function fromOrdinal(ordinal: number): State {
             if (ordinal < 0 || ordinal >= VALUES.length) throw new Error(`Illegal ordinal: ${ordinal}`);
             return VALUES[ordinal];
@@ -83,14 +78,13 @@ export namespace TextDecoration {
         export function fromBoolean(flag: boolean): State {
             return flag ? TRUE : FALSE;
         }
-
     }
-
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 export class DecorationMap {
-
     private readonly _buffer: Uint16Array;
 
     constructor(value: number = 0) {
@@ -105,7 +99,7 @@ export class DecorationMap {
     }
 
     private set _value(v: number) {
-        this._buffer[0] = v & 0xFFFF;
+        this._buffer[0] = v & 0xffff;
     }
 
     get(decoration: TextDecoration): TextDecoration.State {
@@ -116,7 +110,7 @@ export class DecorationMap {
         let v = this._value;
         const offset = TextDecoration.ordinal(decoration) * 2;
         v &= ~(0b11 << offset);
-        v |= (TextDecoration.State.ordinal(state) << offset);
+        v |= TextDecoration.State.ordinal(state) << offset;
         return new DecorationMap(v);
     }
 
@@ -129,5 +123,4 @@ export class DecorationMap {
         for (const decoration of TextDecoration.values()) ret[decoration] = this.get(decoration);
         return ret as Record<TextDecoration, TextDecoration.State>;
     }
-
 }

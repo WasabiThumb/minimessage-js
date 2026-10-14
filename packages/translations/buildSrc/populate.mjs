@@ -1,25 +1,26 @@
-import MojangAPI from "@minimessage-js/mojang";
+import { createWriteStream } from "node:fs";
+import fs from "node:fs/promises";
 import path from "node:path";
-import {createWriteStream} from "node:fs";
-import fs from "node:fs/promises"
-import {Writable} from "node:stream";
+import { Writable } from "node:stream";
+
+import MojangAPI from "@minimessage-js/mojang";
 
 //
 
 const GENERATED_SOURCE_HEADER = `/**\n * GENERATED FILE\n * DO NOT MODIFY\n*/\n\n`;
 
-const fileExists = (async (path) => {
+const fileExists = async (path) => {
     try {
         await fs.stat(path);
         return true;
     } catch (e) {
         return false;
     }
-});
+};
 
-const isUpToDate = (async (projectDir, releaseID) => {
+const isUpToDate = async (projectDir, releaseID) => {
     const versionFile = path.resolve(projectDir, ".mc-version");
-    if (process.argv.indexOf("-f") === -1 && await fileExists(versionFile)) {
+    if (process.argv.indexOf("-f") === -1 && (await fileExists(versionFile))) {
         console.log(`Checking .mc-version`);
         const version = await fs.readFile(versionFile, { encoding: "utf-8" });
         if (version === releaseID) {
@@ -28,7 +29,7 @@ const isUpToDate = (async (projectDir, releaseID) => {
         }
     }
     return false;
-});
+};
 
 /**
  * @param file {string}
@@ -36,9 +37,9 @@ const isUpToDate = (async (projectDir, releaseID) => {
  */
 function writeText(file, task) {
     let queue = [];
-    let release = (() => {});
+    let release = () => {};
 
-    async function *chunks() {
+    async function* chunks() {
         while (true) {
             const { length } = queue;
             if (length === 0) {
@@ -58,20 +59,20 @@ function writeText(file, task) {
     }
 
     (async () => {
-        const put = ((text) => {
+        const put = (text) => {
             queue.push({
                 done: false,
-                value: text
+                value: text,
             });
             release();
-        });
+        };
         try {
             await task(put);
             queue.push({ done: true });
         } catch (e) {
             queue.push({
                 done: true,
-                error: e
+                error: e,
             });
         }
     })().catch(console.error);
@@ -99,21 +100,24 @@ async function writeLocalesFile(localesFile, locales) {
 
 /**
  * @param locale {string}
- * @return {string}
+ * @returns {string}
  */
 function createImportName(locale) {
-    let chars = [ 0x64, 0x61, 0x74, 0x61 ]; // data
+    let chars = [0x64, 0x61, 0x74, 0x61]; // data
     let upper = true;
 
     for (let i = 0; i < locale.length; i++) {
         let char = locale.charCodeAt(i);
-        if (char === 0x5f) { // underscore
+        if (char === 0x5f) {
+            // underscore
             upper = true;
             continue;
         }
 
         if (char < 0x61 || char > 0x7a) {
-            throw new Error(`Unhandled character '${String.fromCharCode(char)}' at position ${i} in locale key ${locale}`);
+            throw new Error(
+                `Unhandled character '${String.fromCharCode(char)}' at position ${i} in locale key ${locale}`,
+            );
         }
 
         if (upper) {
@@ -169,7 +173,7 @@ async function writeDataScript(dataScript, locales, version) {
     });
 }
 
-const run = (async (projectDir) => {
+const run = async (projectDir) => {
     const release = await MojangAPI.getLatestRelease();
     const releaseID = release.id;
     if (await isUpToDate(projectDir, releaseID)) return;
@@ -177,7 +181,7 @@ const run = (async (projectDir) => {
     // Assemble the locale set
     console.log(`Reading assets for version ${releaseID}`);
     const assets = await release.getAssets((s) => /^minecraft\/lang\/.*\.json$/.test(s));
-    const locales = new Set([ "en_us" ]);
+    const locales = new Set(["en_us"]);
     for (const path in assets) {
         const locale = path.substring(15, path.length - 5);
         locales.add(locale);
@@ -219,7 +223,7 @@ const run = (async (projectDir) => {
     const versionFile = path.resolve(projectDir, ".mc-version");
     await fs.writeFile(versionFile, releaseID, { encoding: "utf-8" });
     console.log(`Done!`);
-});
+};
 
 if (import.meta.main) {
     const projectDir = path.resolve(import.meta.dirname, "..");

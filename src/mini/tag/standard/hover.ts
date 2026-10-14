@@ -1,17 +1,13 @@
-import {ArgumentQueue} from "../resolver/argumentQueue";
-import {Context} from "../../context";
-import {Tag} from "../../tag";
-import {HoverEvent} from "../../../text/style/hoverEvent";
-import {Component} from "../../../text/component";
-import {TagResolver} from "../resolver";
-import {UUID} from "../../../util/uuid";
+import { Component } from "../../../text/component";
+import { HoverEvent } from "../../../text/style/hoverEvent";
+import { UUID } from "../../../util/uuid";
+import { Context } from "../../context";
+import { Tag } from "../../tag";
+import { TagResolver } from "../resolver";
+import { ArgumentQueue } from "../resolver/argumentQueue";
 
 export namespace HoverTag {
-
-    function create(
-        args: ArgumentQueue,
-        ctx: Context
-    ): Tag {
+    function create(args: ArgumentQueue, ctx: Context): Tag {
         const actionName = args.popOr(`Hover event requires an action as its first argument`).value();
         const action = HoverEvent.Action.NAMES[actionName];
         const value = ActionHandler.of(action);
@@ -32,20 +28,19 @@ export namespace HoverTag {
     type ActionHandler<V> = (args: ArgumentQueue, ctx: Context) => V;
 
     namespace ActionHandler {
-
-        const ShowText: ActionHandler<Component> = ((args, ctx) => {
+        const ShowText: ActionHandler<Component> = (args, ctx) => {
             return ctx.deserialize(args.popOr("show_text action requires a message").value());
-        });
+        };
 
-        const ShowItem: ActionHandler<HoverEvent.ShowItem> = ((args, ctx) => {
+        const ShowItem: ActionHandler<HoverEvent.ShowItem> = (args, ctx) => {
             const key = args.popOr("Show item hover needs at least an item ID").value();
             const count = args.hasNext() ? args.pop().asInt() : 1;
             if (count === null) throw ctx.newException("The count argument was not a valid integer");
             // TODO: NBT support
             return HoverEvent.ShowItem.showItem(key, count);
-        });
+        };
 
-        const ShowEntity: ActionHandler<HoverEvent.ShowEntity> = ((args, ctx) => {
+        const ShowEntity: ActionHandler<HoverEvent.ShowEntity> = (args, ctx) => {
             const key = args.popOr("Show entity needs a type argument").value();
             const id = UUID.fromString(args.popOr("Show entity needs an entity UUID").value());
             if (args.hasNext()) {
@@ -54,7 +49,7 @@ export namespace HoverTag {
             } else {
                 return HoverEvent.ShowEntity.showEntity(key, id.toString());
             }
-        });
+        };
 
         export function of<V>(action: HoverEvent.Action<V>): ActionHandler<V> | null {
             let ret: ActionHandler<any> | null = null;
@@ -67,7 +62,5 @@ export namespace HoverTag {
             }
             return ret as unknown as ActionHandler<V> | null;
         }
-
     }
-
 }

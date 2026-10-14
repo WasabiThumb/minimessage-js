@@ -2,25 +2,25 @@
 @import "./font.css";
 
 @theme {
-    --font-code: 'JetBrains Mono', monospace;
-    --font-minecraft: 'Minecraft', monospace;
+    --font-code: "JetBrains Mono", monospace;
+    --font-minecraft: "Minecraft", monospace;
 
-    --color-mc-black:        #000000;
-    --color-mc-dark-blue:    #0000aa;
-    --color-mc-dark-green:   #00aa00;
-    --color-mc-dark-aqua:    #00aaaa;
-    --color-mc-dark-red:     #aa0000;
-    --color-mc-dark-purple:  #aa00aa;
-    --color-mc-gold:         #ffaa00;
-    --color-mc-gray:         #aaaaaa;
-    --color-mc-dark-gray:    #555555;
-    --color-mc-blue:         #5555ff;
-    --color-mc-green:        #55ff55;
-    --color-mc-aqua:         #55ffff;
-    --color-mc-red:          #ff5555;
+    --color-mc-black: #000000;
+    --color-mc-dark-blue: #0000aa;
+    --color-mc-dark-green: #00aa00;
+    --color-mc-dark-aqua: #00aaaa;
+    --color-mc-dark-red: #aa0000;
+    --color-mc-dark-purple: #aa00aa;
+    --color-mc-gold: #ffaa00;
+    --color-mc-gray: #aaaaaa;
+    --color-mc-dark-gray: #555555;
+    --color-mc-blue: #5555ff;
+    --color-mc-green: #55ff55;
+    --color-mc-aqua: #55ffff;
+    --color-mc-red: #ff5555;
     --color-mc-light-purple: #ff55ff;
-    --color-mc-yellow:       #ffff55;
-    --color-mc-white:        #ffffff;
+    --color-mc-yellow: #ffff55;
+    --color-mc-white: #ffffff;
 }
 
 :root {
@@ -35,7 +35,8 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
-html, body {
+html,
+body {
     position: absolute;
     top: 0;
     left: 0;

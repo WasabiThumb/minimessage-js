@@ -1,8 +1,7 @@
-
 export function findElementsByProperty<K extends string>(
     parent: HTMLElement,
     propertyName: string,
-    init: Record<K, string>
+    init: Record<K, string>,
 ): Record<K, HTMLElement> {
     const ret: Partial<Record<K, HTMLElement>> = {};
     for (const key in init) {

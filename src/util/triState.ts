@@ -1,10 +1,6 @@
-
-export type TriState = typeof TriState.TRUE |
-    typeof TriState.FALSE |
-    typeof TriState.NOT_SET;
+export type TriState = typeof TriState.TRUE | typeof TriState.FALSE | typeof TriState.NOT_SET;
 
 export namespace TriState {
-
     export const TRUE = "true";
     export const FALSE = "false";
     export const NOT_SET = "not_set";
@@ -20,5 +16,4 @@ export namespace TriState {
         if (FALSE === triState) return false;
         return fallback;
     }
-
 }

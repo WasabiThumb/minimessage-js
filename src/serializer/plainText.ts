@@ -1,16 +1,17 @@
-import {ComponentSerializer} from "./types";
-import {Component} from "../text/component";
-import {ComponentFlattener, FlattenerListener} from "../text/flattener";
-import {StringBuilder} from "../util/string";
-import {TextComponent} from "../text/component/text";
+import { Component } from "../text/component";
+import { TextComponent } from "../text/component/text";
+import { ComponentFlattener, FlattenerListener } from "../text/flattener";
+import { StringBuilder } from "../util/string";
+import { ComponentSerializer } from "./types";
 
 //
 
 export type PlainTextComponentSerializer = ComponentSerializer<Component, TextComponent, string>;
 
-/** @internal */
+/**
+ * @internal
+ */
 class PlainTextComponentSerializerImpl implements PlainTextComponentSerializer {
-
     static readonly DEFAULT_FLATTENER: ComponentFlattener = ComponentFlattener.basic()
         .toBuilder()
         .unknownMapper((component) => {
@@ -30,31 +31,31 @@ class PlainTextComponentSerializerImpl implements PlainTextComponentSerializer {
 
     serialize(component: Component): string {
         const builder = new StringBuilder();
-        this._flattener.flatten(component, FlattenerListener.of((text) => {
-            builder.append(text);
-        }));
+        this._flattener.flatten(
+            component,
+            FlattenerListener.of((text) => {
+                builder.append(text);
+            }),
+        );
         return builder.toString();
     }
 
     deserialize(input: string): TextComponent {
         return Component.text(input);
     }
-
 }
 
 export namespace PlainTextComponentSerializer {
-
     export interface Builder {
-
         flattener(flattener: ComponentFlattener): Builder;
 
         build(): PlainTextComponentSerializer;
-
     }
 
-    /** @internal */
+    /**
+     * @internal
+     */
     class BuilderImpl implements Builder {
-
         private _flattener: ComponentFlattener = PlainTextComponentSerializerImpl.DEFAULT_FLATTENER;
 
         //
@@ -67,12 +68,11 @@ export namespace PlainTextComponentSerializer {
         build() {
             return new PlainTextComponentSerializerImpl(this._flattener);
         }
-
     }
 
     //
 
-    const INSTANCE = (new BuilderImpl()).build();
+    const INSTANCE = new BuilderImpl().build();
 
     export function plainText(): PlainTextComponentSerializer {
         return INSTANCE;
@@ -81,5 +81,4 @@ export namespace PlainTextComponentSerializer {
     export function builder(): Builder {
         return new BuilderImpl();
     }
-
 }

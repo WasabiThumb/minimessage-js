@@ -1,39 +1,40 @@
-import {TextComponent, TextComponentImpl} from "./component/text";
-import {TranslatableComponent, TranslatableComponentImpl, TranslationArgument} from "./component/translatable";
-import {SelectorComponent, SelectorComponentImpl} from "./component/selector";
-import {ScoreComponent, ScoreComponentImpl} from "./component/score";
-import {KeybindComponent, KeybindComponentImpl} from "./component/keybind";
-import {ObjectComponent, ObjectComponentImpl} from "./component/object";
-import {ObjectContents} from "./object";
-import {ArrayUtil} from "../util/array";
-import {BlockNBTComponent, BlockNBTComponentImpl} from "./component/nbt/block";
-import {StorageNBTComponent, StorageNBTComponentImpl} from "./component/nbt/storage";
-import {EntityNBTComponent, EntityNBTComponentImpl} from "./component/nbt/entity";
-import {AbstractScopedComponent} from "./component/scoped";
-import {Key, KeyLike} from "../key";
+import { Key, KeyLike } from "../key";
+import { ArrayUtil } from "../util/array";
+import { KeybindComponent, KeybindComponentImpl } from "./component/keybind";
+import { BlockNBTComponent, BlockNBTComponentImpl } from "./component/nbt/block";
+import { EntityNBTComponent, EntityNBTComponentImpl } from "./component/nbt/entity";
+import { StorageNBTComponent, StorageNBTComponentImpl } from "./component/nbt/storage";
+import { ObjectComponent, ObjectComponentImpl } from "./component/object";
+import { AbstractScopedComponent } from "./component/scoped";
+import { ScoreComponent, ScoreComponentImpl } from "./component/score";
+import { SelectorComponent, SelectorComponentImpl } from "./component/selector";
+import { TextComponent, TextComponentImpl } from "./component/text";
+import { TranslatableComponent, TranslatableComponentImpl, TranslationArgument } from "./component/translatable";
+import { ObjectContents } from "./object";
 
 //
 
-export type Component = TextComponent |
-    TranslatableComponent |
-    BlockNBTComponent |
-    EntityNBTComponent |
-    StorageNBTComponent |
-    SelectorComponent |
-    ScoreComponent |
-    KeybindComponent |
-    ObjectComponent;
+export type Component =
+    | TextComponent
+    | TranslatableComponent
+    | BlockNBTComponent
+    | EntityNBTComponent
+    | StorageNBTComponent
+    | SelectorComponent
+    | ScoreComponent
+    | KeybindComponent
+    | ObjectComponent;
 
 export type ComponentTypeMap = {
-    [TextComponent.TYPE]: TextComponent,
-    [TranslatableComponent.TYPE]: TranslatableComponent,
-    [BlockNBTComponent.TYPE]: BlockNBTComponent,
-    [EntityNBTComponent.TYPE]: EntityNBTComponent,
-    [StorageNBTComponent.TYPE]: StorageNBTComponent,
-    [SelectorComponent.TYPE]: SelectorComponent,
-    [ScoreComponent.TYPE]: ScoreComponent,
-    [KeybindComponent.TYPE]: KeybindComponent,
-    [ObjectComponent.TYPE]: ObjectComponent
+    [TextComponent.TYPE]: TextComponent;
+    [TranslatableComponent.TYPE]: TranslatableComponent;
+    [BlockNBTComponent.TYPE]: BlockNBTComponent;
+    [EntityNBTComponent.TYPE]: EntityNBTComponent;
+    [StorageNBTComponent.TYPE]: StorageNBTComponent;
+    [SelectorComponent.TYPE]: SelectorComponent;
+    [ScoreComponent.TYPE]: ScoreComponent;
+    [KeybindComponent.TYPE]: KeybindComponent;
+    [ObjectComponent.TYPE]: ObjectComponent;
 };
 
 export interface ComponentLike {
@@ -43,7 +44,6 @@ export interface ComponentLike {
 //
 
 export namespace Component {
-
     export function isComponent<T>(value: T): T extends Component ? true : false {
         // @ts-ignore
         return typeof value === "object" && value !== null && value instanceof AbstractScopedComponent;
@@ -73,11 +73,15 @@ export namespace Component {
 
     // TranslatableComponent
 
-    export function translatable(key: string, fallback: string | null = null, args: TranslationArgument[] = []): TranslatableComponent {
+    export function translatable(
+        key: string,
+        fallback: string | null = null,
+        args: TranslationArgument[] = [],
+    ): TranslatableComponent {
         return new TranslatableComponentImpl({
             key,
             fallback,
-            arguments: ArrayUtil.immutableView(args)
+            arguments: ArrayUtil.immutableView(args),
         });
     }
 
@@ -86,7 +90,12 @@ export namespace Component {
     type BlockNBTConstructor = {
         (nbtPath: string, pos: BlockNBTComponent.Pos): BlockNBTComponent;
         (nbtPath: string, interpret: boolean, pos: BlockNBTComponent.Pos): BlockNBTComponent;
-        (nbtPath: string, interpret: boolean, separator: ComponentLike | null, pos: BlockNBTComponent.Pos): BlockNBTComponent;
+        (
+            nbtPath: string,
+            interpret: boolean,
+            separator: ComponentLike | null,
+            pos: BlockNBTComponent.Pos,
+        ): BlockNBTComponent;
     };
 
     function blockNBTConstructor(): BlockNBTComponent {
@@ -114,8 +123,8 @@ export namespace Component {
         return new BlockNBTComponentImpl({
             nbtPath,
             interpret,
-            separator: (separator === null) ? null : separator.asComponent(),
-            pos
+            separator: separator === null ? null : separator.asComponent(),
+            pos,
         });
     }
 
@@ -154,8 +163,8 @@ export namespace Component {
         return new StorageNBTComponentImpl({
             nbtPath,
             interpret,
-            separator: (separator === null) ? null : separator.asComponent(),
-            storage: Key.key(storage)
+            separator: separator === null ? null : separator.asComponent(),
+            storage: Key.key(storage),
         });
     }
 
@@ -168,7 +177,7 @@ export namespace Component {
             nbtPath,
             interpret: false,
             separator: null,
-            selector
+            selector,
         });
     }
 
@@ -195,5 +204,4 @@ export namespace Component {
     export function object(contents: ObjectContents): ObjectComponent {
         return new ObjectComponentImpl({ contents });
     }
-
 }

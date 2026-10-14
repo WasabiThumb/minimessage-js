@@ -1,11 +1,10 @@
-
 //
 
 const s = (() => {
-    const n = new Uint32Array([ 738695, 669989, 770404, 703814 ]);
-    return ((i: number) => {
+    const n = new Uint32Array([738695, 669989, 770404, 703814]);
+    return (i: number) => {
         return (n[i >> 4] >> ((i & 3) * 5)) & 31;
-    });
+    };
 })();
 
 const K = new Uint32Array(64);
@@ -17,15 +16,14 @@ const BIG_ENDIAN = (() => {
     const buf = new ArrayBuffer(2);
     const u8 = new Uint8Array(buf);
     const u16 = new Uint16Array(buf);
-    u8[0] = 0xAA;
-    u8[1] = 0xBB;
-    return u16[0] === 0xAABB;
+    u8[0] = 0xaa;
+    u8[1] = 0xbb;
+    return u16[0] === 0xaabb;
 })();
 
 //
 
 class AlignedBuffer {
-
     readonly raw: ArrayBuffer;
     private readonly _u8: Uint8Array;
     private readonly _u32: Uint32Array;
@@ -80,19 +78,16 @@ class AlignedBuffer {
     }
 
     private _reverseWord(word: number): number {
-        return ((word & 0x00FF) << 24) |
-            ((word & 0xFF00) << 8) |
-            ((word >> 24) & 0x00FF) |
-            ((word >> 8) & 0xFF00);
+        return ((word & 0x00ff) << 24) | ((word & 0xff00) << 8) | ((word >> 24) & 0x00ff) | ((word >> 8) & 0xff00);
     }
-
 }
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export class MessageDigest {
-
     private readonly _digest: AlignedBuffer;
     private readonly _buf: AlignedBuffer;
     private _head: number = 0;
@@ -140,7 +135,7 @@ export class MessageDigest {
             this._chunk();
             this._buf.bytes.fill(0x00, 0, 56);
         }
-        this._buf.setWord(14, (byteLength << 3) & 0xFFFFFFFF);
+        this._buf.setWord(14, (byteLength << 3) & 0xffffffff);
         this._buf.setWord(15, byteLength >>> 29);
         this._chunk();
 
@@ -158,11 +153,11 @@ export class MessageDigest {
         for (let i = 0; i < 64; i++) {
             switch (i >> 4) {
                 case 0: // 0 - 15
-                    vars[4] = (vars[1] & vars[2]) | ((~vars[1]) & vars[3]);
+                    vars[4] = (vars[1] & vars[2]) | (~vars[1] & vars[3]);
                     vars[5] = i;
                     break;
                 case 1: // 16 - 31
-                    vars[4] = (vars[3] & vars[1]) | ((~vars[3]) & vars[2]);
+                    vars[4] = (vars[3] & vars[1]) | (~vars[3] & vars[2]);
                     vars[5] = (5 * i + 1) % 16;
                     break;
                 case 2: // 32 - 47
@@ -170,7 +165,7 @@ export class MessageDigest {
                     vars[5] = (3 * i + 5) % 16;
                     break;
                 case 3: // 48 - 63
-                    vars[4] = vars[2] ^ (vars[1] | (~vars[3]));
+                    vars[4] = vars[2] ^ (vars[1] | ~vars[3]);
                     vars[5] = (7 * i) % 16;
                     break;
                 default:
@@ -192,12 +187,11 @@ export class MessageDigest {
     }
 
     private _resetDigest() {
-        this._digest.putWords([ 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476 ]);
+        this._digest.putWords([0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476]);
         this._head = 0;
     }
 
     private _lrot(n: number, v: number): number {
         return (n << v) | (n >>> (32 - v));
     }
-
 }

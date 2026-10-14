@@ -1,35 +1,32 @@
-import type {HtmlWriter} from "../writer";
-import {HtmlStyle, HtmlStyleStore} from "../style";
-import {Stack} from "../../util/stack";
-import {StringBuilder} from "../../util/string";
-import {LookupTable} from "../../util/lut";
-import {Character} from "../../util/char";
-import {type MiniMessage} from "../../mini";
+import { type MiniMessage } from "../../mini";
+import { Character } from "../../util/char";
+import { LookupTable } from "../../util/lut";
+import { Stack } from "../../util/stack";
+import { StringBuilder } from "../../util/string";
+import { HtmlStyle, HtmlStyleStore } from "../style";
+import type { HtmlWriter } from "../writer";
 
 //
 
 const HTML_ENTITIES: LookupTable<number, string> = LookupTable.number((put) => {
-    put(Character.QUOTATION.value,    `&quot;`);
-    put(Character.APOSTROPHE.value,   `&apos;`);
-    put(Character.AMPERSAND.value,    `&amp;`);
-    put(Character.LESS_THAN.value,    `&lt;`);
+    put(Character.QUOTATION.value, `&quot;`);
+    put(Character.APOSTROPHE.value, `&apos;`);
+    put(Character.AMPERSAND.value, `&amp;`);
+    put(Character.LESS_THAN.value, `&lt;`);
     put(Character.GREATER_THAN.value, `&gt;`);
-    put(Character.NEWLINE.value,      `<br>`);
+    put(Character.NEWLINE.value, `<br>`);
 });
 
 //
 
 export class StringHtmlWriter implements HtmlWriter {
-
     private readonly _out: StringBuilder;
-    private readonly _stack: Stack<[ string, HtmlStyleStore ]>;
+    private readonly _stack: Stack<[string, HtmlStyleStore]>;
     private _writingProperties: boolean;
     private _properties: Record<string, StringBuilder>;
     private _styles: HtmlStyleStore;
 
-    constructor(
-        readonly minimessage: MiniMessage
-    ) {
+    constructor(readonly minimessage: MiniMessage) {
         this._out = new StringBuilder();
         this._stack = new Stack();
         this._writingProperties = false;
@@ -42,10 +39,9 @@ export class StringHtmlWriter implements HtmlWriter {
     openTag(tagName: string): this {
         this._closeProperties();
 
-        this._out.appendChar(Character.LESS_THAN)
-            .appendString(tagName);
+        this._out.appendChar(Character.LESS_THAN).appendString(tagName);
 
-        this._stack.push([ tagName, { ...this._styles } ]);
+        this._stack.push([tagName, { ...this._styles }]);
         this._writingProperties = true;
         this._properties = {};
 
@@ -57,9 +53,7 @@ export class StringHtmlWriter implements HtmlWriter {
         if (data === null) throw new Error(`No tag to close`);
 
         this._closeProperties();
-        this._out.appendString("</")
-            .appendString(data[0])
-            .appendChar(Character.GREATER_THAN);
+        this._out.appendString("</").appendString(data[0]).appendChar(Character.GREATER_THAN);
 
         this._styles = { ...data[1] };
         return this;
@@ -114,9 +108,7 @@ export class StringHtmlWriter implements HtmlWriter {
     private _closeProperties(): void {
         if (this._writingProperties) {
             for (const key of Object.keys(this._properties)) {
-                this._out.appendChar(Character.SPACE)
-                    .appendString(key)
-                    .appendString(`="`);
+                this._out.appendChar(Character.SPACE).appendString(key).appendString(`="`);
 
                 this._writeEscaping(this._properties[key]);
                 this._out.appendChar(Character.QUOTATION);
@@ -138,5 +130,4 @@ export class StringHtmlWriter implements HtmlWriter {
             }
         }
     }
-
 }

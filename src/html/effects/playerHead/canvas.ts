@@ -1,6 +1,4 @@
-
 class Mutex {
-
     private readonly _listeners: (() => void)[] = [];
     private _locked: boolean = false;
 
@@ -34,16 +32,16 @@ class Mutex {
             throw e;
         }
     }
-
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 export class SharedCanvas {
-
     private readonly _width: number;
     private readonly _height: number;
     private readonly _mutex: Mutex;
-    private _state: [ OffscreenCanvas, OffscreenCanvasRenderingContext2D ] | null;
+    private _state: [OffscreenCanvas, OffscreenCanvasRenderingContext2D] | null;
 
     constructor(width: number, height: number) {
         this._width = width;
@@ -55,7 +53,7 @@ export class SharedCanvas {
     //
 
     async use<T>(
-        fn: (canvas: OffscreenCanvas, context: OffscreenCanvasRenderingContext2D) => Promise<T> | T
+        fn: (canvas: OffscreenCanvas, context: OffscreenCanvasRenderingContext2D) => Promise<T> | T,
     ): Promise<T> {
         await this._mutex.lock();
         try {
@@ -66,12 +64,11 @@ export class SharedCanvas {
         }
     }
 
-    private _getState(): [ OffscreenCanvas, OffscreenCanvasRenderingContext2D ] {
+    private _getState(): [OffscreenCanvas, OffscreenCanvasRenderingContext2D] {
         if (this._state !== null) return this._state;
         const canvas = new OffscreenCanvas(this._width, this._height);
         const ctx = canvas.getContext("2d");
         if (!ctx) throw new Error(`Failed to create rendering context`);
-        return this._state = [ canvas, ctx ];
+        return (this._state = [canvas, ctx]);
     }
-
 }

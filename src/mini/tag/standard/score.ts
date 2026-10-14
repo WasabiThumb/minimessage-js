@@ -1,11 +1,12 @@
-import {TagResolver} from "../resolver";
-import {ArgumentQueue} from "../resolver/argumentQueue";
-import {Tag} from "../../tag";
-import {Component} from "../../../text/component";
+import { Component } from "../../../text/component";
+import { Tag } from "../../tag";
+import { TagResolver } from "../resolver";
+import { ArgumentQueue } from "../resolver/argumentQueue";
 
-/** @internal */
+/**
+ * @internal
+ */
 export namespace ScoreTag {
-
     function create(args: ArgumentQueue): Tag {
         const name = args.popOr("A scoreboard member name is required").value();
         const objective = args.popOr("An objective name is required").value();
@@ -16,5 +17,4 @@ export namespace ScoreTag {
 
     export const SCORE = "score";
     export const RESOLVER = TagResolver.dynamic(SCORE, create);
-
 }

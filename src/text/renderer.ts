@@ -1,59 +1,53 @@
-import {Component} from "./component";
-import {TextComponent} from "./component/text";
-import {TranslatableComponent} from "./component/translatable";
-import {SelectorComponent} from "./component/selector";
-import {ScoreComponent} from "./component/score";
-import {KeybindComponent} from "./component/keybind";
-import {ObjectComponent} from "./component/object";
-import {BlockNBTComponent} from "./component/nbt/block";
-import {EntityNBTComponent} from "./component/nbt/entity";
-import {StorageNBTComponent} from "./component/nbt/storage";
-import {assertNever} from "../util/assertions";
+import { assertNever } from "../util/assertions";
+import { Component } from "./component";
+import { KeybindComponent } from "./component/keybind";
+import { BlockNBTComponent } from "./component/nbt/block";
+import { EntityNBTComponent } from "./component/nbt/entity";
+import { StorageNBTComponent } from "./component/nbt/storage";
+import { ObjectComponent } from "./component/object";
+import { ScoreComponent } from "./component/score";
+import { SelectorComponent } from "./component/selector";
+import { TextComponent } from "./component/text";
+import { TranslatableComponent } from "./component/translatable";
 
 //
 
 export interface ComponentRenderer<C> {
-
     render(component: Component, context: C): Component;
 
     mapContext<T>(transformer: (renderer: T) => C): ComponentRenderer<T>;
-
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 abstract class FunctionalComponentRenderer<C> implements ComponentRenderer<C> {
-
     abstract render(component: Component, context: C): Component;
 
     mapContext<T>(transformer: (renderer: T) => C): ComponentRenderer<T> {
         return new MappedComponentRenderer(this, transformer);
     }
-
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 class MappedComponentRenderer<C, S> extends FunctionalComponentRenderer<C> {
-
     private readonly _backing: ComponentRenderer<S>;
     private readonly _transformer: (context: C) => S;
 
-    constructor(
-        backing: ComponentRenderer<S>,
-        transformer: (context: C) => S
-    ) {
+    constructor(backing: ComponentRenderer<S>, transformer: (context: C) => S) {
         super();
         this._backing = backing;
         this._transformer = transformer;
     }
 
     render(component: Component, context: C): Component {
-        return this._backing.render(component, this._transformer.apply(null, [ context ]));
+        return this._backing.render(component, this._transformer.apply(null, [context]));
     }
-
 }
 
 export abstract class AbstractComponentRenderer<C> extends FunctionalComponentRenderer<C> {
-
     protected constructor() {
         super();
     }
@@ -127,5 +121,4 @@ export abstract class AbstractComponentRenderer<C> extends FunctionalComponentRe
     protected abstract renderKeybind(component: KeybindComponent, context: C): Component;
 
     protected abstract renderObject(component: ObjectComponent, context: C): Component;
-
 }

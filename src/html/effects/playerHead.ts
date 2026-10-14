@@ -1,13 +1,12 @@
-import type {DomEffect} from "../effects";
-import {PlayerHeadObjectContents} from "../../text/object/playerHead";
-import {assertObject} from "../../util/assertions";
-import {VanillaHeads} from "./playerHead/vanilla";
-import {UUID} from "../../util/uuid";
-import {OnlineHeads} from "./playerHead/online";
-import {Key} from "../../key";
+import { Key } from "../../key";
+import { PlayerHeadObjectContents } from "../../text/object/playerHead";
+import { assertObject } from "../../util/assertions";
+import { UUID } from "../../util/uuid";
+import type { DomEffect } from "../effects";
+import { OnlineHeads } from "./playerHead/online";
+import { VanillaHeads } from "./playerHead/vanilla";
 
 class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
-
     apply(element: Element, data: PlayerHeadObjectContents): void {
         const tint = this._resolveColor(element);
         const image = this._createImage(data, tint);
@@ -28,26 +27,23 @@ class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
             observer.disconnect();
         });
         observer.observe(element, {
-            childList: true
+            childList: true,
         });
     }
 
     serialize(data: PlayerHeadObjectContents): string {
-        const take = (<K extends keyof PlayerHeadObjectContents>(
-            key: K,
-            consumer: (value: Value<K>) => void
-        ) => {
+        const take = <K extends keyof PlayerHeadObjectContents>(key: K, consumer: (value: Value<K>) => void) => {
             // @ts-ignore
             const value = data[key]();
             if (null === value) return;
             consumer(value as Value<K>);
-        });
+        };
 
         const form: SerialForm = {};
         if (!data.hat()) form.hat = false;
-        take("id", (id) => form.id = id);
-        take("name", (name) => form.name = name);
-        take("texture", (texture) => form.texture = texture.asString());
+        take("id", (id) => (form.id = id));
+        take("name", (name) => (form.name = name));
+        take("texture", (texture) => (form.texture = texture.asString()));
 
         return JSON.stringify(form);
     }
@@ -89,7 +85,7 @@ class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
         // Submit the alex head with priority 0
         image.submit(async () => {
             const src = await VanillaHeads.getByName("alex");
-            return { src, alt: '', revoke: false };
+            return { src, alt: "", revoke: false };
         }, 0);
 
         const hat = data.hat();
@@ -97,7 +93,7 @@ class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
         const name = data.name();
         const texture = data.texture();
 
-        const withUUID = ((uuid: UUID, alt: string) => {
+        const withUUID = (uuid: UUID, alt: string) => {
             // Submit the offline head with priority 2
             image.submit(async () => {
                 const src = await VanillaHeads.getByUUID(uuid);
@@ -110,12 +106,12 @@ class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
                 if (!src) return null;
                 return { src, alt, revoke: true };
             }, 3);
-        });
+        };
 
         if (name !== null) {
             // Submit the "UUID from bytes" head with priority 1
             image.submit(async () => {
-                const nameBytes = (new TextEncoder()).encode(name);
+                const nameBytes = new TextEncoder().encode(name);
                 const nameUUID = UUID.nameUUIDFromBytes(nameBytes);
                 const src = await VanillaHeads.getByUUID(nameUUID);
                 return { src, alt: `${nameUUID.toString()} (${name})`, revoke: false };
@@ -133,7 +129,7 @@ class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
             let uuid: UUID | null = null;
             try {
                 uuid = UUID.fromString(id);
-            } catch (e) { }
+            } catch (e) {}
             if (uuid !== null) {
                 // Submit the offline & online heads with priorities 2 & 3
                 withUUID(uuid, uuid.toString());
@@ -149,19 +145,19 @@ class PlayerHeadDomEffectImpl implements PlayerHeadDomEffect {
             } else {
                 // Submit the missing texture with priority 1
                 image.submit(
-                    () => Promise.resolve({
-                        src: VanillaHeads.MISSING,
-                        alt: texture.asString(),
-                        revoke: false
-                    }),
-                    1
+                    () =>
+                        Promise.resolve({
+                            src: VanillaHeads.MISSING,
+                            alt: texture.asString(),
+                            revoke: false,
+                        }),
+                    1,
                 );
             }
         }
 
         return image;
     }
-
 }
 
 export type PlayerHeadDomEffect = DomEffect<PlayerHeadObjectContents>;
@@ -174,30 +170,30 @@ export namespace PlayerHeadDomEffect {
 //
 
 type SerialForm = {
-    hat?: boolean,
-    id?: string,
-    name?: string,
-    texture?: string
+    hat?: boolean;
+    id?: string;
+    name?: string;
+    texture?: string;
 };
 
-type Value<K extends keyof PlayerHeadObjectContents> = PlayerHeadObjectContents[K] extends (...args: any) => infer R ?
-    Exclude<R, null> : never;
+type Value<K extends keyof PlayerHeadObjectContents> = PlayerHeadObjectContents[K] extends (...args: any) => infer R
+    ? Exclude<R, null>
+    : never;
 
 //
 
 type PolyImageTaskResult = {
-    readonly src: string,
-    readonly alt: string,
-    readonly revoke: boolean
+    readonly src: string;
+    readonly alt: string;
+    readonly revoke: boolean;
 };
 
 type PolyImagePrioritizedController = {
-    readonly controller: AbortController,
-    readonly priority: number
+    readonly controller: AbortController;
+    readonly priority: number;
 };
 
 class PolyImage {
-
     readonly element: HTMLImageElement;
     private _activePriority: number;
     private readonly _controllers: PolyImagePrioritizedController[];
@@ -269,10 +265,10 @@ class PolyImage {
         }
 
         // Listen for the image to load after property set before revoking
-        const onSettled = (() => {
+        const onSettled = () => {
             if (revoke) URL.revokeObjectURL(src);
             this._destroyArbitraryController(controller);
-        });
+        };
         element.addEventListener("load", onSettled, { signal: controller.signal, once: true });
         element.addEventListener("error", onSettled, { signal: controller.signal, once: true });
 
@@ -295,15 +291,23 @@ class PolyImage {
         const img = new Image();
         await new Promise<void>((resolve, reject) => {
             const abort = new AbortController();
-            img.addEventListener("load", () => {
-                abort.abort();
-                resolve();
-            }, { signal: abort.signal, once: true });
-            img.addEventListener("error", ({ error }) => {
-                if (revoke) URL.revokeObjectURL(src);
-                abort.abort();
-                reject(error);
-            }, { signal: abort.signal, once: true });
+            img.addEventListener(
+                "load",
+                () => {
+                    abort.abort();
+                    resolve();
+                },
+                { signal: abort.signal, once: true },
+            );
+            img.addEventListener(
+                "error",
+                ({ error }) => {
+                    if (revoke) URL.revokeObjectURL(src);
+                    abort.abort();
+                    reject(error);
+                },
+                { signal: abort.signal, once: true },
+            );
             img.src = src;
         });
 
@@ -343,5 +347,4 @@ class PolyImage {
         if (idx !== -1) this._controllers.splice(idx, 1);
         controller.abort();
     }
-
 }

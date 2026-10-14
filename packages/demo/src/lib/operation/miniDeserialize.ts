@@ -1,17 +1,17 @@
-import type {Operation} from "../operation.ts";
-import {type ComponentUnit, type StringUnit, Unit} from "../unit.ts";
-import {Argument, type ArgumentMap} from "../argument.ts";
-import {MiniMessage} from "minimessage-js";
+import { MiniMessage } from "minimessage-js";
+
+import { Argument, type ArgumentMap } from "../argument.ts";
+import type { Operation } from "../operation.ts";
+import { type ComponentUnit, type StringUnit, Unit } from "../unit.ts";
 
 //
 
 type Args = {
-    strict: boolean,
-    verbose: boolean,
+    strict: boolean;
+    verbose: boolean;
 };
 
 class MiniDeserializeOperationImpl implements MiniDeserializeOperation {
-
     readonly id = MiniDeserializeOperation.ID;
     readonly name = "MiniMessage Deserialize";
     readonly accepts = "string";
@@ -21,7 +21,7 @@ class MiniDeserializeOperationImpl implements MiniDeserializeOperation {
     get arguments(): ArgumentMap<Args> {
         return {
             strict: Argument.boolean("Strict Mode"),
-            verbose: Argument.boolean("No Compaction")
+            verbose: Argument.boolean("No Compaction"),
         };
     }
 
@@ -39,7 +39,6 @@ class MiniDeserializeOperationImpl implements MiniDeserializeOperation {
         const component = mini.deserialize(value);
         return Unit.component(component);
     }
-
 }
 
 //

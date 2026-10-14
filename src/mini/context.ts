@@ -1,21 +1,20 @@
-import {TagResolver} from "./tag/resolver";
-import {Component} from "../text/component";
-import {ArgumentQueue} from "./tag/resolver/argumentQueue";
-import {MiniMessage} from "../mini";
+import { MiniMessage } from "../mini";
+import { Component } from "../text/component";
+import { TagResolver } from "./tag/resolver";
+import { ArgumentQueue } from "./tag/resolver/argumentQueue";
 
 //
 
 export interface Context {
-
     deserialize(message: string, ...resolvers: TagResolver[]): Component;
 
     newException(message: string, tags?: ArgumentQueue): Error;
-
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 export class ContextImpl implements Context {
-
     private readonly _strict: boolean;
     private readonly _debugOutput: ((x: string) => void) | null;
     private _message: string;
@@ -31,15 +30,15 @@ export class ContextImpl implements Context {
         miniMessage: MiniMessage,
         extraTags: TagResolver | null,
         preProcessor: ((x: string) => string) | null,
-        postProcessor: ((x: Component) => Component) | null
+        postProcessor: ((x: Component) => Component) | null,
     ) {
         this._strict = strict;
         this._debugOutput = debugOutput;
         this._message = message;
         this._miniMessage = miniMessage;
-        this._tagResolver = (extraTags === null) ? TagResolver.empty() : extraTags;
-        this._preProcessor = typeof preProcessor === "function" ? preProcessor : ((x) => x);
-        this._postProcessor = typeof postProcessor === "function" ? postProcessor : ((x) => x);
+        this._tagResolver = extraTags === null ? TagResolver.empty() : extraTags;
+        this._preProcessor = typeof preProcessor === "function" ? preProcessor : (x) => x;
+        this._postProcessor = typeof postProcessor === "function" ? postProcessor : (x) => x;
     }
 
     //
@@ -77,5 +76,4 @@ export class ContextImpl implements Context {
         // TODO: Incorporate tags somehow
         return new Error(message);
     }
-
 }

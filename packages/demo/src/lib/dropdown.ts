@@ -1,21 +1,17 @@
-import type {Listing} from "./listing.ts";
-import {Operation} from "./operation.ts";
-import {Unit} from "./unit.ts";
+import type { Listing } from "./listing.ts";
+import { Operation } from "./operation.ts";
+import { Unit } from "./unit.ts";
 
 //
 
 export class Dropdown {
-
     private readonly _element: HTMLElement;
     private readonly _listing: Listing;
     private readonly _entries: Entry[];
     private _visible: boolean;
     private _init: boolean;
 
-    constructor(
-        element: HTMLElement,
-        listing: Listing
-    ) {
+    constructor(element: HTMLElement, listing: Listing) {
         this._element = element;
         this._listing = listing;
         this._entries = [];
@@ -73,15 +69,13 @@ export class Dropdown {
             entry.update(tail);
         }
     }
-
 }
 
 class Entry {
-
     constructor(
         readonly element: HTMLElement,
-        readonly operation: Operation
-    ) { }
+        readonly operation: Operation,
+    ) {}
 
     //
 
@@ -93,5 +87,4 @@ class Entry {
             this.element.setAttribute("data-disallowed", "");
         }
     }
-
 }

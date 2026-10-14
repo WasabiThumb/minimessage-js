@@ -1,10 +1,19 @@
-import {ComponentSerializer} from "./types";
-import {ClickEvent, HoverEvent, NamedTextColor, ShadowColor, Style, TextColor, TextDecoration} from "../text/style";
-import {UUID} from "../util/uuid";
-import {assertNever} from "../util/assertions";
-import {Component} from "../text/component";
-import {PlayerHeadObjectContents} from "../text/object/playerHead";
-import {ObjectContents, SpriteObjectContents} from "../text/object";
+import { Key } from "../key";
+import { Component } from "../text/component";
+import { KeybindComponent } from "../text/component/keybind";
+import { BlockNBTComponent } from "../text/component/nbt/block";
+import { EntityNBTComponent } from "../text/component/nbt/entity";
+import { StorageNBTComponent } from "../text/component/nbt/storage";
+import { ObjectComponent } from "../text/component/object";
+import { ScoreComponent } from "../text/component/score";
+import { SelectorComponent } from "../text/component/selector";
+import { TextComponent } from "../text/component/text";
+import { TranslatableComponent, TranslationArgument } from "../text/component/translatable";
+import { ObjectContents, SpriteObjectContents } from "../text/object";
+import { PlayerHeadObjectContents } from "../text/object/playerHead";
+import { ClickEvent, HoverEvent, NamedTextColor, ShadowColor, Style, TextColor, TextDecoration } from "../text/style";
+import { assertNever } from "../util/assertions";
+import { UUID } from "../util/uuid";
 import {
     JsonAtlasObjectComponent,
     JsonBaseComponent,
@@ -22,18 +31,9 @@ import {
     JsonSelectorComponent,
     JsonStorageNBTComponent,
     JsonTextComponent,
-    JsonTranslatableComponent
+    JsonTranslatableComponent,
 } from "./json/types";
-import {TextComponent} from "../text/component/text";
-import {ScoreComponent} from "../text/component/score";
-import {SelectorComponent} from "../text/component/selector";
-import {KeybindComponent} from "../text/component/keybind";
-import {ObjectComponent} from "../text/component/object";
-import {BlockNBTComponent} from "../text/component/nbt/block";
-import {StorageNBTComponent} from "../text/component/nbt/storage";
-import {EntityNBTComponent} from "../text/component/nbt/entity";
-import {TranslatableComponent, TranslationArgument} from "../text/component/translatable";
-import {Key} from "../key";
+import { ComponentSerializer } from "./types";
 
 //
 
@@ -41,9 +41,10 @@ export type JsonComponentSerializer = ComponentSerializer<Component, Component, 
     deserialize(input: any): Component;
 };
 
-/** @internal */
+/**
+ * @internal
+ */
 class JsonComponentSerializerImpl implements JsonComponentSerializer {
-
     private static readonly CLICK_EVENT_SERIALIZER = (() => {
         const handlers = new ClickEvent.Handlers<JsonComponentSerializerImpl, JsonClickEvent>();
         handlers.register(ClickEvent.Action.RUN_COMMAND, (event) => {
@@ -56,7 +57,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
             return { action: "open_url", url: event.payload().value() };
         });
         handlers.register(ClickEvent.Action.OPEN_FILE, (event) => {
-            return { action: "open_file", path: event.payload().value() }
+            return { action: "open_file", path: event.payload().value() };
         });
         handlers.register(ClickEvent.Action.COPY_TO_CLIPBOARD, (event) => {
             return { action: "copy_to_clipboard", value: event.payload().value() };
@@ -121,8 +122,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
     }
 
     deserialize(input: any): Component {
-        if (typeof input !== "object" || input === null)
-            return Component.text(`${input}`);
+        if (typeof input !== "object" || input === null) return Component.text(`${input}`);
 
         if (Array.isArray(input)) {
             const array = input as any[];
@@ -137,18 +137,17 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
                 }
             }
 
-            if (ret === null)
-                throw new Error(`Unable to deserialize empty array`);
+            if (ret === null) throw new Error(`Unable to deserialize empty array`);
 
             return ret;
         }
 
-        const get: (<K extends keyof JsonComponentKeyValues>(key: K) => JsonComponentKeyValues[K]) = ((key) => {
+        const get: <K extends keyof JsonComponentKeyValues>(key: K) => JsonComponentKeyValues[K] = (key) => {
             return (input as unknown as JsonComponentKeyValues)[key];
-        });
-        const getString = ((key: keyof JsonComponentKeyValues) => {
+        };
+        const getString = (key: keyof JsonComponentKeyValues) => {
             return `${get(key)}`;
-        });
+        };
 
         const style = Style.style();
         let extra: Component[] | null = null;
@@ -246,7 +245,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
                                 const property = PlayerHeadObjectContents.property(
                                     jsonProperty.name,
                                     jsonProperty.value,
-                                    !!signature ? signature : null
+                                    !!signature ? signature : null,
                                 );
                                 playerHeadContents.profileProperty(property);
                             }
@@ -328,23 +327,18 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
             ret = Component.keybind(keybind);
         } else if (nbt !== null) {
             if (nbtBlock !== null) {
-                ret = Component.blockNBT(nbt, nbtInterpret, separator, nbtBlock)
+                ret = Component.blockNBT(nbt, nbtInterpret, separator, nbtBlock);
             } else if (nbtEntity !== null) {
-                ret = Component.entityNBT(nbt, nbtEntity)
-                    .interpret(nbtInterpret)
-                    .separator(separator);
+                ret = Component.entityNBT(nbt, nbtEntity).interpret(nbtInterpret).separator(separator);
             } else if (nbtStorage !== null) {
-                ret = Component.storageNBT(nbt, nbtStorage)
-                    .interpret(nbtInterpret)
-                    .separator(separator);
+                ret = Component.storageNBT(nbt, nbtStorage).interpret(nbtInterpret).separator(separator);
             } else {
                 throw new Error(`Missing block, entity or storage tag in NBT component`);
             }
         } else if (sprite !== null) {
-            ret = Component.object(ObjectContents.sprite(
-                atlas !== null ? atlas : SpriteObjectContents.DEFAULT_ATLAS,
-                sprite
-            ));
+            ret = Component.object(
+                ObjectContents.sprite(atlas !== null ? atlas : SpriteObjectContents.DEFAULT_ATLAS, sprite),
+            );
         } else if (playerHeadContents !== null && playerHeadContentsHasProfile) {
             ret = Component.object(playerHeadContents.build());
         } else {
@@ -368,12 +362,18 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
     private deserializeClickEvent(event: JsonClickEvent): ClickEvent<any> {
         const { action } = event;
         switch (action) {
-            case "open_url": return ClickEvent.openUrl(event.url);
-            case "open_file": return ClickEvent.openFile(event.path);
-            case "run_command": return ClickEvent.runCommand(event.command);
-            case "suggest_command": return ClickEvent.suggestCommand(event.command);
-            case "change_page": return ClickEvent.changePage(event.page);
-            case "copy_to_clipboard": return ClickEvent.copyToClipboard(event.value);
+            case "open_url":
+                return ClickEvent.openUrl(event.url);
+            case "open_file":
+                return ClickEvent.openFile(event.path);
+            case "run_command":
+                return ClickEvent.runCommand(event.command);
+            case "suggest_command":
+                return ClickEvent.suggestCommand(event.command);
+            case "change_page":
+                return ClickEvent.changePage(event.page);
+            case "copy_to_clipboard":
+                return ClickEvent.copyToClipboard(event.value);
             case "show_dialog":
                 // TODO
                 throw new Error(`show_dialog click event is currently unsupported`);
@@ -394,7 +394,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
                 return HoverEvent.showEntity(
                     id,
                     Array.isArray(uuid) ? UUID.fromArray(uuid).toString() : `${uuid}`,
-                    !!name ? this.deserialize(name) : null
+                    !!name ? this.deserialize(name) : null,
                 );
             case "show_item":
                 return HoverEvent.showItem(event.id, event.count || 0);
@@ -410,7 +410,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
         if (component.children().length === 0 && component.style().isEmpty()) return content;
         return {
             ...this.serializeBase(component),
-            text: content
+            text: content,
         };
     }
 
@@ -418,7 +418,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
         const key = component.key();
         const ret: JsonTranslatableComponent = {
             ...this.serializeBase(component),
-            translate: key
+            translate: key,
         };
 
         const fallback = component.fallback();
@@ -446,7 +446,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
         const objective = component.objective();
         return {
             ...this.serializeBase(component),
-            score: {name, objective}
+            score: { name, objective },
         };
     }
 
@@ -454,7 +454,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
         const pattern = component.pattern();
         const ret: JsonSelectorComponent = {
             ...this.serializeBase(component),
-            selector: pattern
+            selector: pattern,
         };
 
         const separator = component.separator();
@@ -467,7 +467,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
         const keybind = component.keybind();
         return {
             ...this.serializeBase(component),
-            keybind
+            keybind,
         };
     }
 
@@ -479,7 +479,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
             ...this.serializeBase(component),
             nbt,
             interpret,
-            storage
+            storage,
         };
 
         const separator = component.separator();
@@ -496,7 +496,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
             ...this.serializeBase(component),
             nbt,
             interpret,
-            entity
+            entity,
         };
 
         const separator = component.separator();
@@ -513,7 +513,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
             ...this.serializeBase(component),
             nbt,
             interpret,
-            block: block.asString()
+            block: block.asString(),
         };
 
         const separator = component.separator();
@@ -530,7 +530,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
             const sprite = contents.sprite();
             const ret: JsonAtlasObjectComponent = {
                 ...this.serializeBase(component),
-                sprite: sprite.asString()
+                sprite: sprite.asString(),
             };
 
             const atlas = contents.atlas();
@@ -558,7 +558,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
                         const property = properties[i];
                         const jsonProperty: JsonPlayerProfileProperty = {
                             name: property.name(),
-                            value: property.value()
+                            value: property.value(),
                         };
 
                         const signature = property.signature();
@@ -573,7 +573,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
             return {
                 ...this.serializeBase(component),
                 player: profile,
-                hat
+                hat,
             };
         } else {
             throw new Error(`No rule to serialize contents of type \"${type}\"`);
@@ -581,7 +581,7 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
     }
 
     private serializeBase(component: Component): JsonBaseComponent {
-        const ret: JsonBaseComponent = { };
+        const ret: JsonBaseComponent = {};
 
         const children = component.children();
         if (children.length !== 0) {
@@ -607,17 +607,17 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
         const font = component.font();
         if (font) ret.font = font.asString();
 
-        const useDecoration = ((decoration: TextDecoration, consumer: (value: boolean) => void): void => {
+        const useDecoration = (decoration: TextDecoration, consumer: (value: boolean) => void): void => {
             const state = component.decoration(decoration);
             if (state === TextDecoration.State.NOT_SET) return;
             consumer(state === TextDecoration.State.TRUE);
-        });
+        };
 
-        useDecoration(TextDecoration.BOLD, (v) => ret.bold = v);
-        useDecoration(TextDecoration.ITALIC, (v) => ret.italic = v);
-        useDecoration(TextDecoration.UNDERLINED, (v) => ret.underlined = v);
-        useDecoration(TextDecoration.STRIKETHROUGH, (v) => ret.strikethrough = v);
-        useDecoration(TextDecoration.OBFUSCATED, (v) => ret.obfuscated = v);
+        useDecoration(TextDecoration.BOLD, (v) => (ret.bold = v));
+        useDecoration(TextDecoration.ITALIC, (v) => (ret.italic = v));
+        useDecoration(TextDecoration.UNDERLINED, (v) => (ret.underlined = v));
+        useDecoration(TextDecoration.STRIKETHROUGH, (v) => (ret.strikethrough = v));
+        useDecoration(TextDecoration.OBFUSCATED, (v) => (ret.obfuscated = v));
 
         const shadowColor = component.shadowColor();
         if (shadowColor) ret.shadow_color = shadowColor.value();
@@ -637,23 +637,18 @@ class JsonComponentSerializerImpl implements JsonComponentSerializer {
     }
 
     private serializeClickEvent<P extends ClickEvent.Payload>(clickEvent: ClickEvent<P>): JsonClickEvent {
-        return JsonComponentSerializerImpl.CLICK_EVENT_SERIALIZER
-            .invoke(clickEvent, this);
+        return JsonComponentSerializerImpl.CLICK_EVENT_SERIALIZER.invoke(clickEvent, this);
     }
 
     private serializeHoverEvent(hoverEvent: HoverEvent<any>): JsonHoverEvent {
-        return JsonComponentSerializerImpl.HOVER_EVENT_SERIALIZER
-            .invoke(hoverEvent, this);
+        return JsonComponentSerializerImpl.HOVER_EVENT_SERIALIZER.invoke(hoverEvent, this);
     }
-
 }
 
 export namespace JsonComponentSerializer {
-
     const INSTANCE = new JsonComponentSerializerImpl();
 
     export function json(): JsonComponentSerializer {
         return INSTANCE;
     }
-
 }

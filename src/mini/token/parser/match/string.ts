@@ -1,22 +1,20 @@
-import {MatchedTokenConsumer} from "../match";
-import {StringBuilder} from "../../../../util/string";
-import {TokenParser} from "../../parser";
-import {Token, TokenType} from "../../../token";
-import {TagInternals, TagPart} from "../../../tag/internals";
-import {PreProcessTagImpl} from "../../../tag/impls/preProcess";
+import { StringBuilder } from "../../../../util/string";
+import { PreProcessTagImpl } from "../../../tag/impls/preProcess";
+import { TagInternals, TagPart } from "../../../tag/internals";
+import { Token, TokenType } from "../../../token";
+import { TokenParser } from "../../parser";
+import { MatchedTokenConsumer } from "../match";
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export class StringResolvingMatchedTokenConsumer extends MatchedTokenConsumer<string> {
-
     private readonly _builder: StringBuilder;
     private readonly _tagProvider: TokenParser.TagProvider;
 
-    constructor(
-        input: string,
-        tagProvider: TokenParser.TagProvider
-    ) {
+    constructor(input: string, tagProvider: TokenParser.TagProvider) {
         super(input);
         this._builder = new StringBuilder(input.length);
         this._tagProvider = tagProvider;
@@ -36,7 +34,7 @@ export class StringResolvingMatchedTokenConsumer extends MatchedTokenConsumer<st
         const cleanup = this._input.substring(start + 1, end - 1);
 
         const index = TokenParser.SEPARATOR.indexIn(cleanup);
-        const tag = (index === -1) ? cleanup : cleanup.substring(0, index);
+        const tag = index === -1 ? cleanup : cleanup.substring(0, index);
 
         if (TagInternals.sanitizeAndCheckValidTagName(tag)) {
             const tokens: Token[] = TokenParser.tokenize(match, false);
@@ -54,7 +52,7 @@ export class StringResolvingMatchedTokenConsumer extends MatchedTokenConsumer<st
             const replacement = this._tagProvider.resolve(
                 TokenParser.TagProvider.sanitizePlaceholderName(tag),
                 parts,
-                tokens.length !== 0 ? tokens[0] : null
+                tokens.length !== 0 ? tokens[0] : null,
             );
             if (replacement !== null && replacement instanceof PreProcessTagImpl) {
                 this._builder.append(replacement.value());
@@ -68,5 +66,4 @@ export class StringResolvingMatchedTokenConsumer extends MatchedTokenConsumer<st
     result(): string {
         return this._builder.toString();
     }
-
 }

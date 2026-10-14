@@ -1,29 +1,32 @@
-import {TranslationArgument} from "./text/component/translatable";
-import {Component} from "./text/component";
-import {ArgumentChunk, Chunks, ChunkType} from "./i18n/chunks";
-import {assertNever} from "./util/assertions";
+import { ArgumentChunk, Chunks, ChunkType } from "./i18n/chunks";
+import { Component } from "./text/component";
+import { TranslationArgument } from "./text/component/translatable";
+import { assertNever } from "./util/assertions";
 
 //
 
 export type TranslationData = {
-    readonly [K in string]?: string
+    readonly [K in string]?: string;
 };
 
 export interface Translations {
-    readonly data: TranslationData,
+    readonly data: TranslationData;
     translate(key: string, args?: TranslationArgument[]): Component;
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 type ParsedTranslationData = Map<string, Chunks>;
 
-/** @internal */
+/**
+ * @internal
+ */
 class TranslationsImpl implements Translations {
-
     constructor(
         private readonly _data: ParsedTranslationData,
-        private readonly _fallback: Translations.Fallback
-    ) { }
+        private readonly _fallback: Translations.Fallback,
+    ) {}
 
     //
 
@@ -68,26 +71,23 @@ class TranslationsImpl implements Translations {
         if (typeof arg === "object" && arg !== null) return arg;
         return Component.text(`${arg}`);
     }
-
 }
 
 export namespace Translations {
-
     export type Fallback = (key: string, args: TranslationArgument[]) => Component | string;
 
     export interface Builder {
-
         with(data: Translations | TranslationData): this;
 
         fallback(fallback: Fallback): this;
 
         build(): Translations;
-
     }
 
-    /** @internal */
+    /**
+     * @internal
+     */
     class BuilderImpl implements Builder {
-
         private static readonly DEFAULT_FALLBACK: Fallback = (s) => s;
 
         //
@@ -129,12 +129,11 @@ export namespace Translations {
             if (this._open) return;
             throw new Error("Cannot use builder after #build");
         }
-
     }
 
     //
 
-    const EMPTY = (new BuilderImpl()).build();
+    const EMPTY = new BuilderImpl().build();
 
     export function builder(): Builder {
         return new BuilderImpl();
@@ -145,9 +144,6 @@ export namespace Translations {
     }
 
     export function of(data: Translations | TranslationData): Translations {
-        return builder()
-            .with(data)
-            .build();
+        return builder().with(data).build();
     }
-
 }

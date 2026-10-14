@@ -1,4 +1,4 @@
-import {Style} from "../style";
+import { Style } from "../style";
 
 //
 
@@ -12,18 +12,15 @@ type FlattenerListenerExtras = {
     shouldContinue(): boolean;
 };
 
-export type FlattenerListener =
-    FlattenerListenerContract &
-    Partial<FlattenerListenerExtras>;
+export type FlattenerListener = FlattenerListenerContract & Partial<FlattenerListenerExtras>;
 
 export namespace FlattenerListener {
-
     const DEFAULTS: FlattenerListenerExtras = {
-        pushStyle() { },
-        popStyle() { },
+        pushStyle() {},
+        popStyle() {},
         shouldContinue(): boolean {
             return true;
-        }
+        },
     };
 
     export function of(fn: (text: string) => void): FlattenerListener {
@@ -34,16 +31,12 @@ export namespace FlattenerListener {
         if (!("component" in listener)) {
             throw new Error(`Invalid listener`);
         }
-        if ("pushStyle" in listener &&
-            "popStyle" in listener &&
-            "shouldContinue" in listener
-        ) {
+        if ("pushStyle" in listener && "popStyle" in listener && "shouldContinue" in listener) {
             return listener as Required<FlattenerListener>;
         }
         return Object.freeze({
             ...DEFAULTS,
-            ...listener
+            ...listener,
         });
     }
-
 }

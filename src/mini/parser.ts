@@ -1,17 +1,17 @@
-import {TagResolver} from "./tag/resolver";
-import {ContextImpl} from "./context";
-import {StringBuilder} from "../util/string";
-import {Token, TokenType} from "./token";
-import {TokenParser} from "./token/parser";
-import {Character} from "../util/char";
-import {RootNode} from "./tree/root";
-import {Tag} from "./tag";
-import {ArgumentQueueImpl} from "./tag/resolver/argumentQueue";
-import {ErrorInfo} from "../util/errors";
-import {ElementNode} from "./tree/element";
-import {Component} from "../text/component";
-import {ValueNode} from "./tree/value";
-import {TagNode} from "./tree/tag";
+import { Component } from "../text/component";
+import { Character } from "../util/char";
+import { ErrorInfo } from "../util/errors";
+import { StringBuilder } from "../util/string";
+import { ContextImpl } from "./context";
+import { Tag } from "./tag";
+import { TagResolver } from "./tag/resolver";
+import { ArgumentQueueImpl } from "./tag/resolver/argumentQueue";
+import { Token, TokenType } from "./token";
+import { TokenParser } from "./token/parser";
+import { ElementNode } from "./tree/element";
+import { RootNode } from "./tree/root";
+import { TagNode } from "./tree/tag";
+import { ValueNode } from "./tree/value";
 
 //
 
@@ -22,12 +22,11 @@ type EscapeTokensFn = {
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export class MiniMessageParser {
-
-    constructor(
-        readonly tagResolver: TagResolver
-    ) { }
+    constructor(readonly tagResolver: TagResolver) {}
 
     //
 
@@ -67,12 +66,9 @@ export class MiniMessageParser {
         sb: StringBuilder,
         richMessage: string,
         context: ContextImpl,
-        tagHandler: (token: Token, sb: StringBuilder) => void
+        tagHandler: (token: Token, sb: StringBuilder) => void,
     ): void {
-        const combinedResolver = TagResolver.builder()
-            .resolver(this.tagResolver)
-            .resolver(context.extraTags())
-            .build();
+        const combinedResolver = TagResolver.builder().resolver(this.tagResolver).resolver(context.extraTags()).build();
 
         const root = TokenParser.tokenize(richMessage, true);
         for (const token of root) {
@@ -83,7 +79,9 @@ export class MiniMessageParser {
                 case TokenType.OPEN_CLOSE_TAG:
                     const childTokens = token.childTokens();
                     if (childTokens !== null && childTokens.length !== 0) {
-                        const sanitized = TokenParser.TagProvider.sanitizePlaceholderName(childTokens[0].get(richMessage));
+                        const sanitized = TokenParser.TagProvider.sanitizePlaceholderName(
+                            childTokens[0].get(richMessage),
+                        );
                         if (combinedResolver.has(sanitized)) {
                             tagHandler(token, sb);
                             break;
@@ -99,10 +97,7 @@ export class MiniMessageParser {
     }
 
     parseToTree(context: ContextImpl): RootNode {
-        const combinedResolver = TagResolver.builder()
-            .resolver(this.tagResolver)
-            .resolver(context.extraTags())
-            .build();
+        const combinedResolver = TagResolver.builder().resolver(this.tagResolver).resolver(context.extraTags()).build();
 
         const preprocessor = context.preProcessor();
         const processedMessage = preprocessor(context.message());
@@ -135,7 +130,7 @@ export class MiniMessageParser {
                     const transformation = combinedResolver.resolve(
                         name,
                         new ArgumentQueueImpl(context, trimmedArgs),
-                        context
+                        context,
                     );
 
                     if (transformation === null) {
@@ -170,10 +165,10 @@ export class MiniMessageParser {
             });
         }
 
-        const tagNameChecker = ((name: string) => {
+        const tagNameChecker = (name: string) => {
             const sanitized = TokenParser.TagProvider.sanitizePlaceholderName(name);
             return combinedResolver.has(sanitized);
-        });
+        };
 
         const preProcessed = TokenParser.resolvePreProcessTags(processedMessage, transformationFactory);
         context.message(preProcessed);
@@ -184,7 +179,7 @@ export class MiniMessageParser {
             tagNameChecker,
             preProcessed,
             processedMessage,
-            context.strict()
+            context.strict(),
         );
 
         if (debug) {
@@ -276,5 +271,4 @@ export class MiniMessageParser {
         }
         return newComp;
     }
-
 }

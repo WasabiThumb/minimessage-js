@@ -1,11 +1,10 @@
-import {TagResolver} from "../resolver";
-import {ArgumentQueue} from "../resolver/argumentQueue";
-import {Context} from "../../context";
-import {Tag} from "../../tag";
-import {ClickEvent} from "../../../text/style/clickEvent";
+import { ClickEvent } from "../../../text/style/clickEvent";
+import { Context } from "../../context";
+import { Tag } from "../../tag";
+import { TagResolver } from "../resolver";
+import { ArgumentQueue } from "../resolver/argumentQueue";
 
 export namespace ClickTag {
-
     function create(args: ArgumentQueue, ctx: Context): Tag {
         const actionName = args.popOr("A click tag requires an action name").lowerValue();
         const action = ClickEvent.Action.NAMES[actionName];
@@ -28,7 +27,7 @@ export namespace ClickTag {
         } else {
             event = ClickEvent.clickEvent(
                 action as ClickEvent.Action<ClickEvent.Payload.Text>,
-                ClickEvent.Payload.string(args.popOr(`'${action.toString()} click events require a value'`).value())
+                ClickEvent.Payload.string(args.popOr(`'${action.toString()} click events require a value'`).value()),
             );
         }
 
@@ -39,5 +38,4 @@ export namespace ClickTag {
 
     export const CLICK = "click";
     export const RESOLVER = TagResolver.dynamic(CLICK, create);
-
 }

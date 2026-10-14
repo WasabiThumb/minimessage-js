@@ -1,28 +1,28 @@
-import {AbstractComponentRenderer} from "../renderer";
-import {Component} from "../component";
-import {NamedTextColor, TextColor} from "../style/textColor";
-import {ShadowColor, Style} from "../style";
+import { Component } from "../component";
+import { AbstractComponentRenderer } from "../renderer";
+import { ShadowColor, Style } from "../style";
+import { NamedTextColor, TextColor } from "../style/textColor";
 
 //
 
 const truncateColor = (() => {
     const NAMED: NamedTextColor[] = Object.values(NamedTextColor.NAMES);
 
-    const distance = ((a: TextColor, b: TextColor) => {
+    const distance = (a: TextColor, b: TextColor) => {
         let dist: number = 0;
-        const sum = ((component: "red" | "green" | "blue") => {
+        const sum = (component: "red" | "green" | "blue") => {
             const difference = a[component]() - b[component]();
             dist += difference * difference;
-        });
+        };
 
         sum("red");
         sum("green");
         sum("blue");
 
         return dist;
-    });
+    };
 
-    return ((color: TextColor) => {
+    return (color: TextColor) => {
         if (NamedTextColor.isNamed(color)) return color as NamedTextColor;
 
         let closest: NamedTextColor = NAMED[0];
@@ -38,13 +38,12 @@ const truncateColor = (() => {
         }
 
         return closest;
-    });
+    };
 })();
 
 //
 
 export class LegacyColorComponentRenderer extends AbstractComponentRenderer<any> {
-
     private static readonly INSTANCE = new LegacyColorComponentRenderer();
 
     static renderer(): LegacyColorComponentRenderer {
@@ -84,9 +83,9 @@ export class LegacyColorComponentRenderer extends AbstractComponentRenderer<any>
         const shadowColor = style.shadowColor();
         if (shadowColor !== null) {
             let value: number = shadowColor.value();
-            let textColor = TextColor.color(value & 0x00FFFFFF);
+            let textColor = TextColor.color(value & 0x00ffffff);
             textColor = truncateColor(textColor);
-            value = textColor.value() | (value & 0xFF000000);
+            value = textColor.value() | (value & 0xff000000);
             style = style.shadowColor(ShadowColor.shadowColor(value));
             changed = true;
         }
@@ -103,9 +102,6 @@ export class LegacyColorComponentRenderer extends AbstractComponentRenderer<any>
             changed = true;
         }
 
-        return changed ?
-            component.style(style).children(children) :
-            component;
+        return changed ? component.style(style).children(children) : component;
     }
-
 }

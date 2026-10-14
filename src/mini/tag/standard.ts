@@ -1,31 +1,30 @@
-import {TagResolver} from "./resolver";
-import {ColorTagResolver} from "./standard/color";
-import {GradientTag} from "./standard/gradient";
-import {DecorationTag} from "./standard/decoration";
-import {TextDecoration} from "../../text/style/decoration";
-import {HoverTag} from "./standard/hover";
-import {ClickTag} from "./standard/click";
-import {KeybindTag} from "./standard/keybind";
-import {SequentialHeadTag} from "./standard/sequentialHead";
-import {TranslatableTag} from "./standard/translatable";
-import {TranslatableFallbackTag} from "./standard/translatableFallback";
-import {InsertionTag} from "./standard/insertion";
-import {FontTag} from "./standard/font";
-import {RainbowTag} from "./standard/rainbow";
-import {TransitionTag} from "./standard/transition";
-import {ResetTag} from "./standard/reset";
-import {NewlineTag} from "./standard/newline";
-import {SelectorTag} from "./standard/selector";
-import {ScoreTag} from "./standard/score";
-import {NbtTag} from "./standard/nbt";
-import {PrideTag} from "./standard/pride";
-import {ShadowColorTag} from "./standard/shadowColor";
-import {SpriteTag} from "./standard/sprite";
+import { TextDecoration } from "../../text/style/decoration";
+import { TagResolver } from "./resolver";
+import { ClickTag } from "./standard/click";
+import { ColorTagResolver } from "./standard/color";
+import { DecorationTag } from "./standard/decoration";
+import { FontTag } from "./standard/font";
+import { GradientTag } from "./standard/gradient";
+import { HoverTag } from "./standard/hover";
+import { InsertionTag } from "./standard/insertion";
+import { KeybindTag } from "./standard/keybind";
+import { NbtTag } from "./standard/nbt";
+import { NewlineTag } from "./standard/newline";
+import { PrideTag } from "./standard/pride";
+import { RainbowTag } from "./standard/rainbow";
+import { ResetTag } from "./standard/reset";
+import { ScoreTag } from "./standard/score";
+import { SelectorTag } from "./standard/selector";
+import { SequentialHeadTag } from "./standard/sequentialHead";
+import { ShadowColorTag } from "./standard/shadowColor";
+import { SpriteTag } from "./standard/sprite";
+import { TransitionTag } from "./standard/transition";
+import { TranslatableTag } from "./standard/translatable";
+import { TranslatableFallbackTag } from "./standard/translatableFallback";
 
 //
 
 export namespace StandardTags {
-
     const ALL: TagResolver = TagResolver.builder()
         .resolvers(
             ColorTagResolver.INSTANCE,
@@ -146,5 +145,4 @@ export namespace StandardTags {
     export function sprite(): TagResolver {
         return SpriteTag.RESOLVER;
     }
-
 }

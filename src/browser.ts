@@ -6,9 +6,10 @@ import * as adventure from "./index";
 declare global {
     interface Window {
         /**
-         * UMD export for MiniMessage, only valid when using
-         * the UMD build (`minimessage.umd.js`).
-         * @example const { MiniMessage } = window.adventure;
+         * UMD export for MiniMessage, only valid when using the UMD build (`minimessage.umd.js`).
+         *
+         * @example
+         *     const { MiniMessage } = window.adventure;
          */
         readonly adventure: typeof adventure;
     }
@@ -19,6 +20,6 @@ declare global {
         value: Object.freeze(adventure),
         writable: false,
         enumerable: true,
-        configurable: false
+        configurable: false,
     });
 })(typeof globalThis === "object" ? globalThis : window);

@@ -1,7 +1,7 @@
-import {AbstractScopedComponent, ScopedComponent} from "./scoped";
-import type {Component} from "../component";
-import {Style} from "../style";
-import {defineAccessor} from "../../util/accessor";
+import { defineAccessor } from "../../util/accessor";
+import type { Component } from "../component";
+import { Style } from "../style";
+import { AbstractScopedComponent, ScopedComponent } from "./scoped";
 
 //
 
@@ -10,24 +10,23 @@ export namespace TextComponent {
 }
 
 export interface TextComponent extends ScopedComponent<TextComponent> {
-
     readonly type: typeof TextComponent.TYPE;
 
     content(): string;
 
     content(content: string): TextComponent;
-
 }
 
 //
 
 type Extra = {
-    content: string
+    content: string;
 };
 
-/** @internal */
+/**
+ * @internal
+ */
 export class TextComponentImpl extends AbstractScopedComponent<TextComponentImpl, Extra> implements TextComponent {
-
     readonly type = TextComponent.TYPE;
 
     constructor(extra: Extra, children?: Component[], style?: Style) {
@@ -38,11 +37,10 @@ export class TextComponentImpl extends AbstractScopedComponent<TextComponentImpl
 
     content = defineAccessor(
         () => this._getExtra("content"),
-        (content) => this._withExtra("content", content)
+        (content) => this._withExtra("content", content),
     );
 
     protected _mutate(extra: Extra, children: Component[], style: Style): TextComponentImpl {
         return new TextComponentImpl(extra, children, style);
     }
-
 }

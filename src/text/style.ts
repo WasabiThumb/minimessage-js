@@ -1,10 +1,10 @@
-import {TextColor} from "./style/textColor";
-import {ShadowColor} from "./style/shadowColor";
-import {DecorationMap, TextDecoration} from "./style/decoration";
-import {ClickEvent} from "./style/clickEvent";
-import {HoverEvent} from "./style/hoverEvent";
-import {defineAccessor, defineContextualAccessor} from "../util/accessor";
-import {Key, KeyLike} from "../key";
+import { Key, KeyLike } from "../key";
+import { defineAccessor, defineContextualAccessor } from "../util/accessor";
+import { ClickEvent } from "./style/clickEvent";
+import { DecorationMap, TextDecoration } from "./style/decoration";
+import { HoverEvent } from "./style/hoverEvent";
+import { ShadowColor } from "./style/shadowColor";
+import { TextColor } from "./style/textColor";
 
 //
 
@@ -46,18 +46,22 @@ export interface Style {
     toString(): string;
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 type StyleInit = {
-    font: Key | null,
-    color: TextColor | null,
-    shadowColor: ShadowColor | null,
-    decorations: DecorationMap,
-    clickEvent: ClickEvent<any> | null,
-    hoverEvent: HoverEvent<any> | null,
-    insertion: string | null
+    font: Key | null;
+    color: TextColor | null;
+    shadowColor: ShadowColor | null;
+    decorations: DecorationMap;
+    clickEvent: ClickEvent<any> | null;
+    hoverEvent: HoverEvent<any> | null;
+    insertion: string | null;
 };
 
-/** @internal */
+/**
+ * @internal
+ */
 const EMPTY_STYLE_INIT: StyleInit = Object.freeze({
     font: null,
     color: null,
@@ -65,12 +69,13 @@ const EMPTY_STYLE_INIT: StyleInit = Object.freeze({
     decorations: new DecorationMap(),
     clickEvent: null,
     hoverEvent: null,
-    insertion: null
+    insertion: null,
 });
 
-/** @internal */
+/**
+ * @internal
+ */
 class StyleImpl implements Style {
-
     private readonly _init: StyleInit;
 
     constructor(init: StyleInit) {
@@ -81,12 +86,12 @@ class StyleImpl implements Style {
 
     font = defineAccessor<Key | null, KeyLike | null>(
         () => this._get("font"),
-        (font) => this._with({ font: font === null ? null : Key.key(font) })
+        (font) => this._with({ font: font === null ? null : Key.key(font) }),
     );
 
     color = defineAccessor<TextColor | null>(
         () => this._get("color"),
-        (color) => this._with({ color })
+        (color) => this._with({ color }),
     );
 
     colorIfAbsent(color: TextColor | null) {
@@ -95,7 +100,7 @@ class StyleImpl implements Style {
 
     shadowColor = defineAccessor<ShadowColor | null>(
         () => this._get("shadowColor"),
-        (shadowColor) => this._with({ shadowColor })
+        (shadowColor) => this._with({ shadowColor }),
     );
 
     shadowColorIfAbsent(shadowColor: ShadowColor | null): Style {
@@ -110,7 +115,7 @@ class StyleImpl implements Style {
                 state = TextDecoration.State.fromBoolean(!!state);
             }
             return this._with({ decorations: this._get("decorations").with(decoration, state) });
-        }
+        },
     );
 
     decorationIfAbsent(decoration: TextDecoration, state: boolean | TextDecoration.State): Style {
@@ -128,7 +133,10 @@ class StyleImpl implements Style {
         return this._with({ decorations });
     }
 
-    decorations = defineAccessor<Record<TextDecoration, TextDecoration.State>, Partial<Record<TextDecoration, TextDecoration.State>>>(
+    decorations = defineAccessor<
+        Record<TextDecoration, TextDecoration.State>,
+        Partial<Record<TextDecoration, TextDecoration.State>>
+    >(
         () => this._get("decorations").toObject(),
         (value) => {
             let map = this._get("decorations");
@@ -137,7 +145,7 @@ class StyleImpl implements Style {
                 map = map.with(decoration, value[decoration]!);
             }
             return this._with({ decorations: map });
-        }
+        },
     );
 
     decorate(...decorations: TextDecoration[]): Style {
@@ -152,17 +160,17 @@ class StyleImpl implements Style {
 
     clickEvent = defineAccessor<ClickEvent<any> | null>(
         () => this._get("clickEvent"),
-        (clickEvent) => this._with({ clickEvent })
+        (clickEvent) => this._with({ clickEvent }),
     );
 
     hoverEvent = defineAccessor<HoverEvent<any> | null>(
         () => this._get("hoverEvent"),
-        (hoverEvent) => this._with({ hoverEvent })
+        (hoverEvent) => this._with({ hoverEvent }),
     );
 
     insertion = defineAccessor<string | null>(
         () => this._get("insertion"),
-        (insertion) => this._with({ insertion })
+        (insertion) => this._with({ insertion }),
     );
 
     isEmpty(): boolean {
@@ -179,10 +187,7 @@ class StyleImpl implements Style {
         if (this.isEmpty()) return source;
         let newInit = { ...this._init };
 
-        function apply<K extends keyof StyleInit>(
-            key: K,
-            value: StyleInit[K]
-        ) {
+        function apply<K extends keyof StyleInit>(key: K, value: StyleInit[K]) {
             if (newInit[key] !== null) return;
             newInit[key] = value;
         }
@@ -206,16 +211,16 @@ class StyleImpl implements Style {
         if (this.isEmpty()) return this;
         let newInit = { ...this._init };
 
-        const check = (<K extends keyof StyleInit>(
+        const check = <K extends keyof StyleInit>(
             k: K,
             b: StyleInit[K],
-            predicate: (a: Exclude<StyleInit[K], null>, b: Exclude<StyleInit[K], null>) => boolean
+            predicate: (a: Exclude<StyleInit[K], null>, b: Exclude<StyleInit[K], null>) => boolean,
         ): void => {
             const a = this._init[k];
             if (a === null || b === null) return;
             // @ts-ignore
             if (predicate(a, b)) newInit[k] = null;
-        });
+        };
 
         check(`font`, that.font(), (a, b) => Key.equals(a, b));
         check(`color`, that.color(), (a, b) => a.value() === b.value());
@@ -255,11 +260,9 @@ class StyleImpl implements Style {
         }
         return new StyleImpl(newInit);
     }
-
 }
 
 export namespace Style {
-
     export function equals(a: Style, b: Style): boolean {
         if (a === b) return true;
         if (!Key.equals(a.font(), b.font())) return false;
@@ -275,7 +278,6 @@ export namespace Style {
     }
 
     export interface Builder {
-
         font(font: KeyLike | null): this;
 
         color(color: TextColor | null): this;
@@ -301,12 +303,12 @@ export namespace Style {
         insertion(insertion: string | null): this;
 
         build(): Style;
-
     }
 
-    /** @internal */
+    /**
+     * @internal
+     */
     class BuilderImpl implements Builder {
-
         private readonly _init: StyleInit;
 
         constructor() {
@@ -316,7 +318,7 @@ export namespace Style {
         //
 
         font(font: KeyLike | null): this {
-            this._init.font = (font === null) ? font : Key.key(font);
+            this._init.font = font === null ? font : Key.key(font);
             return this;
         }
 
@@ -386,7 +388,6 @@ export namespace Style {
         build(): Style {
             return new StyleImpl({ ...this._init });
         }
-
     }
 
     //
@@ -397,12 +398,14 @@ export namespace Style {
         return EMPTY_STYLE;
     }
 
-    /** @internal */
+    /**
+     * @internal
+     */
     type StyleFactory = {
         (): Builder;
         (consumer: (builder: Builder) => void): Style;
         (color: TextColor | null, ...decorations: TextDecoration[]): Style;
-    }
+    };
 
     function styleFactory() {
         const nargs = arguments.length;
@@ -424,5 +427,4 @@ export namespace Style {
     }
 
     export const style: StyleFactory = styleFactory as unknown as StyleFactory;
-
 }

@@ -1,19 +1,14 @@
-import {PlayerHeadObjectContents} from "./object/playerHead";
-import {SpriteObjectContents} from "./object/sprite";
-import {Key} from "../key";
+import { Key } from "../key";
+import { PlayerHeadObjectContents } from "./object/playerHead";
+import { SpriteObjectContents } from "./object/sprite";
 
 //
 
-export {
-    PlayerHeadObjectContents,
-    SpriteObjectContents
-}
+export { PlayerHeadObjectContents, SpriteObjectContents };
 
-export type ObjectContents = PlayerHeadObjectContents |
-    SpriteObjectContents;
+export type ObjectContents = PlayerHeadObjectContents | SpriteObjectContents;
 
 export namespace ObjectContents {
-
     type SpriteConstructor = {
         (sprite: string | Key): SpriteObjectContents;
         (atlas: string | Key, sprite: string | Key): SpriteObjectContents;
@@ -39,7 +34,7 @@ export namespace ObjectContents {
             },
             sprite(): Key {
                 return sprite;
-            }
+            },
         });
     }
 
@@ -50,5 +45,4 @@ export namespace ObjectContents {
     export function playerHead(): PlayerHeadObjectContents.Builder {
         return PlayerHeadObjectContents.builder();
     }
-
 }

@@ -1,38 +1,39 @@
-import {Token, TokenType} from "../token";
-import {Tag} from "../tag";
-import {RootNode} from "../tree/root";
-import {MatchedTokenConsumer} from "./parser/match";
-import {Character} from "../../util/char";
-import {TagInternals, TagPart} from "../tag/internals";
-import {StringResolvingMatchedTokenConsumer} from "./parser/match/string";
-import {TokenListProducingMatchedTokenConsumer} from "./parser/match/tokenList";
-import {assertNever} from "../../util/assertions";
-import {ElementNode} from "../tree/element";
-import {TextNode} from "../tree/text";
-import {TagNode} from "../tree/tag";
-import {ParserDirectiveTag} from "../tag/impls/directive";
-import {InsertingTagImpl} from "../tag/impls/inserting";
-import {StringBuilder} from "../../util/string";
+import { assertNever } from "../../util/assertions";
+import { Character } from "../../util/char";
+import { StringBuilder } from "../../util/string";
+import { Tag } from "../tag";
+import { ParserDirectiveTag } from "../tag/impls/directive";
+import { InsertingTagImpl } from "../tag/impls/inserting";
+import { TagInternals, TagPart } from "../tag/internals";
+import { Token, TokenType } from "../token";
+import { ElementNode } from "../tree/element";
+import { RootNode } from "../tree/root";
+import { TagNode } from "../tree/tag";
+import { TextNode } from "../tree/text";
+import { MatchedTokenConsumer } from "./parser/match";
+import { StringResolvingMatchedTokenConsumer } from "./parser/match/string";
+import { TokenListProducingMatchedTokenConsumer } from "./parser/match/tokenList";
 
-/** @internal */
+/**
+ * @internal
+ */
 export namespace TokenParser {
-
     const MAX_DEPTH = 16;
     export const TAG_START = Character.LESS_THAN;
-    export const TAG_END   = Character.GREATER_THAN;
+    export const TAG_END = Character.GREATER_THAN;
     export const CLOSE_TAG = Character.SLASH;
     export const SEPARATOR = Character.COLON;
-    export const ESCAPE    = Character.BACKSLASH;
+    export const ESCAPE = Character.BACKSLASH;
 
     enum FirstPassState {
         NORMAL,
         TAG,
-        STRING
+        STRING,
     }
 
     enum SecondPassState {
         NORMAL,
-        STRING
+        STRING,
     }
 
     //
@@ -42,16 +43,13 @@ export namespace TokenParser {
         tagNameChecker: (value: string) => boolean,
         message: string,
         originalMessage: string,
-        strict: boolean
+        strict: boolean,
     ): RootNode {
         const tokens = tokenize(message, false);
         return buildTree(provider, tagNameChecker, tokens, message, originalMessage, strict);
     }
 
-    export function resolvePreProcessTags(
-        message: string,
-        provider: TagProvider
-    ): string {
+    export function resolvePreProcessTags(message: string, provider: TagProvider): string {
         let passes: number = 0;
         let lastResult: string;
         let result: string = message;
@@ -68,10 +66,7 @@ export namespace TokenParser {
         return lastResult;
     }
 
-    export function tokenize(
-        message: string,
-        lenient: boolean
-    ): Token[] {
+    export function tokenize(message: string, lenient: boolean): Token[] {
         const listProducer = new TokenListProducingMatchedTokenConsumer(message);
         parseString(message, lenient, listProducer);
         const tokens = listProducer.result();
@@ -79,11 +74,7 @@ export namespace TokenParser {
         return tokens;
     }
 
-    export function parseString(
-        message: string,
-        lenient: boolean,
-        consumer: MatchedTokenConsumer<any>
-    ): void {
+    export function parseString(message: string, lenient: boolean, consumer: MatchedTokenConsumer<any>): void {
         let state: FirstPassState = FirstPassState.NORMAL;
         let escaped: boolean = false;
         let currentTokenEnd: number = 0;
@@ -95,7 +86,8 @@ export namespace TokenParser {
             const codePoint = message.codePointAt(i)!;
             if (!lenient && Character.SECTION.is(codePoint) && i + 1 < length) {
                 const nextChar = message.codePointAt(i + 1)!;
-                if ((Character.ZERO.value <= nextChar && nextChar <= Character.NINE.value) ||
+                if (
+                    (Character.ZERO.value <= nextChar && nextChar <= Character.NINE.value) ||
                     (Character.LOWERCASE_A.value <= nextChar && nextChar <= Character.LOWERCASE_F.value) ||
                     Character.LOWERCASE_R.is(nextChar) ||
                     (Character.LOWERCASE_K.value <= nextChar && nextChar <= Character.LOWERCASE_O.value)
@@ -104,7 +96,7 @@ export namespace TokenParser {
                 }
             }
 
-            if (codePoint > 0xFFFF) i++;
+            if (codePoint > 0xffff) i++;
             if (!escaped) {
                 if (TokenParser.ESCAPE.is(codePoint) && i + 1 < message.length) {
                     const nextCodePoint = message.codePointAt(i + 1)!;
@@ -152,9 +144,15 @@ export namespace TokenParser {
                             currentTokenEnd = i + 1;
 
                             let thisType: TokenType = TokenType.OPEN_TAG;
-                            if (boundsCheck(message, marker, 1) && message.charCodeAt(marker + 1) === TokenParser.CLOSE_TAG.value) {
+                            if (
+                                boundsCheck(message, marker, 1) &&
+                                message.charCodeAt(marker + 1) === TokenParser.CLOSE_TAG.value
+                            ) {
                                 thisType = TokenType.CLOSE_TAG;
-                            } else if (boundsCheck(message, marker, 2) && message.charCodeAt(i - 1) === TokenParser.CLOSE_TAG.value) {
+                            } else if (
+                                boundsCheck(message, marker, 2) &&
+                                message.charCodeAt(i - 1) === TokenParser.CLOSE_TAG.value
+                            ) {
                                 thisType = TokenType.OPEN_CLOSE_TAG;
                             }
                             consumer.accept(marker, currentTokenEnd, thisType);
@@ -181,7 +179,7 @@ export namespace TokenParser {
                     assertNever(state);
             }
 
-            if (i === (length - 1) && state === FirstPassState.TAG) {
+            if (i === length - 1 && state === FirstPassState.TAG) {
                 i = marker;
                 state = FirstPassState.NORMAL;
             }
@@ -199,7 +197,7 @@ export namespace TokenParser {
         text: string,
         startIndex: number,
         endIndex: number,
-        escapes: (value: number) => boolean
+        escapes: (value: number) => boolean,
     ): string {
         let from: number = startIndex;
         let i: number = text.indexOf(`\\`, from);
@@ -219,7 +217,7 @@ export namespace TokenParser {
                 const codePoint = text.codePointAt(i)!;
                 sb.appendString(String.fromCodePoint(codePoint));
 
-                if (codePoint > 0xFFFF) {
+                if (codePoint > 0xffff) {
                     i += 2;
                 } else {
                     i += 1;
@@ -245,7 +243,8 @@ export namespace TokenParser {
     function parseSecondPass(message: string, tokens: Token[]): void {
         for (const token of tokens) {
             const type = token.type();
-            if (type !== TokenType.OPEN_TAG && type !== TokenType.OPEN_CLOSE_TAG && type !== TokenType.CLOSE_TAG) continue;
+            if (type !== TokenType.OPEN_TAG && type !== TokenType.OPEN_CLOSE_TAG && type !== TokenType.CLOSE_TAG)
+                continue;
 
             const startIndex = type === TokenType.CLOSE_TAG ? token.startIndex() + 2 : token.startIndex() + 1;
             const endIndex = type === TokenType.OPEN_CLOSE_TAG ? token.endIndex() - 2 : token.endIndex() - 1;
@@ -257,14 +256,15 @@ export namespace TokenParser {
 
             for (let i = startIndex; i < endIndex; i++) {
                 const codePoint = message.codePointAt(i)!;
-                if (codePoint > 0xFFFF) i++;
+                if (codePoint > 0xffff) i++;
 
                 if (!escaped) {
                     if (TokenParser.ESCAPE.is(codePoint) && i + 1 < message.length) {
                         const nextCodePoint = message.codePointAt(i + 1)!;
                         switch (state) {
                             case SecondPassState.NORMAL:
-                                escaped = TokenParser.TAG_START.is(nextCodePoint) || TokenParser.ESCAPE.is(nextCodePoint);
+                                escaped =
+                                    TokenParser.TAG_START.is(nextCodePoint) || TokenParser.ESCAPE.is(nextCodePoint);
                                 break;
                             case SecondPassState.STRING:
                                 escaped = currentStringChar === nextCodePoint || TokenParser.ESCAPE.is(nextCodePoint);
@@ -284,7 +284,8 @@ export namespace TokenParser {
                 switch (state) {
                     case SecondPassState.NORMAL:
                         if (TokenParser.SEPARATOR.is(codePoint)) {
-                            if (boundsCheck(message, i, 2) &&
+                            if (
+                                boundsCheck(message, i, 2) &&
                                 Character.SLASH.is(message.charCodeAt(i + 1)) &&
                                 Character.SLASH.is(message.charCodeAt(i + 1))
                             ) {
@@ -330,7 +331,7 @@ export namespace TokenParser {
         tokens: Token[],
         message: string,
         originalMessage: string,
-        strict: boolean
+        strict: boolean,
     ): RootNode {
         const root = new RootNode(message, originalMessage);
         let node: ElementNode = root;
@@ -355,7 +356,7 @@ export namespace TokenParser {
                         const tag = tagProvider.resolve(
                             TokenParser.TagProvider.sanitizePlaceholderName(tagNode.name()),
                             tagNode.parts().slice(1, tagNode.parts().length),
-                            tagNode.token()
+                            tagNode.token(),
                         );
                         if (tag === null) {
                             node.addChild(new TextNode(node, token, message));
@@ -365,7 +366,10 @@ export namespace TokenParser {
                         } else {
                             tagNode.tag(tag);
                             node.addChild(tagNode);
-                            if (type !== TokenType.OPEN_CLOSE_TAG && (!(tag instanceof InsertingTagImpl) || tag.allowsChildren())) {
+                            if (
+                                type !== TokenType.OPEN_CLOSE_TAG &&
+                                (!(tag instanceof InsertingTagImpl) || tag.allowsChildren())
+                            ) {
                                 node = tagNode;
                             }
                         }
@@ -382,7 +386,11 @@ export namespace TokenParser {
                     const closeValues: string[] = new Array(childTokens.length);
                     for (let i = 0; i < childTokens.length; i++) {
                         const childToken = childTokens[i];
-                        closeValues[i] = TagPart.unquoteAndEscape(message, childToken.startIndex(), childToken.endIndex());
+                        closeValues[i] = TagPart.unquoteAndEscape(
+                            message,
+                            childToken.startIndex(),
+                            childToken.endIndex(),
+                        );
                     }
 
                     const closeTagName = closeValues[0];
@@ -399,8 +407,10 @@ export namespace TokenParser {
                         const openParts = parentNode.parts();
                         if (tagCloses(closeValues, openParts)) {
                             if (parentNode !== node && strict) {
-                                throw new Error(`Unclosed tag encountered: ${(node as TagNode).name()} is ` +
-                                    `not closed, because ${closeValues[0]} was closed first.`);
+                                throw new Error(
+                                    `Unclosed tag encountered: ${(node as TagNode).name()} is ` +
+                                        `not closed, because ${closeValues[0]} was closed first.`,
+                                );
                             }
 
                             parentNode.setCloseToken(token);
@@ -435,8 +445,9 @@ export namespace TokenParser {
             }
 
             const sb = new StringBuilder();
-            sb.appendString("All tags must be explicitly closed while in strict mode. ")
-                .appendString("End of string found with open tags: ");
+            sb.appendString("All tags must be explicitly closed while in strict mode. ").appendString(
+                "End of string found with open tags: ",
+            );
 
             for (let i = openTags.length - 1; i >= 0; i--) {
                 const n = openTags[i];
@@ -450,10 +461,7 @@ export namespace TokenParser {
         return root;
     }
 
-    function tagCloses(
-        closeParts: string[],
-        openParts: TagPart[]
-    ): boolean {
+    function tagCloses(closeParts: string[], openParts: TagPart[]): boolean {
         if (closeParts.length > openParts.length) return false;
         if (closeParts[0].toLowerCase() !== openParts[0].lowerValue()) return false;
         for (let i = 1; i < closeParts.length; i++) {
@@ -462,48 +470,37 @@ export namespace TokenParser {
         return true;
     }
 
-    function boundsCheck(
-        text: string,
-        index: number,
-        length: number
-    ): boolean {
+    function boundsCheck(text: string, index: number, length: number): boolean {
         return index + length < text.length;
     }
 
     function insert(token: Token, value: Token) {
         const childTokens = token.childTokens();
         if (childTokens === null) {
-            token.childTokens([ value ]);
+            token.childTokens([value]);
         } else if (childTokens.length === 1) {
-            const list: Token[] = [
-                childTokens[0],
-                value
-            ];
+            const list: Token[] = [childTokens[0], value];
             token.childTokens(list);
         } else {
-            token.childTokens([
-                ...childTokens,
-                value
-            ]);
+            token.childTokens([...childTokens, value]);
         }
     }
 
     //
 
-    /** @internal */
+    /**
+     * @internal
+     */
     export interface TagProvider {
-
         resolve(name: string, trimmedArgs: Tag.Argument[], token: Token | null): Tag | null;
-
     }
 
-    /** @internal */
+    /**
+     * @internal
+     */
     export namespace TagProvider {
-
         export function sanitizePlaceholderName(name: string): string {
             return name.toLowerCase();
         }
-
     }
-
 }

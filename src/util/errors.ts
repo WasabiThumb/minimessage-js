@@ -1,10 +1,8 @@
-
 type ErrorConstructor = {
-    new(message: string, options: { cause?: unknown }): Error;
+    new (message: string, options: { cause?: unknown }): Error;
 };
 
 export interface ErrorInfo {
-
     readonly name: string;
 
     readonly message: string;
@@ -12,21 +10,22 @@ export interface ErrorInfo {
     readonly cause?: any;
 
     toError(type?: ErrorConstructor): Error;
-
 }
 
 //
 
 export namespace ErrorInfo {
-
     const IS_ERROR_INFO = Symbol("IS_ERROR_INFO");
     const FALLBACK_NAME = "Error";
 
-    const isError = "isError" in Error ? ((e: object) => {
-        return Error.isError(e);
-    }) : ((e: object) => {
-        return e instanceof Error;
-    });
+    const isError =
+        "isError" in Error
+            ? (e: object) => {
+                  return Error.isError(e);
+              }
+            : (e: object) => {
+                  return e instanceof Error;
+              };
 
     //
 
@@ -64,29 +63,28 @@ export namespace ErrorInfo {
             message,
             toError(type): Error {
                 if (thrownIsError) return thrown as unknown as Error;
-                const ret: Error = !!type ?
-                    new (Function.prototype.bind.apply(type, [ message, this ])) :
-                    new Error(message, this);
+                const ret: Error = !!type
+                    ? new (Function.prototype.bind.apply(type, [message, this]))()
+                    : new Error(message, this);
                 if (name !== ret.name) ret.name = name;
                 return ret;
-            }
+            },
         };
         if (hasCause) {
             Object.defineProperty(ret, "cause", {
                 get(): any {
                     return (thrown as unknown as ErrorInfo)["cause"];
                 },
-                enumerable: true
+                enumerable: true,
             });
         }
         Object.defineProperty(ret, IS_ERROR_INFO, {
             value: true,
             writable: false,
-            enumerable: false
+            enumerable: false,
         });
         return Object.freeze(ret);
     }
-
 }
 
 //
@@ -94,5 +92,3 @@ export namespace ErrorInfo {
 export function toError(thrown: any, type?: ErrorConstructor): Error {
     return ErrorInfo.of(thrown).toError(type);
 }
-
-

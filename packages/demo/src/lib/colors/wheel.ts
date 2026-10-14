@@ -1,7 +1,7 @@
-import texturedVert from './shader/textured.vert';
-import wheelFrag from './shader/wheel.frag';
-import {type AttributeMap, type BufferMap, ShaderRenderer, type UniformMap} from "./shader.ts";
-import {Color} from "./color.ts";
+import { Color } from "./color.ts";
+import { type AttributeMap, type BufferMap, ShaderRenderer, type UniformMap } from "./shader.ts";
+import texturedVert from "./shader/textured.vert";
+import wheelFrag from "./shader/wheel.frag";
 
 //
 
@@ -14,44 +14,20 @@ const DIAMETER = 0.9125;
 //
 
 export class HueWheel extends ShaderRenderer<Attribute, Uniform, Buffer> {
-
     private readonly _value: Color;
 
     constructor(element: HTMLCanvasElement, value: Color) {
-        super(
-            element,
-            128,
-            128,
-            texturedVert,
-            wheelFrag,
-            [ "aVertexPosition", "aTextureCoord" ],
-            [ "uLightness" ],
-            {
-                vertexPosition: [
-                    -1, -1,
-                    -1,  1,
-                     1,  1,
-                     1, -1
-                ],
-                textureCoord: [
-                    0, 1,
-                    0, 0,
-                    1, 0,
-                    1, 1
-                ]
-            }
-        );
+        super(element, 128, 128, texturedVert, wheelFrag, ["aVertexPosition", "aTextureCoord"], ["uLightness"], {
+            vertexPosition: [-1, -1, -1, 1, 1, 1, 1, -1],
+            textureCoord: [0, 1, 0, 0, 1, 0, 1, 1],
+        });
         this._value = value;
         this._bindEvents();
     }
 
     //
 
-    protected spin(
-        ctx: CanvasRenderingContext2D,
-        surface: OffscreenCanvas,
-        gl: WebGLRenderingContext
-    ) {
+    protected spin(ctx: CanvasRenderingContext2D, surface: OffscreenCanvas, gl: WebGLRenderingContext) {
         super.spin(ctx, surface, gl);
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
@@ -63,7 +39,7 @@ export class HueWheel extends ShaderRenderer<Attribute, Uniform, Buffer> {
         program: WebGLProgram,
         attributes: AttributeMap<Attribute>,
         uniforms: UniformMap<Uniform>,
-        buffers: BufferMap<Buffer>
+        buffers: BufferMap<Buffer>,
     ) {
         gl.clearColor(0, 0, 0, 0);
         gl.clear(gl.COLOR_BUFFER_BIT);
@@ -83,10 +59,7 @@ export class HueWheel extends ShaderRenderer<Attribute, Uniform, Buffer> {
         gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
     }
 
-    protected renderElement(
-        ctx: CanvasRenderingContext2D,
-        surface: OffscreenCanvas
-    ) {
+    protected renderElement(ctx: CanvasRenderingContext2D, surface: OffscreenCanvas) {
         const { width, height } = this.element;
         ctx.setTransform(width, 0, 0, height, 0, 0);
         ctx.clearRect(0, 0, 1, 1);
@@ -127,8 +100,8 @@ export class HueWheel extends ShaderRenderer<Attribute, Uniform, Buffer> {
 
     private _onPointer(x: number, y: number): void {
         const rect = this.element.getBoundingClientRect();
-        const mx = rect.left + (rect.width / 2);
-        const my = rect.top + (rect.height / 2);
+        const mx = rect.left + rect.width / 2;
+        const my = rect.top + rect.height / 2;
         const d = Math.min(rect.width, rect.height) * DIAMETER;
         const r = d / 2;
         const r2 = r * r;
@@ -139,18 +112,15 @@ export class HueWheel extends ShaderRenderer<Attribute, Uniform, Buffer> {
         const magSqr = dx * dx + dy * dy;
 
         const tau = Math.PI * 2;
-        const hue = (ang < 0) ?
-            ((ang + tau) / tau) :
-            (ang / tau);
+        const hue = ang < 0 ? (ang + tau) / tau : ang / tau;
 
-        const saturation = (magSqr < r2) ?
-            (Math.sqrt(magSqr) / r) : 1;
+        const saturation = magSqr < r2 ? Math.sqrt(magSqr) / r : 1;
 
         const current = this._value.get("okhsl");
         this._value.set("okhsl", {
             h: hue,
             s: saturation,
-            l: current.l
+            l: current.l,
         });
     }
 
@@ -179,5 +149,4 @@ export class HueWheel extends ShaderRenderer<Attribute, Uniform, Buffer> {
             }
         });
     }
-
 }

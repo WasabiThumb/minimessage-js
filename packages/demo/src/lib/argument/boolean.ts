@@ -1,9 +1,8 @@
-import type {ArgumentType} from "../argument.ts";
+import type { ArgumentType } from "../argument.ts";
 
 //
 
 class BooleanArgumentTypeImpl implements BooleanArgumentType {
-
     readonly id = BooleanArgumentType.ID;
     readonly version = 0;
 
@@ -14,7 +13,6 @@ class BooleanArgumentTypeImpl implements BooleanArgumentType {
     deserialize(data: any): boolean {
         return !!data;
     }
-
 }
 
 export type BooleanArgumentType = ArgumentType<boolean>;
@@ -23,4 +21,3 @@ export namespace BooleanArgumentType {
     export const ID = "bool";
     export const INSTANCE: BooleanArgumentType = new BooleanArgumentTypeImpl();
 }
-
