@@ -1,3 +1,4 @@
+import {expect, test} from "bun:test";
 import MinecraftTranslations from "../src";
 
 //
@@ -65,7 +66,7 @@ test("fetch en_us", async () => {
         "item.minecraft.carrot_on_a_stick": "Carrot on a Stick",
     };
     checkTranslationData(actual, expected);
-});
+}, 120_000);
 
 test("fetch fr_ca", async () => {
     const en = await MinecraftTranslations.get("fr_ca");

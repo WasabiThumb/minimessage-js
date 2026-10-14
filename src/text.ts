@@ -8,7 +8,7 @@ export {
 } from "./text/object";
 
 export {
-    ComponentRenderer,
+    type ComponentRenderer,
     AbstractComponentRenderer
 } from "./text/renderer";
 

@@ -1,3 +1,4 @@
+import {expect, test} from "bun:test";
 import {DOMParser} from "linkedom";
 import {JsonComponent} from "../src/serializer/json/types";
 import {

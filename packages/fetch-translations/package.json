@@ -18,15 +18,13 @@
   "scripts": {
     "build": "tsc",
     "prepare": "bun run build",
-    "test": "NODE_OPTIONS=--experimental-vm-modules bun run jest"
+    "test": "bun test"
   },
   "dependencies": {
     "@minimessage-js/mojang": "^2.1.0"
   },
   "devDependencies": {
-    "@types/jest": "^30.0.0",
-    "jest": "^30.5.2",
-    "ts-jest": "^29.4.14",
+    "@types/bun": "^1.4.3",
     "typescript": "^6.0.3"
   }
 }
