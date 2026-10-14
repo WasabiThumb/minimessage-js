@@ -1,10 +1,9 @@
-import {TextDecoration} from "../../../text/style/decoration";
-import {TagResolver} from "../resolver";
-import {ArgumentQueue} from "../resolver/argumentQueue";
-import {Tag} from "../../tag";
+import { TextDecoration } from "../../../text/style/decoration";
+import { Tag } from "../../tag";
+import { TagResolver } from "../resolver";
+import { ArgumentQueue } from "../resolver/argumentQueue";
 
 export namespace DecorationTag {
-
     const B = "b";
     const I = "i";
     const EM = "em";
@@ -30,8 +29,8 @@ export namespace DecorationTag {
     }
 
     type Resolvers = {
-        decoration: TextDecoration,
-        resolvers: TagResolver[]
+        decoration: TextDecoration;
+        resolvers: TagResolver[];
     };
 
     function resolvers(decoration: TextDecoration, ...aliases: string[]): Resolvers {
@@ -72,5 +71,4 @@ export namespace DecorationTag {
     export const RESOLVER = TagResolver.builder()
         .resolvers(...Object.values(RESOLVERS))
         .build();
-
 }

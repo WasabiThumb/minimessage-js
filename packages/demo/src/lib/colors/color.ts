@@ -1,25 +1,34 @@
-import {NamedTextColor} from "minimessage-js";
-import {OkHSL} from "./okhsl.ts";
+import { NamedTextColor } from "minimessage-js";
+
+import { OkHSL } from "./okhsl.ts";
 
 //
 
-/** RGB in [0, 255] */
-type RGBColorSource = { r: number, g: number, b: number };
+/**
+ * RGB in [0, 255]
+ */
+type RGBColorSource = { r: number; g: number; b: number };
 
-/** HSV in [0, 1] */
-type HSVColorSource = { h: number, s: number, v: number };
+/**
+ * HSV in [0, 1]
+ */
+type HSVColorSource = { h: number; s: number; v: number };
 
-/** OkHSL in [0, 1] */
-type OkHSLColorSource = { h: number, s: number, l: number };
+/**
+ * OkHSL in [0, 1]
+ */
+type OkHSLColorSource = { h: number; s: number; l: number };
 
-/** Named */
-type NamedColorSource = { valid: false } | { valid: true, value: NamedTextColor };
+/**
+ * Named.
+ */
+type NamedColorSource = { valid: false } | { valid: true; value: NamedTextColor };
 
 type ColorSourceMap = {
-    rgb: RGBColorSource,
-    hsv: HSVColorSource,
-    okhsl: OkHSLColorSource,
-    named: NamedColorSource
+    rgb: RGBColorSource;
+    hsv: HSVColorSource;
+    okhsl: OkHSLColorSource;
+    named: NamedColorSource;
 };
 type ColorType = keyof ColorSourceMap;
 type ColorSource<T extends ColorType = ColorType> = ColorSourceMap[T];
@@ -37,30 +46,26 @@ function sourcesEqual0<A extends ColorType>(
     return true;
 }
 
-function sourcesEqual(
-    at: ColorType,
-    a: ColorSource,
-    bt: ColorType,
-    b: ColorSource
-): boolean {
+function sourcesEqual(at: ColorType, a: ColorSource, bt: ColorType, b: ColorSource): boolean {
     if ((at as string) !== (bt as string)) return false;
     switch (at) {
-        case "rgb": return sourcesEqual0<"rgb">(a, b, "r", "g", "b");
-        case "hsv": return sourcesEqual0<"hsv">(a, b, "h", "s", "v");
-        case "okhsl": return sourcesEqual0<"okhsl">(a, b, "h", "s", "l");
-        case "named": return sourcesEqual0<"named">(a, b, "valid", "value");
-        default: return false;
+        case "rgb":
+            return sourcesEqual0<"rgb">(a, b, "r", "g", "b");
+        case "hsv":
+            return sourcesEqual0<"hsv">(a, b, "h", "s", "v");
+        case "okhsl":
+            return sourcesEqual0<"okhsl">(a, b, "h", "s", "l");
+        case "named":
+            return sourcesEqual0<"named">(a, b, "valid", "value");
+        default:
+            return false;
     }
 }
 
 //
 
 export class Color {
-
-    private static of<T extends ColorType>(
-        type: T,
-        value: ColorSource<T>
-    ): Color {
+    private static of<T extends ColorType>(type: T, value: ColorSource<T>): Color {
         return new Color(type, value);
     }
 
@@ -86,10 +91,7 @@ export class Color {
     private _data: Record<string, any>;
     private _canonicalType: string;
 
-    private constructor(
-        type: string,
-        value: any
-    ) {
+    private constructor(type: string, value: any) {
         this._listeners = [];
         this._data = { [type]: value };
         this._canonicalType = type;
@@ -111,10 +113,7 @@ export class Color {
         });
     }
 
-    set<T extends ColorType>(
-        type: T,
-        value: ColorSource<T>
-    ): void {
+    set<T extends ColorType>(type: T, value: ColorSource<T>): void {
         if (sourcesEqual(this._canonicalType as ColorType, this._data[this._canonicalType], type, value)) return;
         if ("named" === type && !(value as ColorSourceMap["named"]).valid) {
             throw new Error(`Invalid named color`);
@@ -132,10 +131,7 @@ export class Color {
         return new Color(this._canonicalType, this._data[this._canonicalType]);
     }
 
-    private _compute<T extends ColorType>(
-        type: T,
-        computeFn: () => ColorSource<T>
-    ): ColorSource<T> {
+    private _compute<T extends ColorType>(type: T, computeFn: () => ColorSource<T>): ColorSource<T> {
         let value: any = this._data[type];
         if (value) return value as unknown as ColorSource<T>;
         const computed = computeFn();
@@ -143,10 +139,7 @@ export class Color {
         return computed;
     }
 
-    private _toRgb<T extends ColorType>(
-        type: T,
-        value: ColorSource<T>
-    ): RGBColorSource {
+    private _toRgb<T extends ColorType>(type: T, value: ColorSource<T>): RGBColorSource {
         switch (type) {
             case "hsv":
                 return this._hsvToRgb(value as ColorSourceMap["hsv"]);
@@ -161,10 +154,7 @@ export class Color {
         }
     }
 
-    private _fromRgb<T extends ColorType>(
-        type: T,
-        rgb: RGBColorSource
-    ): ColorSource<T> {
+    private _fromRgb<T extends ColorType>(type: T, rgb: RGBColorSource): ColorSource<T> {
         switch (type) {
             case "hsv":
                 // @ts-ignore
@@ -188,7 +178,7 @@ export class Color {
         return {
             r: named.value.red(),
             g: named.value.green(),
-            b: named.value.blue()
+            b: named.value.blue(),
         };
     }
 
@@ -205,18 +195,42 @@ export class Color {
         const t = v * (1 - (1 - f) * s);
 
         switch ((i % 6) as 0 | 1 | 2 | 3 | 4 | 5) {
-            case 0: r = v; g = t; b = p; break;
-            case 1: r = q; g = v; b = p; break;
-            case 2: r = p; g = v; b = t; break;
-            case 3: r = p; g = q; b = v; break;
-            case 4: r = t; g = p; b = v; break;
-            case 5: r = v; g = p; b = q; break;
+            case 0:
+                r = v;
+                g = t;
+                b = p;
+                break;
+            case 1:
+                r = q;
+                g = v;
+                b = p;
+                break;
+            case 2:
+                r = p;
+                g = v;
+                b = t;
+                break;
+            case 3:
+                r = p;
+                g = q;
+                b = v;
+                break;
+            case 4:
+                r = t;
+                g = p;
+                b = v;
+                break;
+            case 5:
+                r = v;
+                g = p;
+                b = q;
+                break;
         }
 
         return {
             r: Math.round(r * 255),
             g: Math.round(g * 255),
-            b: Math.round(b * 255)
+            b: Math.round(b * 255),
         };
     }
 
@@ -269,14 +283,8 @@ export class Color {
     }
 
     private _rgbToNamed(rgb: RGBColorSource): NamedColorSource {
-        const named = NamedTextColor.namedColor(
-            (rgb.r << 16) |
-            (rgb.g << 8) |
-            rgb.b
-        );
-        return (named !== null) ?
-            { valid: true, value: named } :
-            { valid: false };
+        const named = NamedTextColor.namedColor((rgb.r << 16) | (rgb.g << 8) | rgb.b);
+        return named !== null ? { valid: true, value: named } : { valid: false };
     }
 
     private _unhandledType<T>(x: never): T {
@@ -292,5 +300,4 @@ export class Color {
             }
         }
     }
-
 }

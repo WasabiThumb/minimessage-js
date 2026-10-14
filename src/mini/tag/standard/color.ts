@@ -1,28 +1,27 @@
-import {TagResolver} from "../resolver";
-import {NamedTextColor, TextColor} from "../../../text/style/textColor";
-import {ArgumentQueue} from "../resolver/argumentQueue";
-import {Tag} from "../../tag";
-import {Context} from "../../context";
-import {Character} from "../../../util/char";
+import { NamedTextColor, TextColor } from "../../../text/style/textColor";
+import { Character } from "../../../util/char";
+import { Context } from "../../context";
+import { Tag } from "../../tag";
+import { TagResolver } from "../resolver";
+import { ArgumentQueue } from "../resolver/argumentQueue";
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export class ColorTagResolver implements TagResolver {
-
     static readonly INSTANCE = new ColorTagResolver();
     static readonly COLOR = "color";
     private static readonly COLOR_2 = "c";
     private static readonly COLOR_3 = "colour";
     private static readonly COLOR_ALIASES: Record<string, NamedTextColor> = Object.freeze({
-        "dark_grey": NamedTextColor.DARK_GRAY,
-        "grey": NamedTextColor.GRAY
+        dark_grey: NamedTextColor.DARK_GRAY,
+        grey: NamedTextColor.GRAY,
     });
 
     private static isColorOrAbbreviation(name: string): boolean {
-        return this.COLOR === name ||
-            this.COLOR_2 === name ||
-            this.COLOR_3 === name;
+        return this.COLOR === name || this.COLOR_2 === name || this.COLOR_3 === name;
     }
 
     static resolveColorOrNull(colorName: string): TextColor | null {
@@ -42,22 +41,25 @@ export class ColorTagResolver implements TagResolver {
     static resolveColor(colorName: string, ctx: Context): TextColor | null {
         const color = this.resolveColorOrNull(colorName);
         if (color === null)
-            throw ctx.newException(`Unable to parse a color from '${colorName}'. Please use named colours or hex (#RRGGBB) colors.`);
+            throw ctx.newException(
+                `Unable to parse a color from '${colorName}'. Please use named colours or hex (#RRGGBB) colors.`,
+            );
         return color;
     }
 
     //
 
     has(name: string): boolean {
-        return ColorTagResolver.isColorOrAbbreviation(name) ||
+        return (
+            ColorTagResolver.isColorOrAbbreviation(name) ||
             name in NamedTextColor.NAMES ||
             name in ColorTagResolver.COLOR_ALIASES ||
-            TextColor.fromHexString(name) !== null;
+            TextColor.fromHexString(name) !== null
+        );
     }
 
     resolve(name: string, args: ArgumentQueue, ctx: Context): Tag | null {
-        if (!this.has(name))
-            return null;
+        if (!this.has(name)) return null;
 
         let colorName: string;
         if (ColorTagResolver.isColorOrAbbreviation(name)) {
@@ -71,5 +73,4 @@ export class ColorTagResolver implements TagResolver {
             style.color(color);
         });
     }
-
 }

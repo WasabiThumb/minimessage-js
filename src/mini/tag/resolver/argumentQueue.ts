@@ -1,11 +1,10 @@
-import {Tag} from "../../tag";
-import {ArrayUtil} from "../../../util/array";
-import {Context} from "../../context";
+import { ArrayUtil } from "../../../util/array";
+import { Context } from "../../context";
+import { Tag } from "../../tag";
 
 //
 
 export interface ArgumentQueue {
-
     pop(): Tag.Argument;
 
     popOr(errorMessage: string | (() => string)): Tag.Argument;
@@ -15,12 +14,12 @@ export interface ArgumentQueue {
     hasNext(): boolean;
 
     reset(): void;
-
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 export class ArgumentQueueImpl<T extends Tag.Argument = Tag.Argument> implements ArgumentQueue {
-
     private readonly _args: T[];
     private readonly _context: Context;
     private _head: number;
@@ -48,8 +47,7 @@ export class ArgumentQueueImpl<T extends Tag.Argument = Tag.Argument> implements
 
     popOr(errorMessage: string | (() => string)): T {
         if (!this.hasNext()) {
-            const message = (typeof errorMessage === "function") ?
-                `${errorMessage()}` : `${errorMessage}`;
+            const message = typeof errorMessage === "function" ? `${errorMessage()}` : `${errorMessage}`;
             throw this._context.newException(message, this);
         }
         return this._args[this._head++];
@@ -62,5 +60,4 @@ export class ArgumentQueueImpl<T extends Tag.Argument = Tag.Argument> implements
     toString(): string {
         return this._args.toString();
     }
-
 }

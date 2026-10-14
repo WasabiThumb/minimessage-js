@@ -2,42 +2,37 @@ import { Component } from "minimessage-js";
 
 //
 
-export type Unit = NothingUnit |
-    StringUnit |
-    ComponentUnit |
-    RichUnit |
-    ErrorUnit;
+export type Unit = NothingUnit | StringUnit | ComponentUnit | RichUnit | ErrorUnit;
 
 export type NothingUnit = {
-    type: "nothing"
+    type: "nothing";
 };
 
 export type StringUnit = {
-    type: "string",
-    value: string
+    type: "string";
+    value: string;
 };
 
 export type ComponentUnit = {
-    type: "component",
-    value: Component
+    type: "component";
+    value: Component;
 };
 
 export type RichUnit = {
-    type: "rich",
-    write: (out: Element) => void
+    type: "rich";
+    write: (out: Element) => void;
 };
 
 export type ErrorUnit = {
-    type: "error",
-    operationID: string,
-    operationIndex: number,
-    cause: any
+    type: "error";
+    operationID: string;
+    operationIndex: number;
+    cause: any;
 };
 
 //
 
 export namespace Unit {
-
     const NOTHING: NothingUnit = Object.freeze({ type: "nothing" });
 
     //
@@ -61,6 +56,4 @@ export namespace Unit {
     export function error(operationID: string, operationIndex: number, cause: any): ErrorUnit {
         return Object.freeze({ type: "error", operationID, operationIndex, cause });
     }
-
 }
-

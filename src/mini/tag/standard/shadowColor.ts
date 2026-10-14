@@ -1,14 +1,15 @@
-import {ArgumentQueue} from "../resolver/argumentQueue";
-import {Context} from "../../context";
-import {Tag} from "../../tag";
-import {TagResolver} from "../resolver";
-import {ShadowColor} from "../../../text/style/shadowColor";
-import {Character} from "../../../util/char";
-import {ColorTagResolver} from "./color";
+import { ShadowColor } from "../../../text/style/shadowColor";
+import { Character } from "../../../util/char";
+import { Context } from "../../context";
+import { Tag } from "../../tag";
+import { TagResolver } from "../resolver";
+import { ArgumentQueue } from "../resolver/argumentQueue";
+import { ColorTagResolver } from "./color";
 
-/** @internal */
+/**
+ * @internal
+ */
 export namespace ShadowColorTag {
-
     export const SHADOW_COLOR = "shadow";
     const SHADOW_NONE = "!" + SHADOW_COLOR;
     const DEFAULT_ALPHA = 0.25;
@@ -20,7 +21,10 @@ export namespace ShadowColorTag {
         if (colorString.length === 9 && Character.NUMBER_SIGN.is(colorString.charCodeAt(0))) {
             const sc = ShadowColor.fromHexString(colorString);
             if (sc === null) {
-                throw ctx.newException(`Unable to parse a shadow color from '${colorString}'. Please use #RRGGBBAA formatting.`, args);
+                throw ctx.newException(
+                    `Unable to parse a shadow color from '${colorString}'. Please use #RRGGBBAA formatting.`,
+                    args,
+                );
             }
             color = sc;
         } else {
@@ -44,11 +48,8 @@ export namespace ShadowColorTag {
     const PRIMARY_RESOLVER = TagResolver.dynamic(SHADOW_COLOR, create);
     const NONE_RESOLVER = TagResolver.resolver(
         SHADOW_NONE,
-        Tag.styling((s) => s.shadowColor(ShadowColor.none()))
+        Tag.styling((s) => s.shadowColor(ShadowColor.none())),
     );
 
-    export const RESOLVER = TagResolver.builder()
-        .resolvers(PRIMARY_RESOLVER, NONE_RESOLVER)
-        .build();
-
+    export const RESOLVER = TagResolver.builder().resolvers(PRIMARY_RESOLVER, NONE_RESOLVER).build();
 }

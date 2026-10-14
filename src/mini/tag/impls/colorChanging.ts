@@ -1,19 +1,20 @@
-import {AbstractModifyingTag} from "./modifying";
-import {ComponentFlattener, FlattenerListener} from "../../../text/flattener";
-import {Node} from "../../tree";
-import {ValueNode} from "../../tree/value";
-import {codePointCount} from "../../../util/string";
-import {TagNode} from "../../tree/tag";
-import {InsertingTagImpl} from "./inserting";
-import {TextColor} from "../../../text/style/textColor";
-import {Component} from "../../../text/component";
-import {TextComponent} from "../../../text/component/text";
+import { Component } from "../../../text/component";
+import { TextComponent } from "../../../text/component/text";
+import { ComponentFlattener, FlattenerListener } from "../../../text/flattener";
+import { TextColor } from "../../../text/style/textColor";
+import { codePointCount } from "../../../util/string";
+import { Node } from "../../tree";
+import { TagNode } from "../../tree/tag";
+import { ValueNode } from "../../tree/value";
+import { InsertingTagImpl } from "./inserting";
+import { AbstractModifyingTag } from "./modifying";
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export abstract class AbstractColorChangingTag extends AbstractModifyingTag {
-
     private static readonly LENGTH_CALCULATOR = ComponentFlattener.builder()
         .mapper(TextComponent.TYPE, (c) => c.content())
         .unknownMapper(() => "_")
@@ -43,7 +44,7 @@ export abstract class AbstractColorChangingTag extends AbstractModifyingTag {
                     tag.value(),
                     FlattenerListener.of((s) => {
                         this._size += codePointCount(s);
-                    })
+                    }),
                 );
             }
         }
@@ -55,7 +56,10 @@ export abstract class AbstractColorChangingTag extends AbstractModifyingTag {
     }
 
     apply(current: Component, depth: number): Component {
-        if ((this._disableApplyingColorDepth !== -1 && depth > this._disableApplyingColorDepth) || current.style().color() !== null) {
+        if (
+            (this._disableApplyingColorDepth !== -1 && depth > this._disableApplyingColorDepth) ||
+            current.style().color() !== null
+        ) {
             if (this._disableApplyingColorDepth === -1 || depth < this._disableApplyingColorDepth) {
                 this._disableApplyingColorDepth = depth;
             }
@@ -75,18 +79,18 @@ export abstract class AbstractColorChangingTag extends AbstractModifyingTag {
                 let codePoint: number;
                 while (head < content.length) {
                     codePoint = content.codePointAt(head++)!;
-                    if (codePoint > 0xFFFF) head++;
+                    if (codePoint > 0xffff) head++;
 
-                    const child = Component.text(String.fromCodePoint(codePoint))
-                        .style(current.style().color(this.color()));
+                    const child = Component.text(String.fromCodePoint(codePoint)).style(
+                        current.style().color(this.color()),
+                    );
                     this.advanceColor();
                     parent = parent.append(child);
                 }
 
                 return parent;
             } else {
-                return Component.empty()
-                    .style(current.style());
+                return Component.empty().style(current.style());
             }
         } else {
             const ret = current.children([]).colorIfAbsent(this.color());
@@ -107,6 +111,4 @@ export abstract class AbstractColorChangingTag extends AbstractModifyingTag {
     protected abstract advanceColor(): void;
 
     protected abstract color(): TextColor;
-
 }
-

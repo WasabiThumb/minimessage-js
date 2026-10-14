@@ -1,17 +1,15 @@
-import {ElementNode} from "./element";
-import {Node} from "../tree";
+import { Node } from "../tree";
+import { ElementNode } from "./element";
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export class RootNode extends ElementNode implements Node.Root {
-
     private readonly _beforePreprocessing: string;
 
-    constructor(
-        sourceMessage: string,
-        beforePreprocessing: string
-    ) {
+    constructor(sourceMessage: string, beforePreprocessing: string) {
         super(null, null, sourceMessage);
         this._beforePreprocessing = beforePreprocessing;
     }
@@ -21,5 +19,4 @@ export class RootNode extends ElementNode implements Node.Root {
     input(): string {
         return this._beforePreprocessing;
     }
-
 }

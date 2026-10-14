@@ -1,10 +1,10 @@
-import type {Color} from "./color.ts";
-import {NamedTextColor} from "minimessage-js";
+import { NamedTextColor } from "minimessage-js";
+
+import type { Color } from "./color.ts";
 
 //
 
 export class ColorPresets {
-
     private readonly _container: HTMLElement;
     private readonly _value: Color;
 
@@ -34,5 +34,4 @@ export class ColorPresets {
         if (!button) throw new Error(`Missing button for color '${name}'`);
         return button;
     }
-
 }

@@ -1,10 +1,10 @@
-import './main.css';
-import {Listing} from "./lib/listing.ts";
-import {Operation} from "./lib/operation.ts";
-import {Output} from "./lib/output.ts";
-import {Colors} from "./lib/colors.ts";
-import {Dropdown} from "./lib/dropdown.ts";
-import {AddButton} from "./lib/add.ts";
+import "./main.css";
+import { AddButton } from "./lib/add.ts";
+import { Colors } from "./lib/colors.ts";
+import { Dropdown } from "./lib/dropdown.ts";
+import { Listing } from "./lib/listing.ts";
+import { Operation } from "./lib/operation.ts";
+import { Output } from "./lib/output.ts";
 
 //
 

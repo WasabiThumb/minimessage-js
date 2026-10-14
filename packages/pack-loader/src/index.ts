@@ -1,11 +1,12 @@
-import { type ResourcePacks, Key } from "minimessage-js";
+import { Key, type ResourcePacks } from "minimessage-js";
 import wrauz, { type ZipEntry, type ZipFile } from "wrauz";
 
 //
 
-/** Generic key-to-any map data structure for storing resource pack info */
+/**
+ * Generic key-to-any map data structure for storing resource pack info.
+ */
 class KeyMap<V> implements Iterable<readonly [Key, V]> {
-
     private static _strcmp(a: string, b: string): number {
         for (let i = 0; i < Math.min(a.length, b.length); i++) {
             const d = a.charCodeAt(i) - b.charCodeAt(i);
@@ -38,7 +39,7 @@ class KeyMap<V> implements Iterable<readonly [Key, V]> {
         return this._search(
             key,
             (i) => this._data[(i << 1) | 1] as V,
-            () => null
+            () => null,
         );
     }
 
@@ -56,19 +57,15 @@ class KeyMap<V> implements Iterable<readonly [Key, V]> {
             (i) => {
                 this._data.splice(i << 1, 0, key, value);
                 return null;
-            }
-        )
+            },
+        );
     }
 
-    [Symbol.iterator](): Iterator<readonly [ Key, V ]> {
+    [Symbol.iterator](): Iterator<readonly [Key, V]> {
         return this._entries();
     }
 
-    private _search<R>(
-        needle: Key,
-        hit: (index: number) => R,
-        miss: (index: number) => R
-    ): R {
+    private _search<R>(needle: Key, hit: (index: number) => R, miss: (index: number) => R): R {
         let len: number = this.size;
         let off: number = 0;
         while (len > 0) {
@@ -86,83 +83,97 @@ class KeyMap<V> implements Iterable<readonly [Key, V]> {
         return miss(off);
     }
 
-    private *_entries(): Generator<readonly [ Key, V ]> {
-        const tmp = new Array(2) as [ Key, V];
+    private *_entries(): Generator<readonly [Key, V]> {
+        const tmp = new Array(2) as [Key, V];
         for (let i = 0; i < this._data.length; i += 2) {
             tmp[0] = this._data[i] as Key;
             tmp[1] = this._data[i | 1] as V;
             yield tmp;
         }
     }
-
 }
 
-const moveMap = (<E extends readonly any[], I extends 0 | 1>(
+const moveMap = <E extends readonly any[], I extends 0 | 1>(
     map: Iterable<E> & { readonly size: number },
-    index: I
-): (E[I])[] => {
+    index: I,
+): E[I][] => {
     const ret = new Array<E[I]>(map.size);
     let head: number = 0;
     for (const entry of map) ret[head++] = entry[index];
     ret.length = head;
     return ret;
-});
+};
 
 //
 
 type AtlasSourceJson = {
-    type?: string,
-    source?: string,
-    prefix?: string,
-    resource?: string,
-    sprite?: string
+    type?: string;
+    source?: string;
+    prefix?: string;
+    resource?: string;
+    sprite?: string;
 };
 
 type AtlasJson = {
-    sources?: AtlasSourceJson[]
+    sources?: AtlasSourceJson[];
 };
 
-/** Parts of the .mcmeta file we use */
+/**
+ * Parts of the .mcmeta file we use.
+ */
 type RelevantMcMeta = {
     animation?: {
-        interpolate?: boolean,
-        width?: number,
-        height?: number,
-        frametime?: number,
-        frames?: (number | { index: number, time?: number })[]
-    }
+        interpolate?: boolean;
+        width?: number;
+        height?: number;
+        frametime?: number;
+        frames?: (number | { index: number; time?: number })[];
+    };
 };
 
-/** URL, width and height of a texture (must be fetched) */
+/**
+ * URL, width and height of a texture (must be fetched)
+ */
 type TextureInfo = {
-    readonly url: string,
-    readonly blob: Blob,
-    readonly width: number,
-    readonly height: number
+    readonly url: string;
+    readonly blob: Blob;
+    readonly width: number;
+    readonly height: number;
 };
 
-/** Refcounted texture info, should be reclaimed at some point after refcount hits 0 */
+/**
+ * Refcounted texture info, should be reclaimed at some point after refcount hits 0.
+ */
 type TextureData = {
-    readonly info: TextureInfo,
-    refcount: number,
-    reclaim: number
+    readonly info: TextureInfo;
+    refcount: number;
+    reclaim: number;
 };
 
-/** Texture data has not yet been requested or has been reclaimed */
+/**
+ * Texture data has not yet been requested or has been reclaimed.
+ */
 type IdleTextureState = { readonly type: "idle" };
 
-/** Texture data is loading */
-type LoadingTextureState = { readonly type: "loading", readonly value: Promise<TextureData> };
+/**
+ * Texture data is loading.
+ */
+type LoadingTextureState = { readonly type: "loading"; readonly value: Promise<TextureData> };
 
-/** Texture data has loaded */
-type LoadedTextureState = { readonly type: "loaded", readonly value: TextureData };
+/**
+ * Texture data has loaded.
+ */
+type LoadedTextureState = { readonly type: "loaded"; readonly value: TextureData };
 
-/** Possible state for the image data of a texture */
+/**
+ * Possible state for the image data of a texture.
+ */
 type TextureState = IdleTextureState | LoadingTextureState | LoadedTextureState;
 
-/** Represents a .png in a ZIP somewhere, with optional meta */
+/**
+ * Represents a .png in a ZIP somewhere, with optional meta.
+ */
 class Texture {
-
     private static readonly _IDLE: IdleTextureState = Object.freeze({ type: "idle" });
     private static readonly _RECLAIM_DELAY_MS: number = 200;
 
@@ -188,7 +199,7 @@ class Texture {
         try {
             return await cb(data.info);
         } finally {
-            if ((--data.refcount) === 0) this._initiateReclaim(data);
+            if (--data.refcount === 0) this._initiateReclaim(data);
         }
     }
 
@@ -233,7 +244,7 @@ class Texture {
         } finally {
             try {
                 await stream.cancel();
-            } catch (ignored) { }
+            } catch (ignored) {}
         }
     }
 
@@ -267,7 +278,7 @@ class Texture {
 
         // Validate the header and read dimensions
         const dv = new DataView(header.buffer, header.byteOffset, header.byteLength);
-        if (0x89_50_4E_47_0D_0A_1A_0An !== dv.getBigUint64(0, false))
+        if (0x89_50_4e_47_0d_0a_1a_0an !== dv.getBigUint64(0, false))
             throw new Error(`Invalid PNG data (mismatched signature)`);
         const width = dv.getUint32(16, false);
         const height = dv.getUint32(20, false);
@@ -282,18 +293,18 @@ class Texture {
         // Create the texture data
         return { info, refcount: 0, reclaim: 0 };
     }
-
 }
 
-/** Wrapper for a texture */
+/**
+ * Wrapper for a texture.
+ */
 class SpriteImpl implements ResourcePacks.Sprite {
-
     private readonly _texture: Texture;
 
     constructor(
         readonly key: Key,
         readonly atlas: Key | null,
-        texture: Texture
+        texture: Texture,
     ) {
         this._texture = texture;
     }
@@ -303,7 +314,7 @@ class SpriteImpl implements ResourcePacks.Sprite {
     use<T>(cb: (info: ResourcePacks.SpriteRenderInfo) => T): Promise<Awaited<T>> {
         return this._texture.use(({ url, blob, width, height }) => {
             const me = this;
-            const getAnimation = (() => me._parseAnimation(me._texture.meta, width, height));
+            const getAnimation = () => me._parseAnimation(me._texture.meta, width, height);
             return cb({
                 url,
                 blob,
@@ -311,7 +322,7 @@ class SpriteImpl implements ResourcePacks.Sprite {
                 height,
                 get animation() {
                     return getAnimation();
-                }
+                },
             });
         });
     }
@@ -319,7 +330,7 @@ class SpriteImpl implements ResourcePacks.Sprite {
     private _parseAnimation(
         json: RelevantMcMeta | null,
         textureWidth: number,
-        textureHeight: number
+        textureHeight: number,
     ): ResourcePacks.SpriteAnimation | null {
         if (!json) return null;
         const anim = json.animation;
@@ -355,18 +366,13 @@ class SpriteImpl implements ResourcePacks.Sprite {
 
         return { frameWidth, frameHeight, totalRows, frames, durationMs, interpolate: anim.interpolate === true };
     }
-
 }
 
 class ResourcePacksImpl implements ResourcePacks {
-
     private readonly _textures: KeyMap<Texture>;
     private readonly _atlases: KeyMap<KeyMap<Key>>;
 
-    constructor(
-        textures: KeyMap<Texture>,
-        atlases: KeyMap<KeyMap<Key>>
-    ) {
+    constructor(textures: KeyMap<Texture>, atlases: KeyMap<KeyMap<Key>>) {
         this._textures = textures;
         this._atlases = atlases;
     }
@@ -390,11 +396,7 @@ class ResourcePacksImpl implements ResourcePacks {
     sprite(key: Key, atlas?: Key | null): ResourcePacks.Sprite | null {
         const texture = this._texture(key, atlas);
         if (!texture) return null;
-        return new SpriteImpl(
-            key,
-            atlas ? atlas : null,
-            texture
-        );
+        return new SpriteImpl(key, atlas ? atlas : null, texture);
     }
 
     private _texture(key: Key, atlas?: Key | null): Texture | null {
@@ -410,16 +412,11 @@ class ResourcePacksImpl implements ResourcePacks {
         // Get the texture
         return this._textures.get(key);
     }
-
 }
 
 //
 
-function resolveAtlasIndex(
-    namespace: string,
-    json: AtlasJson,
-    textures: KeyMap<Texture>
-): KeyMap<Key> {
+function resolveAtlasIndex(namespace: string, json: AtlasJson, textures: KeyMap<Texture>): KeyMap<Key> {
     const result = new KeyMap<Key>();
 
     const { sources } = json;
@@ -439,9 +436,9 @@ function resolveAtlasIndex(
                 break;
             case "directory":
                 const dirPrefix = `${src.source}/`;
-                const spritePrefix = src.prefix ?? '';
+                const spritePrefix = src.prefix ?? "";
 
-                for (const [ textureKey, _ ] of textures) {
+                for (const [textureKey, _] of textures) {
                     const path = textureKey.value();
                     if (namespace !== textureKey.namespace()) continue;
                     if (!path.startsWith(dirPrefix)) continue;
@@ -457,15 +454,10 @@ function resolveAtlasIndex(
 }
 
 /**
- * Loads resource packs from the specified sources.
- * For example, if a `File` has been received from
- * the user via a file input element, that `File`
- * may be passed as-is. Crucially, doing it this way
- * means that the entire file does not necessarily
- * need to be loaded into memory. You may also
- * use a `URL` or `string` representing a URL for
- * a similar effect, or simply pass in-memory
- * `ArrayBuffer`s or `TypedArray`s.
+ * Loads resource packs from the specified sources. For example, if a `File` has been received from the user via a file
+ * input element, that `File` may be passed as-is. Crucially, doing it this way means that the entire file does not
+ * necessarily need to be loaded into memory. You may also use a `URL` or `string` representing a URL for a similar
+ * effect, or simply pass in-memory `ArrayBuffer`s or `TypedArray`s.
  */
 export default async function loadResourcePacks(...sources: ResourcePacks.Source[]): Promise<ResourcePacks> {
     // Tables
@@ -473,47 +465,64 @@ export default async function loadResourcePacks(...sources: ResourcePacks.Source
     const rawAtlases = new KeyMap<AtlasJson>();
 
     // Load all ZIPs
-    for (const source of sources) {
-        const zip = await wrauz(source);
+    const controller = new AbortController();
+    const { signal } = controller;
+    let ok: boolean = false;
+    try {
+        await Promise.all(
+            sources.map((v) =>
+                (async (source: ResourcePacks.Source) => {
+                    const zip = await wrauz(source, {
+                        signal,
+                        filter: (n) => /^assets\/([^\/]+)\/(textures|atlases)\/.*/i.test(n),
+                    });
 
-        for (const nse of zip.list("assets/")) {
-            if (!nse.name.endsWith("/")) continue;
-            const namespace = nse.name.substring(7, nse.name.length - 1);
-            const texturesPrefix = nse.name + "textures/";
-            const atlasesPrefix = nse.name + "atlases/";
+                    for (const nse of zip.list("assets/")) {
+                        if (!nse.name.endsWith("/")) continue;
+                        const namespace = nse.name.substring(7, nse.name.length - 1);
+                        const texturesPrefix = nse.name + "textures/";
+                        const atlasesPrefix = nse.name + "atlases/";
 
-            for (const entry of zip.list(texturesPrefix, true)) {
-                if (!entry.name.endsWith(".png")) continue;
-                const path = entry.name.substring(texturesPrefix.length, entry.name.length - 4);
-                let meta: RelevantMcMeta | null = null;
+                        for (const entry of zip.list(texturesPrefix, true)) {
+                            if (!entry.name.endsWith(".png")) continue;
+                            const path = entry.name.substring(texturesPrefix.length, entry.name.length - 4);
+                            let meta: RelevantMcMeta | null = null;
 
-                const metaEntry = zip.entry(entry.name + ".mcmeta");
-                if (metaEntry) {
-                    try {
-                        const json = JSON.parse(await zip.read(metaEntry, "utf8"));
-                        meta = json as RelevantMcMeta;
-                    } catch (ignored) { }
-                }
+                            const metaEntry = zip.entry(entry.name + ".mcmeta");
+                            if (metaEntry) {
+                                try {
+                                    const json = JSON.parse(await zip.read(metaEntry, "utf8"));
+                                    meta = json as RelevantMcMeta;
+                                } catch (ignored) {}
+                            }
 
-                const texture = new Texture(zip, entry, meta);
-                textures.put(Key.key(namespace, path), texture);
-            }
+                            if (signal.aborted) return;
+                            const texture = new Texture(zip, entry, meta);
+                            textures.put(Key.key(namespace, path), texture);
+                        }
 
-            for (const entry of zip.list(atlasesPrefix, true)) {
-                if (!entry.name.endsWith(".json")) continue;
-                const path = entry.name.substring(atlasesPrefix.length, entry.name.length - 5);
-                let data;
-                try {
-                    data = JSON.parse(await zip.read(entry, "utf8"));
-                } catch (ignored) { }
-                rawAtlases.put(Key.key(namespace, path), data as AtlasJson);
-            }
-        }
+                        for (const entry of zip.list(atlasesPrefix, true)) {
+                            if (!entry.name.endsWith(".json")) continue;
+                            const path = entry.name.substring(atlasesPrefix.length, entry.name.length - 5);
+                            let data;
+                            try {
+                                data = JSON.parse(await zip.read(entry, "utf8"));
+                            } catch (ignored) {}
+                            if (signal.aborted) return;
+                            rawAtlases.put(Key.key(namespace, path), data as AtlasJson);
+                        }
+                    }
+                })(v),
+            ),
+        );
+        ok = true;
+    } finally {
+        if (!ok) controller.abort();
     }
 
     // Resolve the atlas
     const atlas = new KeyMap<KeyMap<Key>>();
-    for (const [ key, json ] of rawAtlases) {
+    for (const [key, json] of rawAtlases) {
         atlas.put(key, resolveAtlasIndex(key.namespace(), json, textures));
     }
 

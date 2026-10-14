@@ -1,23 +1,24 @@
-import {Component} from "../../../text/component";
-import {Style} from "../../../text/style";
+import { Component } from "../../../text/component";
+import { Style } from "../../../text/style";
 
 //
 
 export interface InsertingTag {
-    readonly type: "inserting"
-    value(): Component
-    allowsChildren(): boolean
+    readonly type: "inserting";
+    value(): Component;
+    allowsChildren(): boolean;
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 export class InsertingTagImpl implements InsertingTag {
-
     readonly type = "inserting";
 
     constructor(
         private readonly _value: Component,
-        private readonly _allowsChildren: boolean = true
-    ) { }
+        private readonly _allowsChildren: boolean = true,
+    ) {}
 
     //
 
@@ -28,17 +29,15 @@ export class InsertingTagImpl implements InsertingTag {
     allowsChildren(): boolean {
         return this._allowsChildren;
     }
-
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 export class StylingTagImpl implements InsertingTag {
-
     readonly type = "inserting";
 
-    constructor(
-        private readonly _styles: (builder: Style.Builder) => void
-    ) { }
+    constructor(private readonly _styles: (builder: Style.Builder) => void) {}
 
     //
 
@@ -51,5 +50,4 @@ export class StylingTagImpl implements InsertingTag {
     allowsChildren(): boolean {
         return true;
     }
-
 }

@@ -1,4 +1,3 @@
-
 export type CharacterLike = Character | number | string;
 
 export interface Character {
@@ -34,14 +33,12 @@ function normalize(value: any): Character {
             throw new Error(`Cannot create Character from value of type \"${typeof value}\"`);
     }
 
-    if (!Number.isSafeInteger(n) || n < 0x0000 || n > 0xFFFF)
-        throw new Error(`Illegal Character value: ${n}`);
+    if (!Number.isSafeInteger(n) || n < 0x0000 || n > 0xffff) throw new Error(`Illegal Character value: ${n}`);
 
     return new CharacterImpl(n);
 }
 
 class CharacterImpl implements Character {
-
     private readonly _buf: Uint16Array;
 
     constructor(value: number) {
@@ -83,16 +80,44 @@ class CharacterImpl implements Character {
     get [Symbol.toStringTag](): string {
         return `Character`;
     }
-
 }
 
 //
 
 type CharacterExport = ((value: CharacterLike) => Character) & Readonly<Record<KnownCharacter, Character>>;
-type KnownCharacter = "LESS_THAN" | "GREATER_THAN" | "SEMICOLON" | "QUOTATION" | "APOSTROPHE" | "AMPERSAND" |
-    "COLON" | "NUMBER_SIGN" | "BACKSLASH" | "DOLLAR_SIGN" | "ZERO" | "ONE" | "NINE" | "LOWERCASE_A" | "LOWERCASE_S" |
-    "LOWERCASE_F" | "UPPERCASE_A" | "UPPERCASE_F" | "DASH" | "PERCENT" | "SLASH" | "SECTION" | "PERIOD" | "COMMA" |
-    "LOWERCASE_R" | "LOWERCASE_K" | "LOWERCASE_O" | "UPPERCASE_Z" | "SPACE" | "UNDERSCORE" | "LOWERCASE_Z" | "NEWLINE";
+type KnownCharacter =
+    | "LESS_THAN"
+    | "GREATER_THAN"
+    | "SEMICOLON"
+    | "QUOTATION"
+    | "APOSTROPHE"
+    | "AMPERSAND"
+    | "COLON"
+    | "NUMBER_SIGN"
+    | "BACKSLASH"
+    | "DOLLAR_SIGN"
+    | "ZERO"
+    | "ONE"
+    | "NINE"
+    | "LOWERCASE_A"
+    | "LOWERCASE_S"
+    | "LOWERCASE_F"
+    | "UPPERCASE_A"
+    | "UPPERCASE_F"
+    | "DASH"
+    | "PERCENT"
+    | "SLASH"
+    | "SECTION"
+    | "PERIOD"
+    | "COMMA"
+    | "LOWERCASE_R"
+    | "LOWERCASE_K"
+    | "LOWERCASE_O"
+    | "UPPERCASE_Z"
+    | "SPACE"
+    | "UNDERSCORE"
+    | "LOWERCASE_Z"
+    | "NEWLINE";
 
 export const Character: CharacterExport = ((known: Record<KnownCharacter, string>) => {
     let ret = normalize;
@@ -102,7 +127,7 @@ export const Character: CharacterExport = ((known: Record<KnownCharacter, string
             value,
             configurable: false,
             enumerable: true,
-            writable: false
+            writable: false,
         });
     }
     return ret as unknown as CharacterExport;
@@ -129,14 +154,14 @@ export const Character: CharacterExport = ((known: Record<KnownCharacter, string
     PERCENT: `%`,
     SLASH: `/`,
     SECTION: `§`,
-    LOWERCASE_K: 'k',
-    LOWERCASE_R: 'r',
-    LOWERCASE_O: 'o',
-    UPPERCASE_Z: 'Z',
-    SPACE: ' ',
-    UNDERSCORE: '_',
-    LOWERCASE_Z: 'z',
-    PERIOD: '.',
-    COMMA: ',',
+    LOWERCASE_K: "k",
+    LOWERCASE_R: "r",
+    LOWERCASE_O: "o",
+    UPPERCASE_Z: "Z",
+    SPACE: " ",
+    UNDERSCORE: "_",
+    LOWERCASE_Z: "z",
+    PERIOD: ".",
+    COMMA: ",",
     NEWLINE: `\n`,
 });

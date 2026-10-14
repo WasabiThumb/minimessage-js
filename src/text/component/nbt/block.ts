@@ -1,16 +1,14 @@
-import {AbstractNBTComponent, NBTComponent} from "../nbt";
-import type {Component} from "../../component";
-import {Style} from "../../style";
-import {defineAccessor} from "../../../util/accessor";
+import { defineAccessor } from "../../../util/accessor";
+import type { Component } from "../../component";
+import { Style } from "../../style";
+import { AbstractNBTComponent, NBTComponent } from "../nbt";
 
 //
 
 export namespace BlockNBTComponent {
-
     export const TYPE = "blockNBT";
 
     export interface LocalPos {
-
         readonly type: "local";
 
         left(): number;
@@ -22,11 +20,9 @@ export namespace BlockNBTComponent {
         asString(): string;
 
         toString(): string;
-
     }
 
     export namespace LocalPos {
-
         export function localPos(left: number, up: number, forwards: number): LocalPos {
             return Object.freeze({
                 type: "local",
@@ -44,14 +40,12 @@ export namespace BlockNBTComponent {
                 },
                 toString(): string {
                     return this.asString();
-                }
+                },
             });
         }
-
     }
 
     export interface WorldPos {
-
         readonly type: "world";
 
         x(): WorldPos.Coordinate;
@@ -63,16 +57,10 @@ export namespace BlockNBTComponent {
         asString(): string;
 
         toString(): string;
-
     }
 
     export namespace WorldPos {
-
-        export function worldPos(
-            x: Coordinate,
-            y: Coordinate,
-            z: Coordinate
-        ): WorldPos {
+        export function worldPos(x: Coordinate, y: Coordinate, z: Coordinate): WorldPos {
             return Object.freeze({
                 type: "world",
                 x() {
@@ -88,27 +76,21 @@ export namespace BlockNBTComponent {
                     return `${x.toString()} ${y.toString()} ${z.toString()}`;
                 },
                 toString(): string {
-                    return this.asString()
-                }
+                    return this.asString();
+                },
             });
         }
 
         export interface Coordinate {
-
             type(): "absolute" | "relative";
 
             value(): number;
 
             toString(): string;
-
         }
 
         export namespace Coordinate {
-
-            export function coordinate(
-                value: number,
-                type: "absolute" | "relative"
-            ): Coordinate {
+            export function coordinate(value: number, type: "absolute" | "relative"): Coordinate {
                 return Object.freeze({
                     type() {
                         return type;
@@ -117,9 +99,8 @@ export namespace BlockNBTComponent {
                         return value;
                     },
                     toString(): string {
-                        return type === "absolute" ?
-                            `${value}` : `~${value}`;
-                    }
+                        return type === "absolute" ? `${value}` : `~${value}`;
+                    },
                 });
             }
 
@@ -130,15 +111,12 @@ export namespace BlockNBTComponent {
             export function relative(value: number) {
                 return coordinate(value, "relative");
             }
-
         }
-
     }
 
     export type Pos = LocalPos | WorldPos;
 
     export namespace Pos {
-
         export function fromString(input: string): Pos {
             const localMatch = /^\^([\d.]+)\x20\^([\d.]+)\x20\^([\d.]+)$/.exec(input);
             if (localMatch) {
@@ -165,33 +143,33 @@ export namespace BlockNBTComponent {
 
             throw new Error(`Cannot convert position specification "${input}" into a position`);
         }
-
     }
-
 }
 
 export interface BlockNBTComponent extends NBTComponent<BlockNBTComponent> {
-
     readonly type: typeof BlockNBTComponent.TYPE;
 
     pos(): BlockNBTComponent.Pos;
 
     pos(pos: BlockNBTComponent.Pos): BlockNBTComponent;
-
 }
 
 //
 
 type Extra = {
-    pos: BlockNBTComponent.Pos,
-    nbtPath: string,
-    interpret: boolean,
-    separator: Component | null
+    pos: BlockNBTComponent.Pos;
+    nbtPath: string;
+    interpret: boolean;
+    separator: Component | null;
 };
 
-/** @internal */
-export class BlockNBTComponentImpl extends AbstractNBTComponent<BlockNBTComponentImpl, Extra> implements BlockNBTComponent {
-
+/**
+ * @internal
+ */
+export class BlockNBTComponentImpl
+    extends AbstractNBTComponent<BlockNBTComponentImpl, Extra>
+    implements BlockNBTComponent
+{
     readonly type = BlockNBTComponent.TYPE;
 
     constructor(extra: Extra, children?: Component[], style?: Style) {
@@ -202,11 +180,10 @@ export class BlockNBTComponentImpl extends AbstractNBTComponent<BlockNBTComponen
 
     pos = defineAccessor(
         () => this._getExtra("pos"),
-        (pos) => this._withExtra("pos", pos)
+        (pos) => this._withExtra("pos", pos),
     );
 
     protected _mutate(extra: Extra, children: Component[], style: Style): BlockNBTComponentImpl {
         return new BlockNBTComponentImpl(extra, children, style);
     }
-
 }

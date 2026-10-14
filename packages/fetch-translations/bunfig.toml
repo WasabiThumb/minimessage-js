@@ -1,0 +1,15 @@
+telemetry = false
+env = false
+
+[test]
+root = "./tests"
+pathIgnorePatterns = [ "packages/**", "node_modules/**", "dist/**", "types/**" ]
+
+[fmt]
+printWidth = 120 # JetBrains convention
+tabWidth = 4 # JetBrains convention
+endOfLine = "lf"
+semi = true
+ignorePatterns = [ "packages/**", "node_modules/**", "dist/**", "types/**", "*.toml", "*.json", "*.md" ]
+sortImports = true
+jsdoc = { descriptionWithDot = true, commentLineStrategy = "multiline" }

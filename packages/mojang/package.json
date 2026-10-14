@@ -1,6 +1,6 @@
 {
   "name": "@minimessage-js/mojang",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Internal utility for minimessage-js",
   "type": "module",
   "main": "src/index.mjs",
@@ -17,6 +17,6 @@
   },
   "dependencies": {
     "json-stream-es": "^1.2.1",
-    "wrauz": "^0.1.1"
+    "wrauz": "^0.2.0"
   }
 }

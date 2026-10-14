@@ -1,6 +1,4 @@
-
 export class AddButton {
-
     private readonly _element: HTMLElement;
 
     constructor(element: HTMLElement) {
@@ -21,5 +19,4 @@ export class AddButton {
             callback(state);
         });
     }
-
 }

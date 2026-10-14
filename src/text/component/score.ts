@@ -1,7 +1,7 @@
-import {AbstractScopedComponent, ScopedComponent} from "./scoped";
-import type {Component} from "../component";
-import {Style} from "../style";
-import {defineAccessor} from "../../util/accessor";
+import { defineAccessor } from "../../util/accessor";
+import type { Component } from "../component";
+import { Style } from "../style";
+import { AbstractScopedComponent, ScopedComponent } from "./scoped";
 
 //
 
@@ -10,7 +10,6 @@ export namespace ScoreComponent {
 }
 
 export interface ScoreComponent extends ScopedComponent<ScoreComponent> {
-
     readonly type: typeof ScoreComponent.TYPE;
 
     name(): string;
@@ -20,7 +19,6 @@ export interface ScoreComponent extends ScopedComponent<ScoreComponent> {
     objective(): string;
 
     objective(objective: string): ScoreComponent;
-
 }
 
 //
@@ -30,9 +28,10 @@ type Extra = {
     objective: string;
 };
 
-/** @internal */
+/**
+ * @internal
+ */
 export class ScoreComponentImpl extends AbstractScopedComponent<ScoreComponentImpl, Extra> implements ScoreComponent {
-
     readonly type = ScoreComponent.TYPE;
 
     constructor(extra: Extra, children?: Component[], style?: Style) {
@@ -43,16 +42,15 @@ export class ScoreComponentImpl extends AbstractScopedComponent<ScoreComponentIm
 
     name = defineAccessor(
         () => this._getExtra("name"),
-        (name) => this._withExtra("name", name)
+        (name) => this._withExtra("name", name),
     );
 
     objective = defineAccessor(
         () => this._getExtra("objective"),
-        (objective) => this._withExtra("objective", objective)
+        (objective) => this._withExtra("objective", objective),
     );
 
     protected _mutate(extra: Extra, children: Component[], style: Style): ScoreComponentImpl {
         return new ScoreComponentImpl(extra, children, style);
     }
-
 }

@@ -1,15 +1,13 @@
-import type {DomEffect} from "../effects";
-import {ObfuscatedFont} from "./obfuscated/font";
-import {Character} from "../../util/char";
+import { Character } from "../../util/char";
+import type { DomEffect } from "../effects";
+import { ObfuscatedFont } from "./obfuscated/font";
 
 //
 
 class ObfuscatedDomEffectImpl implements ObfuscatedDomEffect {
-
     apply(element: Element, data: boolean): void {
         if (data) {
-            ObfuscatedFont.inject()
-                .then(() => this._applyTrue(element as HTMLElement));
+            ObfuscatedFont.inject().then(() => this._applyTrue(element as HTMLElement));
         } else {
             this._applyFalse(element as HTMLElement);
         }
@@ -40,7 +38,7 @@ class ObfuscatedDomEffectImpl implements ObfuscatedDomEffect {
         }
 
         let last: number = window.performance.now();
-        const frame = (() => {
+        const frame = () => {
             const now = window.performance.now();
             const elapsed = now - last;
             let ok: boolean;
@@ -59,7 +57,7 @@ class ObfuscatedDomEffectImpl implements ObfuscatedDomEffect {
             if (ok) {
                 window.requestAnimationFrame(frame);
             }
-        });
+        };
         window.requestAnimationFrame(frame);
     }
 
@@ -78,7 +76,6 @@ class ObfuscatedDomEffectImpl implements ObfuscatedDomEffect {
         }
         element.style.fontFamily = family;
     }
-
 }
 
 export type ObfuscatedDomEffect = DomEffect<boolean>;
@@ -88,15 +85,13 @@ export namespace ObfuscatedDomEffect {
     export const INSTANCE: ObfuscatedDomEffect = new ObfuscatedDomEffectImpl();
 }
 
-
 //
 
 class Fragment {
-
     constructor(
         readonly node: Node,
-        readonly factory: TextFactory
-    ) { }
+        readonly factory: TextFactory,
+    ) {}
 
     //
 
@@ -108,11 +103,9 @@ class Fragment {
             return false;
         }
     }
-
 }
 
 class TextFactory {
-
     private readonly _buf: Uint8Array;
 
     constructor(text: string) {
@@ -138,5 +131,4 @@ class TextFactory {
         }
         return String.fromCharCode.apply(null, this._buf as unknown as number[]);
     }
-
 }

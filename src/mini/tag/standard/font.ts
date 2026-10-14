@@ -1,12 +1,13 @@
-import {ArgumentQueue} from "../resolver/argumentQueue";
-import {Context} from "../../context";
-import {Tag} from "../../tag";
-import {TagResolver} from "../resolver";
-import {Key} from "../../../key";
+import { Key } from "../../../key";
+import { Context } from "../../context";
+import { Tag } from "../../tag";
+import { TagResolver } from "../resolver";
+import { ArgumentQueue } from "../resolver/argumentQueue";
 
-/** @internal */
+/**
+ * @internal
+ */
 export namespace FontTag {
-
     function create(args: ArgumentQueue, ctx: Context): Tag {
         let font: Key;
         const valueOrNamespace = args
@@ -27,5 +28,4 @@ export namespace FontTag {
 
     export const FONT = "font";
     export const RESOLVER = TagResolver.dynamic(FONT, create);
-
 }

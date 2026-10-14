@@ -1,11 +1,10 @@
-import {Character} from "./util/char";
+import { Character } from "./util/char";
 
 //
 
 export type KeyLike = Key | string;
 
 export interface Key {
-
     namespace(): string;
 
     value(): string;
@@ -15,19 +14,16 @@ export interface Key {
     asMinimalString(): string;
 
     toString(): string;
-
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 class KeyImpl implements Key {
-
     private static readonly D_NAMESPACE = "namespace";
     private static readonly D_VALUE = "value";
 
-    private static _checkField(
-        value: string,
-        descriptor: typeof this.D_NAMESPACE | typeof this.D_VALUE
-    ) {
+    private static _checkField(value: string, descriptor: typeof this.D_NAMESPACE | typeof this.D_VALUE) {
         if (value.length === 0) throw new Error(`'${descriptor}' may not be an empty string`);
         const isValue = this.D_VALUE === descriptor;
 
@@ -48,7 +44,7 @@ class KeyImpl implements Key {
 
     constructor(
         private readonly _namespace: string,
-        private readonly _value: string
+        private readonly _value: string,
     ) {
         KeyImpl._checkField(_namespace, KeyImpl.D_NAMESPACE);
         KeyImpl._checkField(_value, KeyImpl.D_VALUE);
@@ -85,11 +81,9 @@ class KeyImpl implements Key {
         if ("number" === hint) return NaN;
         return this.asString();
     }
-
 }
 
 export namespace Key {
-
     export const MINECRAFT_NAMESPACE = "minecraft";
     export const DEFAULT_SEPARATOR = Character.COLON;
 
@@ -123,5 +117,4 @@ export namespace Key {
         if (a.namespace() !== b.namespace()) return false;
         return a.value() === b.value();
     }
-
 }

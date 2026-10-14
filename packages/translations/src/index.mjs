@@ -3,7 +3,6 @@ import data from "./data.mjs";
 //
 
 class MinecraftTranslationsImpl {
-
     get version() {
         return data.version;
     }
@@ -17,7 +16,6 @@ class MinecraftTranslationsImpl {
         if (locale in translations) return translations[locale];
         return null;
     }
-
 }
 
 const MinecraftTranslations = new MinecraftTranslationsImpl();

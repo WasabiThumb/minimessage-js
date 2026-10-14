@@ -1,12 +1,12 @@
-import {ComponentSerializer} from "./serializer/types";
-import {Component} from "./text/component";
-import {TagResolver} from "./mini/tag/resolver";
-import {Node} from "./mini/tree";
-import {DomHTMLWriter} from "./html/writer/dom";
-import {TranslationData, Translations} from "./i18n";
-import {MiniMessageBuilderImpl} from "./mini/impl";
-import { ResourcePacks } from "./resourcePacks";
+import { DomHTMLWriter } from "./html/writer/dom";
+import { TranslationData, Translations } from "./i18n";
 import { HighlightSpan } from "./mini/highlight";
+import { MiniMessageBuilderImpl } from "./mini/impl";
+import { TagResolver } from "./mini/tag/resolver";
+import { Node } from "./mini/tree";
+import { ResourcePacks } from "./resourcePacks";
+import { ComponentSerializer } from "./serializer/types";
+import { Component } from "./text/component";
 
 //
 
@@ -17,7 +17,6 @@ export { StandardTags } from "./mini/tag/standard";
 //
 
 export interface MiniMessage extends ComponentSerializer<Component, Component, string> {
-
     escapeTags(input: string, ...resolvers: TagResolver[]): string;
 
     stripTags(input: string, ...resolvers: TagResolver[]): string;
@@ -39,13 +38,10 @@ export interface MiniMessage extends ComponentSerializer<Component, Component, s
     resourcePacks(): ResourcePacks;
 
     highlight(input: string, ...resolvers: TagResolver[]): HighlightSpan[];
-
 }
 
 export namespace MiniMessage {
-
     export interface Builder {
-
         tags(tags: TagResolver): this;
 
         editTags(adder: (builder: TagResolver.Builder) => void): this;
@@ -63,13 +59,11 @@ export namespace MiniMessage {
         resourcePacks(packs: ResourcePacks): this;
 
         build(): MiniMessage;
-
     }
 
     //
 
-    const INSTANCE = (new MiniMessageBuilderImpl())
-        .build();
+    const INSTANCE = new MiniMessageBuilderImpl().build();
 
     export function miniMessage(): MiniMessage {
         return INSTANCE;
@@ -78,5 +72,4 @@ export namespace MiniMessage {
     export function builder(): MiniMessage.Builder {
         return new MiniMessageBuilderImpl();
     }
-
 }

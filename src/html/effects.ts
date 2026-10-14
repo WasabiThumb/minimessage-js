@@ -1,26 +1,25 @@
-import {ObfuscatedDomEffect} from "./effects/obfuscated";
-import {HtmlWriter} from "./writer";
-import {ErrorInfo} from "../util/errors";
-import {PlayerHeadDomEffect} from "./effects/playerHead";
-import {ShadowDomEffect} from "./effects/shadow";
-import {Character} from "../util/char";
-import {type MiniMessage} from "../mini";
-import {MiscDomEffect} from "./effects/misc";
-import {SpriteDomEffect} from "./effects/sprite";
-import {KeybindDomEffect} from "./effects/keybind";
+import { type MiniMessage } from "../mini";
+import { Character } from "../util/char";
+import { ErrorInfo } from "../util/errors";
+import { KeybindDomEffect } from "./effects/keybind";
+import { MiscDomEffect } from "./effects/misc";
+import { ObfuscatedDomEffect } from "./effects/obfuscated";
+import { PlayerHeadDomEffect } from "./effects/playerHead";
+import { ShadowDomEffect } from "./effects/shadow";
+import { SpriteDomEffect } from "./effects/sprite";
+import { HtmlWriter } from "./writer";
 
 //
 
 type DomEffectExport<I extends DomEffect<any>, T extends string> = {
-    readonly INSTANCE: I,
-    readonly TOKEN: T
+    readonly INSTANCE: I;
+    readonly TOKEN: T;
 };
 
-type DomEffectExportArray =
-    readonly DomEffectExport<DomEffect<any>, string>[];
+type DomEffectExportArray = readonly DomEffectExport<DomEffect<any>, string>[];
 
 type DomEffectMapOf<A extends DomEffectExportArray> = {
-    readonly [I in Exclude<Partial<A>["length"], A["length"]> & number as A[I]["TOKEN"]]: A[I]["INSTANCE"]
+    readonly [I in Exclude<Partial<A>["length"], A["length"]> & number as A[I]["TOKEN"]]: A[I]["INSTANCE"];
 };
 
 const EFFECTS = (<A extends DomEffectExportArray>(exports: A): DomEffectMapOf<A> => {
@@ -28,7 +27,9 @@ const EFFECTS = (<A extends DomEffectExportArray>(exports: A): DomEffectMapOf<A>
     for (const e of exports) map[e.TOKEN] = e.INSTANCE;
     return Object.freeze(map) as DomEffectMapOf<A>;
 })([
-    /** Source of truth; add new effects here */
+    /**
+     * Source of truth; add new effects here.
+     */
     ObfuscatedDomEffect,
     PlayerHeadDomEffect,
     ShadowDomEffect,
@@ -42,26 +43,23 @@ export type DomEffectMap = typeof EFFECTS;
 //
 
 export interface DomEffect<D> {
-
     apply(element: Element, data: D, instance: MiniMessage): void;
 
     serialize(data: D): string;
 
     deserialize(value: string): D;
-
 }
 
 //
 
 export namespace DomEffects {
-
     const PROPERTY_PREFIX = "data-mm-";
     const APPLIED = `${PROPERTY_PREFIX}applied`;
 
     export function writeProperty<K extends keyof DomEffectMap>(
         writer: HtmlWriter,
         token: K,
-        value: DomEffectMap[K] extends DomEffect<infer D> ? D : never
+        value: DomEffectMap[K] extends DomEffect<infer D> ? D : never,
     ) {
         const effect = EFFECTS[token];
         if (!effect) throw new Error(`Invalid effect '${token}'`);
@@ -103,7 +101,7 @@ export namespace DomEffects {
         key: string,
         effect: E,
         element: Element,
-        propertyValue: string
+        propertyValue: string,
     ) {
         try {
             const value: D = effect.deserialize(propertyValue);
@@ -120,9 +118,9 @@ export namespace DomEffects {
         key: K,
         effect: DomEffectMap[K],
         node: ParentNode,
-        propertyValue: string | null
+        propertyValue: string | null,
     ) {
-        const children = [ ...node.children ];
+        const children = [...node.children];
         let effectivePropertyValue: string | null = propertyValue;
 
         if (node instanceof Element) {
@@ -132,8 +130,7 @@ export namespace DomEffects {
                 applySingle0(instance, key, effect, node, effectivePropertyValue);
         }
 
-        for (const child of children)
-            applySingle(instance, key, effect, child, effectivePropertyValue);
+        for (const child of children) applySingle(instance, key, effect, child, effectivePropertyValue);
     }
 
     export function apply(instance: MiniMessage, node: ParentNode) {
@@ -142,5 +139,4 @@ export namespace DomEffects {
             applySingle(instance, key, EFFECTS[key], node, null);
         }
     }
-
 }

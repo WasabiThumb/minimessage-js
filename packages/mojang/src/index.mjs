@@ -1,5 +1,5 @@
-import wrauz from "wrauz";
 import { parseJsonStreamWithPaths, streamToIterable } from "json-stream-es";
+import wrauz from "wrauz";
 
 //
 
@@ -16,39 +16,39 @@ function makeHeaders(accept) {
 /**
  * @typeParam T
  * @param fn { ((...args: any[]) => T | Promise<T>) }
- * @return { ((k0?: any) => Promise<T>) }
+ * @returns {(k0?: any) => Promise<T>}
  */
 function runOnce(fn) {
     let init = false;
     let multi = false;
     let cache;
 
-    return (async (k0) => {
+    return async (k0) => {
         try {
             if (typeof k0 === "undefined") {
                 if (init) return cache;
                 init = true;
-                return cache = fn(k0);
+                return (cache = fn(k0));
             } else {
                 const k = String(k0);
                 if (init) {
                     if (multi) {
                         if (k in cache) return cache[k];
                     } else {
-                        cache = {"undefined": cache};
+                        cache = { undefined: cache };
                         multi = true;
                     }
                 } else {
                     cache = {};
                     init = multi = true;
                 }
-                return cache[k] = fn(k0);
+                return (cache[k] = fn(k0));
             }
         } catch (e) {
             init = multi = false;
             throw e;
         }
-    });
+    };
 }
 
 //
@@ -60,53 +60,61 @@ function Asset(path, hash, size) {
     }
 
     function download() {
-        return fetch(getUrl(), { headers: makeHeaders(), cache: "force-cache" })
-            .then((r) => r.body);
+        return fetch(getUrl(), { headers: makeHeaders(), cache: "force-cache" }).then((r) => r.body);
     }
 
-    /** @type {() => Promise<string>} */
+    /**
+     * @type {() => Promise<string>}
+     */
     const downloadAsString = runOnce(() => {
-        return fetch(getUrl(), { headers: makeHeaders(ACCEPT_TEXT), cache: "force-cache" })
-            .then((r) => r.text());
+        return fetch(getUrl(), { headers: makeHeaders(ACCEPT_TEXT), cache: "force-cache" }).then((r) => r.text());
     });
 
-    /** @type {() => Promise<any>} */
+    /**
+     * @type {() => Promise<any>}
+     */
     const downloadAsJson = runOnce(() => {
-        return fetch(getUrl(), { headers: makeHeaders(ACCEPT_JSON), cache: "force-cache" })
-            .then((r) => r.json());
+        return fetch(getUrl(), { headers: makeHeaders(ACCEPT_JSON), cache: "force-cache" }).then((r) => r.json());
     });
 
-    /** @type import("../types/struct").Asset */
+    /**
+     * @type import("../types/struct").Asset
+     */
     const ret = {
         path,
         hash,
         size,
         download,
         downloadAsString,
-        downloadAsJson
+        downloadAsJson,
     };
     return Object.freeze(ret);
 }
 
 function Version(id, packageUrl) {
     /**
-     * @typedef { { assetIndex: { url: string }, downloads: { client: { url: string } } } } PackageInfo
+     * @typedef {{ assetIndex: { url: string }; downloads: { client: { url: string } } }} PackageInfo
      */
 
-    /** @type { () => Promise<PackageInfo> } */
+    /**
+     * @type {() => Promise<PackageInfo>}
+     */
     const getPackageInfo = runOnce(() => {
-        return fetch(packageUrl, { headers: makeHeaders(ACCEPT_JSON), cache: "force-cache" })
-            .then((r) => r.json());
+        return fetch(packageUrl, { headers: makeHeaders(ACCEPT_JSON), cache: "force-cache" }).then((r) => r.json());
     });
 
-    /** @type { () => Promise<import("wrauz").ZipFile> } */
+    /**
+     * @type {() => Promise<import("wrauz").ZipFile>}
+     */
     const getClientJarFile = runOnce(async () => {
         const info = await getPackageInfo();
         return await wrauz(info.downloads.client.url);
     });
 
-    /** @type { (path: string) => Promise<Uint8Array | null> } */
-    const getResource = (async (path) => {
+    /**
+     * @type {(path: string) => Promise<Uint8Array | null>}
+     */
+    const getResource = async (path) => {
         const zf = await getClientJarFile();
         for (const entry of zf) {
             if (entry.name === path) {
@@ -114,21 +122,27 @@ function Version(id, packageUrl) {
             }
         }
         return null;
-    });
+    };
 
-    /** @type { () => Promise<string> } */
-    const getAssetIndexUrl = (async () => {
+    /**
+     * @type {() => Promise<string>}
+     */
+    const getAssetIndexUrl = async () => {
         return (await getPackageInfo()).assetIndex.url;
-    });
+    };
 
-    /** @returns {import("../types/struct").Assets} */
+    /**
+     * @returns {import("../types/struct").Assets}
+     */
     async function getAssets() {
-        /** @type {(path: string) => boolean} */
+        /**
+         * @type {(path: string) => boolean}
+         */
         let test;
         let satisfied = false;
 
         if (arguments.length === 0) {
-            test = (() => true);
+            test = () => true;
         } else if (arguments.length === 1 && typeof arguments[0] === "function") {
             test = arguments[0];
         } else {
@@ -136,22 +150,17 @@ function Version(id, packageUrl) {
             for (const arg of arguments) set.add(String(arg));
 
             let count = 0;
-            test = ((s) => {
+            test = (s) => {
                 if (set.has(s)) {
-                    if ((++count) >= set.size) satisfied = true;
+                    if (++count >= set.size) satisfied = true;
                     return true;
                 }
                 return false;
-            });
+            };
         }
 
-        const res = await fetch(
-            await getAssetIndexUrl(),
-            { headers: makeHeaders(ACCEPT_JSON), cache: "force-cache" }
-        );
-        const stream = res.body
-            .pipeThrough(new TextDecoderStream())
-            .pipeThrough(parseJsonStreamWithPaths([ "objects" ]));
+        const res = await fetch(await getAssetIndexUrl(), { headers: makeHeaders(ACCEPT_JSON), cache: "force-cache" });
+        const stream = res.body.pipeThrough(new TextDecoderStream()).pipeThrough(parseJsonStreamWithPaths(["objects"]));
 
         let ret = {};
         for await (const entry of streamToIterable(stream)) {
@@ -165,30 +174,36 @@ function Version(id, packageUrl) {
         return Object.freeze(ret);
     }
 
-    /** @type import("../types/struct").Version */
+    /**
+     * @type import("../types/struct").Version
+     */
     const ret = {
         id,
         getResource,
-        getAssets
+        getAssets,
     };
     return Object.freeze(ret);
 }
 
 function MojangAPIImpl() {
     /**
-     * @typedef {{ id: string, url: string }} VersionManifestEntry
-     * @typedef {{ latest: { release: string, snapshot: string }, versions: VersionManifestEntry[] }} VersionManifest
+     * @typedef {{ id: string; url: string }} VersionManifestEntry
+     *
+     * @typedef {{ latest: { release: string; snapshot: string }; versions: VersionManifestEntry[] }} VersionManifest
      */
 
-    /** @type {() => Promise<VersionManifest>} */
+    /**
+     * @type {() => Promise<VersionManifest>}
+     */
     const getVersionManifest = runOnce(() => {
-        return fetch(
-            `https://piston-meta.mojang.com/mc/game/version_manifest_v2.json`,
-            { headers: makeHeaders(ACCEPT_JSON) }
-        ).then((r) => r.json());
+        return fetch(`https://piston-meta.mojang.com/mc/game/version_manifest_v2.json`, {
+            headers: makeHeaders(ACCEPT_JSON),
+        }).then((r) => r.json());
     });
 
-    /** @type {(id: string) => Promise<import("../types/struct").Version | null>} */
+    /**
+     * @type {(id: string) => Promise<import("../types/struct").Version | null>}
+     */
     const getRelease = runOnce(async (id) => {
         const manifest = await getVersionManifest();
         let version = manifest.versions.find((v) => v.id === id);
@@ -196,23 +211,29 @@ function MojangAPIImpl() {
         return Version(version.id, version.url);
     });
 
-    /** @type {(id: string) => Promise<import("../types/struct").Version>} */
-    const getLatestRelease = (async () => {
+    /**
+     * @type {(id: string) => Promise<import("../types/struct").Version>}
+     */
+    const getLatestRelease = async () => {
         const manifest = await getVersionManifest();
         return getRelease(manifest.latest.release);
-    });
+    };
 
-    /** @type {(id: string) => Promise<import("../types/struct").Version>} */
-    const getLatestSnapshot = (async () => {
+    /**
+     * @type {(id: string) => Promise<import("../types/struct").Version>}
+     */
+    const getLatestSnapshot = async () => {
         const manifest = await getVersionManifest();
         return getRelease(manifest.latest.snapshot);
-    });
+    };
 
-    /** @type import("../types/struct").MojangAPI */
+    /**
+     * @type import("../types/struct").MojangAPI
+     */
     const ret = {
         getRelease,
         getLatestRelease,
-        getLatestSnapshot
+        getLatestSnapshot,
     };
     return Object.freeze(ret);
 }

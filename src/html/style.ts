@@ -1,45 +1,44 @@
-import {StringBuilder} from "../util/string";
-import {TriState} from "../util/triState";
-import {Character} from "../util/char";
+import { Character } from "../util/char";
+import { StringBuilder } from "../util/string";
+import { TriState } from "../util/triState";
 
 //
 
 export type HtmlStyleStore = {
-    underline: boolean,
-    strikethrough: boolean,
-    color: string | null
+    underline: boolean;
+    strikethrough: boolean;
+    color: string | null;
 };
 
 export const HtmlStyleStore = Object.freeze({
     get EMPTY(): HtmlStyleStore {
         return { underline: false, strikethrough: false, color: null };
-    }
+    },
 });
 
 export interface HtmlStyle {
-
     applyToStore(store: HtmlStyleStore): void;
 
     applyToDocument(style: CSSStyleDeclaration, parent: HtmlStyleStore): void;
 
     applyToInlineSource(source: StringBuilder, parent: HtmlStyleStore): void;
-
 }
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 class BasicHtmlStyle<K extends keyof CSSStyleDeclaration, V extends CSSStyleDeclaration[K]> implements HtmlStyle {
-
     constructor(
         readonly documentKey: K,
         readonly sourceKey: string,
-        readonly value: V
-    ) { }
+        readonly value: V,
+    ) {}
 
     //
 
-    applyToStore(): void { }
+    applyToStore(): void {}
 
     applyToDocument(style: CSSStyleDeclaration): void {
         style[this.documentKey] = this.value;
@@ -47,21 +46,18 @@ class BasicHtmlStyle<K extends keyof CSSStyleDeclaration, V extends CSSStyleDecl
 
     applyToInlineSource(source: StringBuilder): void {
         if (!source.isEmpty()) source.appendChar(Character.SPACE);
-        source.appendString(this.sourceKey)
-            .appendString(": ")
-            .append(this.value)
-            .appendChar(Character.SEMICOLON);
+        source.appendString(this.sourceKey).appendString(": ").append(this.value).appendChar(Character.SEMICOLON);
     }
-
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 class DecorationHtmlStyle implements HtmlStyle {
-
     constructor(
         readonly underline: TriState,
-        readonly strikethrough: TriState
-    ) { }
+        readonly strikethrough: TriState,
+    ) {}
 
     //
 
@@ -76,7 +72,8 @@ class DecorationHtmlStyle implements HtmlStyle {
 
     applyToInlineSource(source: StringBuilder, parent: HtmlStyleStore) {
         if (!source.isEmpty()) source.appendChar(Character.SPACE);
-        source.appendString("text-decoration: ")
+        source
+            .appendString("text-decoration: ")
             .appendString(this._computeValue(parent))
             .appendChar(Character.SEMICOLON);
     }
@@ -93,19 +90,17 @@ class DecorationHtmlStyle implements HtmlStyle {
         if (decorations.length === 0) return "none";
         return decorations.join(" ");
     }
-
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 class MultiHtmlStyle implements HtmlStyle {
-
-    constructor(
-        private readonly _entries: readonly (readonly [keyof CSSStyleDeclaration, string, string])[]
-    ) { }
+    constructor(private readonly _entries: readonly (readonly [keyof CSSStyleDeclaration, string, string])[]) {}
 
     //
 
-    applyToStore(): void { }
+    applyToStore(): void {}
 
     applyToDocument(style: CSSStyleDeclaration): void {
         for (const [documentKey, , value] of this._entries) {
@@ -117,19 +112,16 @@ class MultiHtmlStyle implements HtmlStyle {
     applyToInlineSource(source: StringBuilder): void {
         for (const [, sourceKey, value] of this._entries) {
             if (!source.isEmpty()) source.appendChar(Character.SPACE);
-            source.appendString(sourceKey)
-                .appendString(": ")
-                .appendString(value)
-                .appendChar(Character.SEMICOLON);
+            source.appendString(sourceKey).appendString(": ").appendString(value).appendChar(Character.SEMICOLON);
         }
     }
-
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 class ColorHtmlStyle implements HtmlStyle {
-
-    constructor(private readonly _value: string) { }
+    constructor(private readonly _value: string) {}
 
     applyToStore(store: HtmlStyleStore): void {
         store.color = this._value;
@@ -143,13 +135,11 @@ class ColorHtmlStyle implements HtmlStyle {
         if (!source.isEmpty()) source.appendChar(Character.SPACE);
         source.appendString("color: ").appendString(this._value).appendChar(Character.SEMICOLON);
     }
-
 }
 
 //
 
 export namespace HtmlStyle {
-
     type FontWeight = "normal" | "bold";
     type FontStyle = "normal" | "italic";
 
@@ -157,10 +147,7 @@ export namespace HtmlStyle {
 
     //
 
-    export function textDecoration(
-        underline: TriState,
-        strikethrough: TriState
-    ): HtmlStyle {
+    export function textDecoration(underline: TriState, strikethrough: TriState): HtmlStyle {
         return new DecorationHtmlStyle(underline, strikethrough);
     }
 
@@ -179,7 +166,7 @@ export namespace HtmlStyle {
     export function textShadow(
         color: string,
         xOffset: string = DEFAULT_SHADOW_OFFSET,
-        yOffset: string = DEFAULT_SHADOW_OFFSET
+        yOffset: string = DEFAULT_SHADOW_OFFSET,
     ): HtmlStyle {
         return new BasicHtmlStyle("textShadow", "text-shadow", `${xOffset} ${yOffset} ${color}`);
     }
@@ -189,8 +176,7 @@ export namespace HtmlStyle {
             ["display", "display", "inline-block"],
             ["verticalAlign", "vertical-align", "-0.2em"],
             ["width", "width", "1em"],
-            ["height", "height", "1em"]
+            ["height", "height", "1em"],
         ]);
     }
-
 }

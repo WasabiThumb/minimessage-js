@@ -11,3 +11,4 @@ tsconfig.json
 tsconfig.types.json
 tsconfig.test.json
 bun.lock
+bunfig.toml

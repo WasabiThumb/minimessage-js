@@ -1,18 +1,14 @@
-import {InsertingTag, InsertingTagImpl, StylingTagImpl} from "./tag/impls/inserting";
-import {ModifyingTag} from "./tag/impls/modifying";
-import {ParserDirectiveTag} from "./tag/impls/directive";
-import {PreProcessTag, PreProcessTagImpl} from "./tag/impls/preProcess";
-import {ComponentLike} from "../text/component";
-import {Style} from "../text/style";
+import { ComponentLike } from "../text/component";
+import { Style } from "../text/style";
+import { ParserDirectiveTag } from "./tag/impls/directive";
+import { InsertingTag, InsertingTagImpl, StylingTagImpl } from "./tag/impls/inserting";
+import { ModifyingTag } from "./tag/impls/modifying";
+import { PreProcessTag, PreProcessTagImpl } from "./tag/impls/preProcess";
 //
 
-export type Tag = Tag.PreProcess |
-    Tag.Inserting |
-    Tag.Modifying |
-    Tag.ParserDirective;
+export type Tag = Tag.PreProcess | Tag.Inserting | Tag.Modifying | Tag.ParserDirective;
 
 export namespace Tag {
-
     export type PreProcess = PreProcessTag;
     export type Inserting = InsertingTag;
     export type Modifying = ModifyingTag;
@@ -39,7 +35,6 @@ export namespace Tag {
     //
 
     export interface Argument {
-
         value(): string;
 
         lowerValue(): string;
@@ -51,7 +46,5 @@ export namespace Tag {
         asInt(): number | null;
 
         asFloat(): number | null;
-
     }
-
 }

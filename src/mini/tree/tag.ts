@@ -1,20 +1,17 @@
-import {ElementNode} from "./element";
-import {Token} from "../token";
-import {TokenParser} from "../token/parser";
-import {TagPart} from "../tag/internals";
-import {ArrayUtil} from "../../util/array";
-import {Tag} from "../tag";
+import { ArrayUtil } from "../../util/array";
+import { Tag } from "../tag";
+import { TagPart } from "../tag/internals";
+import { Token } from "../token";
+import { TokenParser } from "../token/parser";
+import { ElementNode } from "./element";
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export class TagNode extends ElementNode {
-
-    private static genParts(
-        token: Token,
-        sourceMessage: string,
-        tagProvider: TokenParser.TagProvider
-    ): TagPart[] {
+    private static genParts(token: Token, sourceMessage: string, tagProvider: TokenParser.TagProvider): TagPart[] {
         const parts: TagPart[] = [];
         const children = token.childTokens();
         if (children !== null) {
@@ -31,12 +28,7 @@ export class TagNode extends ElementNode {
     private _tag: Tag | null;
     private _closeToken: Token | null;
 
-    constructor(
-        parent: ElementNode,
-        token: Token,
-        sourceMessage: string,
-        tagProvider: TokenParser.TagProvider
-    ) {
+    constructor(parent: ElementNode, token: Token, sourceMessage: string, tagProvider: TokenParser.TagProvider) {
         super(parent, token, sourceMessage);
         this._parts = ArrayUtil.immutableView(TagNode.genParts(token, sourceMessage, tagProvider));
         this._tag = null;
@@ -63,15 +55,16 @@ export class TagNode extends ElementNode {
     /**
      * The matching `</tag>` (or `</tag:args>`) token that closed this tag, if any.
      *
-     * This is `null` for self-closing tags (`<tag/>`), and for tags that were
-     * left open at the end of input in non-strict mode (or closed implicitly
-     * by a `<reset>`).
+     * This is `null` for self-closing tags (`<tag/>`), and for tags that were left open at the end of input in
+     * non-strict mode (or closed implicitly by a `<reset>`).
      */
     closeToken(): Token | null {
         return this._closeToken;
     }
 
-    /** @internal — set once by the tree builder when a matching close tag is found. */
+    /**
+     * @internal — set once by the tree builder when a matching close tag is found.
+     */
     setCloseToken(token: Token): void {
         this._closeToken = token;
     }
@@ -86,5 +79,4 @@ export class TagNode extends ElementNode {
             return value;
         }
     }
-
 }

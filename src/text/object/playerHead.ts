@@ -1,31 +1,30 @@
-import {ArrayUtil} from "../../util/array";
-import {Key, KeyLike} from "../../key";
+import { Key, KeyLike } from "../../key";
+import { ArrayUtil } from "../../util/array";
 
 export interface PlayerHeadObjectContents {
-
     readonly type: "playerHead";
 
     name(): string | null;
 
     id(): string | null;
 
-    profileProperties(): PlayerHeadObjectContents.ProfileProperty[],
+    profileProperties(): PlayerHeadObjectContents.ProfileProperty[];
 
-    hat(): boolean,
+    hat(): boolean;
 
-    texture(): Key | null
-
+    texture(): Key | null;
 }
 
 export namespace PlayerHeadObjectContents {
-
-    /** @internal */
+    /**
+     * @internal
+     */
     function newContents(
         name: string | null,
         id: string | null,
         profileProperties: ProfileProperty[],
         hat: boolean,
-        texture: Key | null
+        texture: Key | null,
     ): PlayerHeadObjectContents {
         const finalTexture = texture === null ? null : Key.key(texture);
         return Object.freeze({
@@ -44,15 +43,11 @@ export namespace PlayerHeadObjectContents {
             },
             texture() {
                 return finalTexture;
-            }
+            },
         });
     }
 
-    export function property(
-        name: string,
-        value: string,
-        signature: string | null = null
-    ): ProfileProperty {
+    export function property(name: string, value: string, signature: string | null = null): ProfileProperty {
         return Object.freeze({
             name() {
                 return name;
@@ -62,22 +57,19 @@ export namespace PlayerHeadObjectContents {
             },
             signature() {
                 return signature;
-            }
+            },
         });
     }
 
     export interface ProfileProperty {
-
         name(): string;
 
         value(): string;
 
         signature(): string | null;
-
     }
 
     export interface Builder {
-
         name(name: string | null): Builder;
 
         id(id: string | null): Builder;
@@ -91,12 +83,12 @@ export namespace PlayerHeadObjectContents {
         texture(texture: KeyLike | null): Builder;
 
         build(): PlayerHeadObjectContents;
-
     }
 
-    /** @internal */
+    /**
+     * @internal
+     */
     class BuilderImpl implements Builder {
-
         private _name: string | null = null;
         private _id: string | null = null;
         private _properties: Record<string, ProfileProperty> = {};
@@ -132,7 +124,7 @@ export namespace PlayerHeadObjectContents {
         }
 
         texture(texture: KeyLike | null): Builder {
-            this._texture = (texture === null) ? null : Key.key(texture);
+            this._texture = texture === null ? null : Key.key(texture);
             return this;
         }
 
@@ -143,19 +135,11 @@ export namespace PlayerHeadObjectContents {
                 propValues[i] = this._properties[propKeys[i]];
             }
 
-            return newContents(
-                this._name,
-                this._id,
-                propValues,
-                this._hat,
-                this._texture
-            );
+            return newContents(this._name, this._id, propValues, this._hat, this._texture);
         }
-
     }
 
     export function builder(): Builder {
         return new BuilderImpl();
     }
-
 }

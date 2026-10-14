@@ -1,60 +1,59 @@
-
 // TODO: This isn't ideal. For full parity with Adventure
 // we would need to figure out how to carry over serializable
 // resolvers & style claims. This is tricky in TS and not
 // super important for the general use cases of this library.
 
-import {TextComponent} from "../text/component/text";
-import {AbstractComponentRenderer} from "../text/renderer";
-import {MiniMessage} from "../mini";
-import {StringBuilder} from "../util/string";
-import {BlockNBTComponent} from "../text/component/nbt/block";
-import {Component} from "../text/component";
-import {EntityNBTComponent} from "../text/component/nbt/entity";
-import {KeybindComponent} from "../text/component/keybind";
-import {ObjectComponent} from "../text/component/object";
-import {ScoreComponent} from "../text/component/score";
-import {SelectorComponent} from "../text/component/selector";
-import {StorageNBTComponent} from "../text/component/nbt/storage";
-import {TranslatableComponent} from "../text/component/translatable";
-import {Stack} from "../util/stack";
-import {TextDecoration} from "../text/style/decoration";
-import {Character} from "../util/char";
-import {ClickEvent, HoverEvent} from "../text/style";
-import {assertNever} from "../util/assertions";
-import {ClickTag} from "./tag/standard/click";
-import {InsertionTag} from "./tag/standard/insertion";
-import {FontTag} from "./tag/standard/font";
-import {ShadowColorTag} from "./tag/standard/shadowColor";
-import {HoverTag} from "./tag/standard/hover";
-import {TranslatableTag} from "./tag/standard/translatable";
-import {NbtTag} from "./tag/standard/nbt";
-import {NBTComponent} from "../text/component/nbt";
-import {SelectorTag} from "./tag/standard/selector";
-import {ScoreTag} from "./tag/standard/score";
-import {KeybindTag} from "./tag/standard/keybind";
-import {SpriteTag} from "./tag/standard/sprite";
-import {SequentialHeadTag} from "./tag/standard/sequentialHead";
-import {TokenParser} from "./token/parser";
-import {SpriteObjectContents} from "../text/object/sprite";
-import {Key} from "../key";
+import { Key } from "../key";
+import { MiniMessage } from "../mini";
+import { Component } from "../text/component";
+import { KeybindComponent } from "../text/component/keybind";
+import { NBTComponent } from "../text/component/nbt";
+import { BlockNBTComponent } from "../text/component/nbt/block";
+import { EntityNBTComponent } from "../text/component/nbt/entity";
+import { StorageNBTComponent } from "../text/component/nbt/storage";
+import { ObjectComponent } from "../text/component/object";
+import { ScoreComponent } from "../text/component/score";
+import { SelectorComponent } from "../text/component/selector";
+import { TextComponent } from "../text/component/text";
+import { TranslatableComponent } from "../text/component/translatable";
+import { SpriteObjectContents } from "../text/object/sprite";
+import { AbstractComponentRenderer } from "../text/renderer";
+import { ClickEvent, HoverEvent } from "../text/style";
+import { TextDecoration } from "../text/style/decoration";
+import { assertNever } from "../util/assertions";
+import { Character } from "../util/char";
+import { Stack } from "../util/stack";
+import { StringBuilder } from "../util/string";
+import { ClickTag } from "./tag/standard/click";
+import { FontTag } from "./tag/standard/font";
+import { HoverTag } from "./tag/standard/hover";
+import { InsertionTag } from "./tag/standard/insertion";
+import { KeybindTag } from "./tag/standard/keybind";
+import { NbtTag } from "./tag/standard/nbt";
+import { ScoreTag } from "./tag/standard/score";
+import { SelectorTag } from "./tag/standard/selector";
+import { SequentialHeadTag } from "./tag/standard/sequentialHead";
+import { ShadowColorTag } from "./tag/standard/shadowColor";
+import { SpriteTag } from "./tag/standard/sprite";
+import { TranslatableTag } from "./tag/standard/translatable";
+import { TokenParser } from "./token/parser";
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export namespace MiniMessageSerializer {
-
     const MAX_DEPTH = 64;
 
     type Context = {
-        miniMessage: MiniMessage,
-        out: StringBuilder,
-        styleTags: Stack<Stack<string>>,
-        depth: number
+        miniMessage: MiniMessage;
+        out: StringBuilder;
+        styleTags: Stack<Stack<string>>;
+        depth: number;
     };
 
-    const RENDERER = new class extends AbstractComponentRenderer<Context> {
-
+    const RENDERER = new (class extends AbstractComponentRenderer<Context> {
         constructor() {
             super();
         }
@@ -72,15 +71,15 @@ export namespace MiniMessageSerializer {
             const styleTags = new Stack<string>();
             const { out } = context;
 
-            const emit = ((tag: string, ...args: string[]) => {
+            const emit = (tag: string, ...args: string[]) => {
                 styleTags.push(tag);
                 this._openTag(out, tag, ...args);
-            });
+            };
 
-            const emitDecoration = ((tag: string, state: TextDecoration.State) => {
+            const emitDecoration = (tag: string, state: TextDecoration.State) => {
                 if (state === TextDecoration.State.NOT_SET) return;
                 emit(state === TextDecoration.State.TRUE ? tag : `!${tag}`);
-            });
+            };
 
             emitDecoration("b", style.decoration(TextDecoration.BOLD));
             emitDecoration("i", style.decoration(TextDecoration.ITALIC));
@@ -180,8 +179,7 @@ export namespace MiniMessageSerializer {
             const tags = styleTags.pop();
             if (tags) {
                 let tag: string | null;
-                while ((tag = tags.pop()) !== null)
-                    this._closeTag(out, tag);
+                while ((tag = tags.pop()) !== null) this._closeTag(out, tag);
             }
 
             return component;
@@ -228,20 +226,14 @@ export namespace MiniMessageSerializer {
                 NbtTag.NBT,
                 "block",
                 component.pos().asString(),
-                ...this._nbtFooter(context, component)
+                ...this._nbtFooter(context, component),
             );
             return component;
         }
 
         protected renderEntity(component: EntityNBTComponent, context: Context): Component {
             const { out } = context;
-            this._openCloseTag(
-                out,
-                NbtTag.NBT,
-                "entity",
-                component.selector(),
-                ...this._nbtFooter(context, component)
-            );
+            this._openCloseTag(out, NbtTag.NBT, "entity", component.selector(), ...this._nbtFooter(context, component));
             return component;
         }
 
@@ -252,7 +244,7 @@ export namespace MiniMessageSerializer {
                 NbtTag.NBT,
                 "storage",
                 component.storage().asMinimalString(),
-                ...this._nbtFooter(context, component)
+                ...this._nbtFooter(context, component),
             );
             return component;
         }
@@ -265,36 +257,23 @@ export namespace MiniMessageSerializer {
                     out,
                     SelectorTag.SELECTOR,
                     component.pattern(),
-                    this._serializeRichArgument(context, separator)
+                    this._serializeRichArgument(context, separator),
                 );
             } else {
-                this._openCloseTag(
-                    out,
-                    SelectorTag.SELECTOR,
-                    component.pattern()
-                );
+                this._openCloseTag(out, SelectorTag.SELECTOR, component.pattern());
             }
             return component;
         }
 
         protected renderScore(component: ScoreComponent, context: Context): Component {
             const { out } = context;
-            this._openCloseTag(
-                out,
-                ScoreTag.SCORE,
-                component.name(),
-                component.objective()
-            );
+            this._openCloseTag(out, ScoreTag.SCORE, component.name(), component.objective());
             return component;
         }
 
         protected renderKeybind(component: KeybindComponent, context: Context): Component {
             const { out } = context;
-            this._openCloseTag(
-                out,
-                KeybindTag.KEYBIND,
-                component.keybind()
-            );
+            this._openCloseTag(out, KeybindTag.KEYBIND, component.keybind());
             return component;
         }
 
@@ -308,13 +287,13 @@ export namespace MiniMessageSerializer {
                     const name = contents.name();
                     const id = contents.id();
                     const texture = contents.texture();
-                    const put = ((value: string) => {
+                    const put = (value: string) => {
                         if (hat) {
                             this._openCloseTag(out, SequentialHeadTag.HEAD, value);
                         } else {
                             this._openCloseTag(out, SequentialHeadTag.HEAD, value, "false");
                         }
-                    });
+                    };
 
                     let flag: number = 0;
                     if (name !== null) flag |= 1;
@@ -322,11 +301,19 @@ export namespace MiniMessageSerializer {
                     if (texture !== null) flag |= 4;
 
                     switch (flag) {
-                        case 1: put(name!); break;
-                        case 2: put(id!); break;
-                        case 4: put(texture!.asMinimalString()); break;
+                        case 1:
+                            put(name!);
+                            break;
+                        case 2:
+                            put(id!);
+                            break;
+                        case 4:
+                            put(texture!.asMinimalString());
+                            break;
                         default:
-                            throw new Error(`Unable to serialize ambiguous player head tag with name '${name}', id '${id}' and texture '${texture}'`);
+                            throw new Error(
+                                `Unable to serialize ambiguous player head tag with name '${name}', id '${id}' and texture '${texture}'`,
+                            );
                     }
                     break;
                 case "sprite":
@@ -377,7 +364,7 @@ export namespace MiniMessageSerializer {
                 miniMessage: context.miniMessage,
                 out: new StringBuilder(),
                 styleTags: new Stack(),
-                depth: context.depth + 1
+                depth: context.depth + 1,
             };
             this.render(argument, childContext);
             return childContext.out.toString();
@@ -421,29 +408,14 @@ export namespace MiniMessageSerializer {
 
             if (hasSingleQuote) {
                 out.appendChar(Character.QUOTATION);
-                this._appendEscaping(
-                    out,
-                    content,
-                    [TokenParser.ESCAPE, Character.QUOTATION],
-                    true
-                );
+                this._appendEscaping(out, content, [TokenParser.ESCAPE, Character.QUOTATION], true);
                 out.appendChar(Character.QUOTATION);
             } else if (hasDoubleQuote || mustBeQuoted) {
                 out.appendChar(Character.APOSTROPHE);
-                this._appendEscaping(
-                    out,
-                    content,
-                    [TokenParser.ESCAPE, Character.APOSTROPHE],
-                    true
-                );
+                this._appendEscaping(out, content, [TokenParser.ESCAPE, Character.APOSTROPHE], true);
                 out.appendChar(Character.APOSTROPHE);
             } else {
-                this._appendEscaping(
-                    out,
-                    content,
-                    [TokenParser.TAG_END, TokenParser.SEPARATOR],
-                    false
-                );
+                this._appendEscaping(out, content, [TokenParser.TAG_END, TokenParser.SEPARATOR], false);
             }
         }
 
@@ -466,8 +438,7 @@ export namespace MiniMessageSerializer {
                 if (escaped) {
                     if (unescapedFound) out.appendString(text, startIdx, i);
                     startIdx = i + 1;
-                    out.appendChar(TokenParser.ESCAPE)
-                        .appendChar(test);
+                    out.appendChar(TokenParser.ESCAPE).appendChar(test);
                 } else {
                     unescapedFound = true;
                 }
@@ -477,8 +448,7 @@ export namespace MiniMessageSerializer {
                 out.appendString(text, startIdx, text.length);
             }
         }
-
-    }
+    })();
 
     //
 
@@ -487,10 +457,9 @@ export namespace MiniMessageSerializer {
             miniMessage,
             out: new StringBuilder(),
             styleTags: new Stack(),
-            depth: 0
+            depth: 0,
         };
         RENDERER.render(component, context);
         return context.out.toString();
     }
-
 }

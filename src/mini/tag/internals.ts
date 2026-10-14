@@ -1,11 +1,12 @@
-import {Token} from "../token";
-import {TokenParser} from "../token/parser";
-import {Tag} from "../tag";
-import {Character} from "../../util/char";
+import { Character } from "../../util/char";
+import { Tag } from "../tag";
+import { Token } from "../token";
+import { TokenParser } from "../token/parser";
 
-/** @internal */
+/**
+ * @internal
+ */
 export namespace TagInternals {
-
     export const TAG_NAME_REGEX = "[!?#]?[a-z0-9_-]*";
     const TAG_NAME_PATTERN = RegExp(TAG_NAME_REGEX);
 
@@ -23,19 +24,14 @@ export namespace TagInternals {
     export function sanitizeAndAssertValidTagName(tagName: string) {
         assertValidTagName(tagName.toLowerCase());
     }
-
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 export class TagPart implements Tag.Argument {
-
-    static unquoteAndEscape(
-        text: string,
-        start: number,
-        end: number
-    ): string {
-        if (start === end)
-            return "";
+    static unquoteAndEscape(text: string, start: number, end: number): string {
+        if (start === end) return "";
 
         let startIndex: number = start;
         let endIndex: number = end;
@@ -56,12 +52,7 @@ export class TagPart implements Tag.Argument {
             return text.substring(start, end);
         }
 
-        return TokenParser.unescape(
-            text,
-            startIndex,
-            endIndex,
-            (i) => firstChar === i || TokenParser.ESCAPE.is(i)
-        );
+        return TokenParser.unescape(text, startIndex, endIndex, (i) => firstChar === i || TokenParser.ESCAPE.is(i));
     }
 
     //
@@ -69,11 +60,7 @@ export class TagPart implements Tag.Argument {
     private readonly _value: string;
     private readonly _token: Token;
 
-    constructor(
-        sourceMessage: string,
-        token: Token,
-        tagResolver: TokenParser.TagProvider
-    ) {
+    constructor(sourceMessage: string, token: Token, tagResolver: TokenParser.TagProvider) {
         let v: string = TagPart.unquoteAndEscape(sourceMessage, token.startIndex(), token.endIndex());
         v = TokenParser.resolvePreProcessTags(v, tagResolver);
 
@@ -118,6 +105,4 @@ export class TagPart implements Tag.Argument {
     toString() {
         return this._value;
     }
-
 }
-

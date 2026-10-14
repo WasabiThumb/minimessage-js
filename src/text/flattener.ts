@@ -1,46 +1,40 @@
-import {Component, ComponentTypeMap} from "./component";
-import {FlattenerListener} from "./flattener/listener";
-import {Style} from "./style";
-import {Stack} from "../util/stack";
-import {TextComponent} from "./component/text";
-import {KeybindComponent} from "./component/keybind";
-import {SelectorComponent} from "./component/selector";
-import {TranslatableComponent} from "./component/translatable";
-import {ObjectComponent} from "./component/object";
-import {Key} from "../key";
-import {SpriteObjectContents} from "./object/sprite";
+import { Key } from "../key";
+import { Stack } from "../util/stack";
+import { Component, ComponentTypeMap } from "./component";
+import { KeybindComponent } from "./component/keybind";
+import { ObjectComponent } from "./component/object";
+import { SelectorComponent } from "./component/selector";
+import { TextComponent } from "./component/text";
+import { TranslatableComponent } from "./component/translatable";
+import { FlattenerListener } from "./flattener/listener";
+import { SpriteObjectContents } from "./object/sprite";
+import { Style } from "./style";
 
 //
 
-export {
-    FlattenerListener
-};
+export { FlattenerListener };
 
 export interface ComponentFlattener {
-
     flatten(input: Component, listener: FlattenerListener): void;
 
     toBuilder(): ComponentFlattener.Builder;
-
 }
 
 type Handler = (component: Component) => string;
 type Flatteners = { [P in Component["type"]]?: Handler };
 type StackEntry = {
-    component: Component,
-    stylesToPop: number
+    component: Component;
+    stylesToPop: number;
 };
 
-/** @internal */
+/**
+ * @internal
+ */
 class ComponentFlattenerImpl implements ComponentFlattener {
-
     private readonly _flatteners: Flatteners;
     private readonly _unknownHandler: Handler | null;
 
-    constructor(
-        flatteners: Flatteners,
-        unknownHandler: Handler | null
-    ) {
+    constructor(flatteners: Flatteners, unknownHandler: Handler | null) {
         this._flatteners = flatteners;
         this._unknownHandler = unknownHandler;
     }
@@ -63,22 +57,21 @@ class ComponentFlattenerImpl implements ComponentFlattener {
             l.pushStyle(style);
             styleStack.push(style);
 
-            if (handler)
-                l.component(handler(component));
+            if (handler) l.component(handler(component));
 
             const children = component.children();
             if (children.length !== 0 && l.shouldContinue()) {
-                const z =  children.length - 1;
+                const z = children.length - 1;
                 for (let i = z; i >= 0; i--) {
                     if (i === z) {
                         componentStack.push({
                             component: children[i],
-                            stylesToPop: entry.stylesToPop + 1
+                            stylesToPop: entry.stylesToPop + 1,
                         });
                     } else {
                         componentStack.push({
                             component: children[i],
-                            stylesToPop: 1
+                            stylesToPop: 1,
                         });
                     }
                 }
@@ -110,56 +103,42 @@ class ComponentFlattenerImpl implements ComponentFlattener {
         if (handler) return handler;
         return this._unknownHandler;
     }
-
 }
 
 export namespace ComponentFlattener {
-
     export interface Builder {
-
         mapper<K extends keyof ComponentTypeMap>(
             type: K,
-            converter: (component: ComponentTypeMap[K]) => string
+            converter: (component: ComponentTypeMap[K]) => string,
         ): Builder;
 
-        unknownMapper(
-            converter: ((component: Component) => string) | null
-        ): Builder;
+        unknownMapper(converter: ((component: Component) => string) | null): Builder;
 
         build(): ComponentFlattener;
-
     }
 
-    /** @internal */
+    /**
+     * @internal
+     */
     class BuilderImpl implements Builder {
-
         private readonly _flatteners: Flatteners = {};
         private _unknownHandler: Handler | null = null;
 
         //
 
-        mapper<T extends Component>(
-            type: T["type"],
-            converter: (component: T) => string
-        ): Builder {
+        mapper<T extends Component>(type: T["type"], converter: (component: T) => string): Builder {
             this._flatteners[type] = converter as unknown as Handler;
             return this;
         }
 
-        unknownMapper(
-            converter: ((component: Component) => string) | null
-        ): Builder {
+        unknownMapper(converter: ((component: Component) => string) | null): Builder {
             this._unknownHandler = converter;
             return this;
         }
 
         build(): ComponentFlattener {
-            return new ComponentFlattenerImpl(
-                { ...this._flatteners },
-                this._unknownHandler
-            );
+            return new ComponentFlattenerImpl({ ...this._flatteners }, this._unknownHandler);
         }
-
     }
 
     //
@@ -181,9 +160,9 @@ export namespace ComponentFlattener {
             if (contents.type === "sprite") {
                 let sprite = contents.sprite();
                 let atlas = contents.atlas();
-                return Key.equals(atlas, SpriteObjectContents.DEFAULT_ATLAS) ?
-                    `[${sprite.asMinimalString()}]` :
-                    `[${sprite.asMinimalString()}@${atlas.asMinimalString()}]`;
+                return Key.equals(atlas, SpriteObjectContents.DEFAULT_ATLAS)
+                    ? `[${sprite.asMinimalString()}]`
+                    : `[${sprite.asMinimalString()}@${atlas.asMinimalString()}]`;
             } else if (contents.type === "playerHead") {
                 let name = contents.name();
                 if (name === null) name = "unknown player";
@@ -205,5 +184,4 @@ export namespace ComponentFlattener {
     export function textOnly(): ComponentFlattener {
         return TEXT_ONLY;
     }
-
 }

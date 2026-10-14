@@ -1,9 +1,8 @@
-import {MatchedTokenConsumer} from "../match";
-import {Token, TokenType} from "../../../token";
-import {ArrayUtil} from "../../../../util/array";
+import { ArrayUtil } from "../../../../util/array";
+import { Token, TokenType } from "../../../token";
+import { MatchedTokenConsumer } from "../match";
 
 export class TokenListProducingMatchedTokenConsumer extends MatchedTokenConsumer<Token[]> {
-
     private _result: Token[] | null;
 
     //
@@ -25,5 +24,4 @@ export class TokenListProducingMatchedTokenConsumer extends MatchedTokenConsumer
         if (array === null) this._result = array = [];
         array.push(new Token(start, end, type));
     }
-
 }

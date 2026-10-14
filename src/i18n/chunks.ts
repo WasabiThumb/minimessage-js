@@ -1,37 +1,48 @@
-import {StringBuilder} from "../util/string";
-import {assertNever} from "../util/assertions";
-import {Character} from "../util/char";
+import { assertNever } from "../util/assertions";
+import { Character } from "../util/char";
+import { StringBuilder } from "../util/string";
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export namespace ChunkType {
     export const LITERAL = Symbol("literal");
     export const ARGUMENT = Symbol("argument");
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 export type LiteralChunk = {
-    readonly type: typeof ChunkType.LITERAL,
-    readonly value: string
+    readonly type: typeof ChunkType.LITERAL;
+    readonly value: string;
 };
 
-/** @internal */
+/**
+ * @internal
+ */
 export type ArgumentChunk = {
-    readonly type: typeof ChunkType.ARGUMENT,
-    readonly index: number,
-    readonly fallback: string
+    readonly type: typeof ChunkType.ARGUMENT;
+    readonly index: number;
+    readonly fallback: string;
 };
 
-/** @internal */
+/**
+ * @internal
+ */
 export type Chunk = LiteralChunk | ArgumentChunk;
 
-/** @internal */
+/**
+ * @internal
+ */
 export type Chunks = Chunk[];
 
-/** @internal */
+/**
+ * @internal
+ */
 export namespace Chunks {
-
     export function stringify(chunks: Chunks): string {
         const sb = new StringBuilder();
         for (let i = 0; i < chunks.length; i++) {
@@ -52,7 +63,9 @@ export namespace Chunks {
         return sb.toString();
     }
 
-    /** @internal */
+    /**
+     * @internal
+     */
     export function parse(text: string): Chunks {
         const ret: Chunk[] = [];
         let start: number = 0;
@@ -73,7 +86,7 @@ export namespace Chunks {
             if (start >= end) return;
             ret.push({
                 type: ChunkType.LITERAL,
-                value: text.substring(start, end)
+                value: text.substring(start, end),
             });
             start = end;
         }
@@ -82,7 +95,7 @@ export namespace Chunks {
             ret.push({
                 type: ChunkType.ARGUMENT,
                 index,
-                fallback: text.substring(start, head)
+                fallback: text.substring(start, head),
             });
             start = head;
         }
@@ -124,10 +137,11 @@ export namespace Chunks {
                     if (Character.DOLLAR_SIGN.is(c)) {
                         termination |= 1;
                     } else if (Character.ZERO.value <= c && c <= Character.NINE.value) {
-                        const newIndex = (index * 10) + (c - Character.ZERO.value);
+                        const newIndex = index * 10 + (c - Character.ZERO.value);
                         if (newIndex > Number.MAX_SAFE_INTEGER) {
-                            throw new Error(`Escape sequence at index` +
-                                ` ${head} of lang string \"${text}\" is too large`);
+                            throw new Error(
+                                `Escape sequence at index` + ` ${head} of lang string \"${text}\" is too large`,
+                            );
                         }
                         index = newIndex;
                     } else {
@@ -150,5 +164,4 @@ export namespace Chunks {
         literal(false);
         return ret;
     }
-
 }

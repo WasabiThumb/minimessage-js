@@ -1,16 +1,12 @@
-import {HueWheel} from "./colors/wheel.ts";
-import {Color} from "./colors/color.ts";
-import {LightnessSlider} from "./colors/slider.ts";
-import {ColorPresets} from "./colors/presets.ts";
-import {ColorComponents} from "./colors/components.ts";
-import {NamedTextColor, TextColor} from "minimessage-js";
-import type {
-    ColorsEvent,
-    ColorsEventEmitter,
-    ColorsEventListener,
-    ColorsEventMap
-} from "./colors/events.ts";
-import {findElementsByProperty} from "./util/query.ts";
+import { NamedTextColor, TextColor } from "minimessage-js";
+
+import { Color } from "./colors/color.ts";
+import { ColorComponents } from "./colors/components.ts";
+import type { ColorsEvent, ColorsEventEmitter, ColorsEventListener, ColorsEventMap } from "./colors/events.ts";
+import { ColorPresets } from "./colors/presets.ts";
+import { LightnessSlider } from "./colors/slider.ts";
+import { HueWheel } from "./colors/wheel.ts";
+import { findElementsByProperty } from "./util/query.ts";
 
 //
 
@@ -21,33 +17,25 @@ function stringifyColor(value: Color): string {
     }
 
     const rgb = value.get("rgb");
-    return TextColor.color(rgb.r, rgb.g, rgb.b)
-        .asHexString();
+    return TextColor.color(rgb.r, rgb.g, rgb.b).asHexString();
 }
 
 export class Colors implements ColorsEventEmitter {
-
     private readonly _element: HTMLElement;
     private readonly _wheel: HueWheel;
     private readonly _slider: LightnessSlider;
     private _handle: Handle | null;
 
     constructor(element: HTMLElement) {
-        const {
-            wheelElement,
-            sliderElement,
-            presetsElement,
-            componentsElement,
-            actionsElement,
-            gradientModalElement
-        } = findElementsByProperty(element, `data-role`, {
-            wheelElement: `wheel`,
-            sliderElement: `slider`,
-            presetsElement: `presets`,
-            componentsElement: `components`,
-            actionsElement: `actions`,
-            gradientModalElement: `gradientModal`,
-        });
+        const { wheelElement, sliderElement, presetsElement, componentsElement, actionsElement, gradientModalElement } =
+            findElementsByProperty(element, `data-role`, {
+                wheelElement: `wheel`,
+                sliderElement: `slider`,
+                presetsElement: `presets`,
+                componentsElement: `components`,
+                actionsElement: `actions`,
+                gradientModalElement: `gradientModal`,
+            });
 
         const value = Color.named(NamedTextColor.RED);
         const wheel = new HueWheel(wheelElement as HTMLCanvasElement, value);
@@ -76,16 +64,24 @@ export class Colors implements ColorsEventEmitter {
         const handle = new Handle(abort);
         this._resetHandle(handle);
 
-        element.addEventListener("click", (e) => {
-            e.stopPropagation();
-        }, { signal: abort.signal });
+        element.addEventListener(
+            "click",
+            (e) => {
+                e.stopPropagation();
+            },
+            { signal: abort.signal },
+        );
 
         setTimeout(() => {
             if (abort.signal.aborted) return;
-            document.body.addEventListener("click", () => {
-                this._resetHandle(null);
-                element.removeAttribute("data-active");
-            }, { signal: abort.signal });
+            document.body.addEventListener(
+                "click",
+                () => {
+                    this._resetHandle(null);
+                    element.removeAttribute("data-active");
+                },
+                { signal: abort.signal },
+            );
         }, 10);
 
         element.setAttribute("data-active", "");
@@ -110,16 +106,14 @@ export class Colors implements ColorsEventEmitter {
         this._wheel.shouldRender = active;
         this._slider.shouldRender = active;
     }
-
 }
 
 //
 
 class Handle implements ColorsEventListener, ColorsEventEmitter {
-
     private readonly _listeners: Record<string, Set<(l: ColorsEvent) => void>> = {};
 
-    constructor(readonly abort: AbortController) { }
+    constructor(readonly abort: AbortController) {}
 
     //
 
@@ -135,20 +129,15 @@ class Handle implements ColorsEventListener, ColorsEventEmitter {
         }
     }
 
-    on<T extends keyof ColorsEventMap>(
-        type: T,
-        callback: (event: ColorsEventMap[T]) => void
-    ): void {
+    on<T extends keyof ColorsEventMap>(type: T, callback: (event: ColorsEventMap[T]) => void): void {
         let set = this._listeners[type];
         if (!set) this._listeners[type] = set = new Set();
         // @ts-ignore
         set.add(callback);
     }
-
 }
 
 class Actions {
-
     private readonly _value: Color;
     private readonly _eventEmitter: ColorsEventEmitter;
     private readonly _gradientModal: GradientModal;
@@ -157,7 +146,7 @@ class Actions {
         readonly element: HTMLElement,
         value: Color,
         eventEmitter: ColorsEventEmitter,
-        gradientModal: GradientModal
+        gradientModal: GradientModal,
     ) {
         this._value = value;
         this._eventEmitter = eventEmitter;
@@ -167,52 +156,42 @@ class Actions {
     //
 
     bind() {
-        const {
-            colorAction,
-            shadowColorAction,
-            gradientAction
-        } = findElementsByProperty(
-            this.element,
-            `data-action`,
-            {
-                colorAction: `color`,
-                shadowColorAction: `shadowColor`,
-                gradientAction: `gradient`
-            }
-        );
+        const { colorAction, shadowColorAction, gradientAction } = findElementsByProperty(this.element, `data-action`, {
+            colorAction: `color`,
+            shadowColorAction: `shadowColor`,
+            gradientAction: `gradient`,
+        });
         colorAction.addEventListener("click", () => {
             this._eventEmitter.emit({
                 type: "color",
-                color: stringifyColor(this._value)
+                color: stringifyColor(this._value),
             });
         });
         shadowColorAction.addEventListener("click", () => {
             this._eventEmitter.emit({
                 type: "shadowColor",
-                color: stringifyColor(this._value)
+                color: stringifyColor(this._value),
             });
         });
         gradientAction.addEventListener("click", () => {
             this._gradientModal.addColor(this._value);
         });
     }
-
 }
 
 class GradientModal {
-
     private readonly _eventEmitter: ColorsEventEmitter;
     private readonly _listElement: HTMLElement;
     private readonly _applyElement: HTMLElement;
-    private readonly _entries: { element: HTMLElement, color: Color }[];
+    private readonly _entries: { element: HTMLElement; color: Color }[];
 
-    constructor(readonly element: HTMLElement, eventEmitter: ColorsEventEmitter) {
-        const {
-            listElement,
-            applyElement
-        } = findElementsByProperty(element, `data-role`, {
+    constructor(
+        readonly element: HTMLElement,
+        eventEmitter: ColorsEventEmitter,
+    ) {
+        const { listElement, applyElement } = findElementsByProperty(element, `data-role`, {
             listElement: `list`,
-            applyElement: `apply`
+            applyElement: `apply`,
         });
 
         this._eventEmitter = eventEmitter;
@@ -225,8 +204,7 @@ class GradientModal {
 
     get colors(): string[] {
         const ret: string[] = new Array(this._entries.length);
-        for (let i = 0; i < this._entries.length; i++)
-            ret[i] = stringifyColor(this._entries[i].color);
+        for (let i = 0; i < this._entries.length; i++) ret[i] = stringifyColor(this._entries[i].color);
         return ret;
     }
 
@@ -270,9 +248,8 @@ class GradientModal {
         this._applyElement.addEventListener("click", () => {
             this._eventEmitter.emit({
                 type: "gradient",
-                colors: this.colors
+                colors: this.colors,
             });
         });
     }
-
 }

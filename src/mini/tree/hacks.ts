@@ -1,13 +1,12 @@
-import type {Node} from "../tree";
-import type {ElementNode} from "./element";
-import type {Token} from "../token";
-import {assertReal} from "../../util/assertions";
+import { assertReal } from "../../util/assertions";
+import type { Token } from "../token";
+import type { Node } from "../tree";
+import type { ElementNode } from "./element";
 
 // This file exists to prevent a circular dependency
 // between "element" and "text".
 
-export const TextNodeFactory = new class {
-
+export const TextNodeFactory = new (class {
     _bound: boolean = false;
     _identity: ((n: Node) => boolean) | null = null;
     _generator: ((parent: ElementNode | null, token: Token, sourceMessage: string) => ElementNode) | null = null;
@@ -16,7 +15,7 @@ export const TextNodeFactory = new class {
 
     bind(
         identity: (n: Node) => boolean,
-        generator: (parent: ElementNode | null, token: Token, sourceMessage: string) => ElementNode
+        generator: (parent: ElementNode | null, token: Token, sourceMessage: string) => ElementNode,
     ): void {
         assertReal(identity, "identity");
         assertReal(generator, "generator");
@@ -38,5 +37,4 @@ export const TextNodeFactory = new class {
     _checkBound(): void {
         if (!this._bound) throw new Error("Not bound");
     }
-
-};
+})();

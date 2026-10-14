@@ -1,18 +1,18 @@
-import {Character} from "./char";
-import {MessageDigest} from "./md5";
+import { Character } from "./char";
+import { MessageDigest } from "./md5";
 
-/** @internal */
+/**
+ * @internal
+ */
 export class UUID {
-
     static fromArray(array: ArrayLike<number>): UUID {
-        if (array.length !== 4)
-            throw new Error(`Expected UUID array to be 4 ints long, got ${array.length}`);
+        if (array.length !== 4) throw new Error(`Expected UUID array to be 4 ints long, got ${array.length}`);
 
         const ab = new ArrayBuffer(16);
         const buf = new DataView(ab);
-        buf.setInt32( 0, array[0], false);
-        buf.setInt32( 4, array[1], false);
-        buf.setInt32( 8, array[2], false);
+        buf.setInt32(0, array[0], false);
+        buf.setInt32(4, array[1], false);
+        buf.setInt32(8, array[2], false);
         buf.setInt32(12, array[3], false);
 
         return new UUID(ab);
@@ -33,7 +33,7 @@ export class UUID {
         let textHead: number = 0;
         let byteHead: number = 0;
 
-        const nibble = (() => {
+        const nibble = () => {
             const pos = textHead++;
             const char = text.charCodeAt(pos);
 
@@ -46,23 +46,23 @@ export class UUID {
             } else {
                 throw new Error(`Expected hex char @ position ${pos} in UUID string \"${text}\"`);
             }
-        });
+        };
 
-        const hex = ((count: number) => {
+        const hex = (count: number) => {
             for (let i = 0; i < count; i++) {
                 const hi = nibble();
                 const lo = nibble();
                 u8[byteHead++] = (hi << 4) | lo;
             }
-        });
+        };
 
-        const dash = (() => {
+        const dash = () => {
             if (!dashed) return;
             const pos = textHead++;
             const char = text.charCodeAt(pos);
             if (char === Character.DASH.value) return;
             throw new Error(`Expected dash @ position ${pos} in UUID string \"${text}\"`);
-        });
+        };
 
         hex(4); // time_low
         dash();
@@ -83,9 +83,9 @@ export class UUID {
         md.update(bytes);
 
         const u8 = md.digest();
-        u8[6] &= 0x0F;
+        u8[6] &= 0x0f;
         u8[6] |= 0x30;
-        u8[8] &= 0x3F;
+        u8[8] &= 0x3f;
         u8[8] |= 0x80;
 
         return new UUID(u8.buffer);
@@ -102,12 +102,12 @@ export class UUID {
 
     //
 
-    toArray(): [ number, number, number, number ] {
+    toArray(): [number, number, number, number] {
         return [
             this._buf.getInt32(0, false),
             this._buf.getInt32(4, false),
             this._buf.getInt32(8, false),
-            this._buf.getInt32(12, false)
+            this._buf.getInt32(12, false),
         ];
     }
 
@@ -115,25 +115,23 @@ export class UUID {
         const chars: number[] = new Array(noDashes ? 32 : 36);
         let head: number = 0;
 
-        const nibble = ((n: number) => {
-            chars[head++] = (n < 0xA) ?
-                Character.ZERO.value + n :
-                Character.LOWERCASE_A.value + n - 10;
-        });
+        const nibble = (n: number) => {
+            chars[head++] = n < 0xa ? Character.ZERO.value + n : Character.LOWERCASE_A.value + n - 10;
+        };
 
-        const hex = ((start: number, end: number) => {
+        const hex = (start: number, end: number) => {
             let u8: number;
             for (let i = start; i < end; i++) {
                 u8 = this._buf.getUint8(i);
                 nibble(u8 >>> 4);
-                nibble(u8 & 0xF);
+                nibble(u8 & 0xf);
             }
-        });
+        };
 
-        const dash = (() => {
+        const dash = () => {
             if (noDashes) return;
             chars[head++] = Character.DASH.value;
-        });
+        };
 
         hex(0, 4); // time_low
         dash();
@@ -148,5 +146,4 @@ export class UUID {
         chars.length = head;
         return String.fromCharCode.apply(null, chars);
     }
-
 }

@@ -1,16 +1,15 @@
-import {Key, KeyLike} from "../../key";
+import { Key, KeyLike } from "../../key";
 
 export interface ClickEvent<T extends ClickEvent.Payload> {
-
     action(): ClickEvent.Action<T>;
 
     payload(): T;
-
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 class ClickEventImpl<T extends ClickEvent.Payload> implements ClickEvent<T> {
-
     private readonly _action: ClickEvent.Action<T>;
     private readonly _payload: T;
 
@@ -28,15 +27,10 @@ class ClickEventImpl<T extends ClickEvent.Payload> implements ClickEvent<T> {
     payload(): T {
         return this._payload;
     }
-
 }
 
 export namespace ClickEvent {
-
-    export function clickEvent<T extends ClickEvent.Payload>(
-        action: Action<T>,
-        payload: T
-    ): ClickEvent<T> {
+    export function clickEvent<T extends ClickEvent.Payload>(action: Action<T>, payload: T): ClickEvent<T> {
         return new ClickEventImpl(action, payload);
     }
 
@@ -74,26 +68,23 @@ export namespace ClickEvent {
     const TYPE_INT = "int";
     const TYPE_CUSTOM = "custom";
 
-    export type Payload = Payload.Text |
-        Payload.Int |
-        Payload.Custom;
+    export type Payload = Payload.Text | Payload.Int | Payload.Custom;
 
     export namespace Payload {
-
         export type Text = {
-            readonly type: typeof TYPE_TEXT,
-            value(): string
+            readonly type: typeof TYPE_TEXT;
+            value(): string;
         };
 
         export type Int = {
-            readonly type: typeof TYPE_INT,
-            integer(): number
+            readonly type: typeof TYPE_INT;
+            integer(): number;
         };
 
         export type Custom = {
-            readonly type: typeof TYPE_CUSTOM,
-            key(): Key,
-            nbt(): string | null
+            readonly type: typeof TYPE_CUSTOM;
+            key(): Key;
+            nbt(): string | null;
         };
 
         //
@@ -103,7 +94,7 @@ export namespace ClickEvent {
                 type: TYPE_TEXT,
                 value(): string {
                     return value;
-                }
+                },
             });
         }
 
@@ -112,7 +103,7 @@ export namespace ClickEvent {
                 type: TYPE_INT,
                 integer(): number {
                     return integer;
-                }
+                },
             });
         }
 
@@ -125,27 +116,25 @@ export namespace ClickEvent {
                 },
                 nbt(): string | null {
                     return nbt;
-                }
-            })
+                },
+            });
         }
-
     }
 
     //
 
     export interface Action<T extends Payload> {
-
         readable(): boolean;
 
         supports(payload: Payload): boolean;
 
         toString(): string;
-
     }
 
-    /** @internal */
+    /**
+     * @internal
+     */
     class ActionImpl<T extends Payload> implements Action<T> {
-
         private readonly _name: string;
         private readonly _readable: boolean;
         private readonly _type: Payload["type"];
@@ -169,11 +158,9 @@ export namespace ClickEvent {
         toString(): string {
             return this._name;
         }
-
     }
 
     export namespace Action {
-
         export type OpenUrl = Action<Payload.Text>;
         export type OpenFile = Action<Payload.Text>;
         export type RunCommand = Action<Payload.Text>;
@@ -194,21 +181,13 @@ export namespace ClickEvent {
             const ret: Record<string, Action<any>> = {};
             for (const action of actions) ret[action.toString()] = action;
             return Object.freeze(ret);
-        })(
-            OPEN_URL,
-            OPEN_FILE,
-            RUN_COMMAND,
-            SUGGEST_COMMAND,
-            CHANGE_PAGE,
-            COPY_TO_CLIPBOARD,
-            CUSTOM
-        );
-
+        })(OPEN_URL, OPEN_FILE, RUN_COMMAND, SUGGEST_COMMAND, CHANGE_PAGE, COPY_TO_CLIPBOARD, CUSTOM);
     }
 
-    /** @internal */
+    /**
+     * @internal
+     */
     export class Handlers<C, R> {
-
         private readonly _map: { [k: string]: (event: ClickEvent<any>, context: C) => R };
 
         constructor() {
@@ -219,7 +198,7 @@ export namespace ClickEvent {
 
         register<T extends ClickEvent.Payload>(
             action: ClickEvent.Action<T>,
-            handler: (event: ClickEvent<T>, context: C) => R
+            handler: (event: ClickEvent<T>, context: C) => R,
         ): void {
             this._map[action.toString()] = handler;
         }
@@ -230,7 +209,5 @@ export namespace ClickEvent {
             if (!handler) throw new Error(`Unhandled click event action: ${action}`);
             return handler(event, context);
         }
-
     }
-
 }

@@ -1,18 +1,18 @@
-import {AbstractColorChangingTag} from "../impls/colorChanging";
-import {TextColor} from "../../../text/style/textColor";
-import {ArgumentQueue} from "../resolver/argumentQueue";
-import {Context} from "../../context";
-import {TagResolver} from "../resolver";
-import {Tag} from "../../tag";
+import { TextColor } from "../../../text/style/textColor";
+import { Context } from "../../context";
+import { Tag } from "../../tag";
+import { AbstractColorChangingTag } from "../impls/colorChanging";
+import { TagResolver } from "../resolver";
+import { ArgumentQueue } from "../resolver/argumentQueue";
 
 //
 
-const hue2rgb = ((h: number): Uint8Array => {
+const hue2rgb = (h: number): Uint8Array => {
     const rgb = new Uint8Array(3);
 
     // Map hue in [0, 1) to int in [0, 1535]
     const q = Math.trunc(h * 1536);
-    const n = (q < 0) ? (((q % 1536) + 1536) % 1536) : (q % 1536);
+    const n = q < 0 ? ((q % 1536) + 1536) % 1536 : q % 1536;
 
     // Determine the segment (i) and interpolation factor (f)
     const i = n >>> 8;
@@ -22,28 +22,42 @@ const hue2rgb = ((h: number): Uint8Array => {
     // ~f is used as a shorthand for 255 - f;
     // this ONLY works because rgb is a Uint8Array
     switch (i) {
-        case 0: rgb[0] = 255; rgb[1] =   f; break;
-        case 1: rgb[0] =  ~f; rgb[1] = 255; break;
-        case 2: rgb[1] = 255; rgb[2] =   f; break;
-        case 3: rgb[1] =  ~f; rgb[2] = 255; break;
-        case 4: rgb[2] = 255; rgb[0] =   f; break;
-        case 5: rgb[2] =  ~f; rgb[0] = 255; break;
+        case 0:
+            rgb[0] = 255;
+            rgb[1] = f;
+            break;
+        case 1:
+            rgb[0] = ~f;
+            rgb[1] = 255;
+            break;
+        case 2:
+            rgb[1] = 255;
+            rgb[2] = f;
+            break;
+        case 3:
+            rgb[1] = ~f;
+            rgb[2] = 255;
+            break;
+        case 4:
+            rgb[2] = 255;
+            rgb[0] = f;
+            break;
+        case 5:
+            rgb[2] = ~f;
+            rgb[0] = 255;
+            break;
     }
 
     // Return the array as-is (can be consumed with spread syntax)
     return rgb;
-});
+};
 
 class RainbowTagImpl extends AbstractColorChangingTag {
-
     private readonly reversed: boolean;
     private readonly dividedPhase: number;
     private colorIndex: number;
 
-    constructor(
-        reversed: boolean,
-        phase: number
-    ) {
+    constructor(reversed: boolean, phase: number) {
         super();
         this.reversed = reversed;
         this.dividedPhase = phase / 10;
@@ -71,16 +85,16 @@ class RainbowTagImpl extends AbstractColorChangingTag {
     }
 
     protected color(): TextColor {
-        const hue = ((this.colorIndex / this.size) + this.dividedPhase) % 1;
-        const [ r, g, b ] = hue2rgb(hue);
+        const hue = (this.colorIndex / this.size + this.dividedPhase) % 1;
+        const [r, g, b] = hue2rgb(hue);
         return TextColor.color(r, g, b);
     }
-
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 export namespace RainbowTag {
-
     const REVERSE = "!";
 
     function create(args: ArgumentQueue, ctx: Context): Tag {
@@ -106,5 +120,4 @@ export namespace RainbowTag {
 
     export const RAINBOW = "rainbow";
     export const RESOLVER = TagResolver.dynamic(RAINBOW, create);
-
 }

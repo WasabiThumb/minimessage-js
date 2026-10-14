@@ -1,10 +1,10 @@
-import {Unit} from "./unit.ts";
-import {JsonComponentSerializer} from "minimessage-js";
+import { JsonComponentSerializer } from "minimessage-js";
+
+import { Unit } from "./unit.ts";
 
 //
 
 export class Output {
-
     private readonly _typeElement: HTMLElement;
     private readonly _containerElement: HTMLElement;
     private _shown: HTMLElement | null;
@@ -63,5 +63,4 @@ export class Output {
     private _unhandledType(type: never) {
         throw new Error(`Unhandled unit type: '${type}'`);
     }
-
 }

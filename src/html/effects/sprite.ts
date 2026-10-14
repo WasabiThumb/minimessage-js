@@ -1,11 +1,11 @@
-import {type DomEffect} from "../effects";
-import {type MiniMessage} from "../../mini";
-import {Key} from "../../key";
-import {ResourcePacks} from "../../resourcePacks";
+import { Key } from "../../key";
+import { type MiniMessage } from "../../mini";
+import { ResourcePacks } from "../../resourcePacks";
+import { type DomEffect } from "../effects";
 
 //
 
-const paintMissing = ((canvas: HTMLCanvasElement) => {
+const paintMissing = (canvas: HTMLCanvasElement) => {
     canvas.width = 16;
     canvas.height = 16;
     const ctx = canvas.getContext("2d");
@@ -16,24 +16,18 @@ const paintMissing = ((canvas: HTMLCanvasElement) => {
     ctx.fillRect(8, 0, 8, 8);
     ctx.fillRect(0, 8, 8, 8);
     return;
-});
+};
 
-const paintTint = ((
-    canvas: HTMLCanvasElement,
-    ctx: CanvasRenderingContext2D,
-    tint: string,
-    w: number,
-    h: number
-) => {
+const paintTint = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, tint: string, w: number, h: number) => {
     ctx.globalCompositeOperation = "multiply";
     ctx.fillStyle = tint;
     ctx.fillRect(0, 0, w, h);
     ctx.globalCompositeOperation = "destination-in";
     ctx.drawImage(canvas, 0, 0);
     ctx.globalCompositeOperation = "source-over";
-});
+};
 
-const paint = (async (canvas: HTMLCanvasElement, sprite: ResourcePacks.Sprite) => {
+const paint = async (canvas: HTMLCanvasElement, sprite: ResourcePacks.Sprite) => {
     // Determine the tint
     const tint = window.getComputedStyle(canvas).color;
     const hasTint = `rgb(255, 255, 255)` !== tint; // both firefox and chrome seem to work this way
@@ -50,14 +44,22 @@ const paint = (async (canvas: HTMLCanvasElement, sprite: ResourcePacks.Sprite) =
             const image = new Image();
             await new Promise<void>((resolve, reject) => {
                 const abort = new AbortController();
-                image.addEventListener("load", () => {
-                    abort.abort();
-                    resolve();
-                }, { once: true, signal: abort.signal });
-                image.addEventListener("error", () => {
-                    abort.abort();
-                    reject();
-                }, { once: true, signal: abort.signal });
+                image.addEventListener(
+                    "load",
+                    () => {
+                        abort.abort();
+                        resolve();
+                    },
+                    { once: true, signal: abort.signal },
+                );
+                image.addEventListener(
+                    "error",
+                    () => {
+                        abort.abort();
+                        reject();
+                    },
+                    { once: true, signal: abort.signal },
+                );
                 image.src = url;
             });
             ctx.clearRect(0, 0, width, height);
@@ -83,9 +85,12 @@ const paint = (async (canvas: HTMLCanvasElement, sprite: ResourcePacks.Sprite) =
     // Draw stuff
     const boundaries: number[] = [0];
     let sum = 0;
-    for (const f of frames) { sum += f.durationMs; boundaries.push(sum); }
+    for (const f of frames) {
+        sum += f.durationMs;
+        boundaries.push(sum);
+    }
 
-    const draw = ((elapsed: number) => {
+    const draw = (elapsed: number) => {
         const t = elapsed % durationMs;
 
         let i = 0;
@@ -108,26 +113,25 @@ const paint = (async (canvas: HTMLCanvasElement, sprite: ResourcePacks.Sprite) =
 
         ctx.globalAlpha = 1;
         if (hasTint) paintTint(canvas, ctx, tint, frameWidth, frameHeight);
-    });
+    };
 
     let start: number | null = null;
-    const tick = ((ts: number) => {
+    const tick = (ts: number) => {
         if (start === null) start = ts;
         draw(ts - start);
         window.requestAnimationFrame(tick);
-    });
+    };
     window.requestAnimationFrame(tick);
-});
+};
 
 //
 
 type SpriteDomEffectData = {
-    sprite: string,
-    atlas?: string
+    sprite: string;
+    atlas?: string;
 };
 
 class SpriteDomEffectImpl implements SpriteDomEffect {
-
     apply(element: Element, data: SpriteDomEffectData, instance: MiniMessage) {
         // Create the canvas to receive the sprite
         const canvas = document.createElement("canvas");
@@ -139,10 +143,7 @@ class SpriteDomEffectImpl implements SpriteDomEffect {
 
         // Find the sprite in resource packs
         const resourcePacks = instance.resourcePacks();
-        const sprite = resourcePacks.sprite(
-            Key.key(data.sprite),
-            data.atlas ? Key.key(data.atlas) : null
-        );
+        const sprite = resourcePacks.sprite(Key.key(data.sprite), data.atlas ? Key.key(data.atlas) : null);
 
         // If the sprite isn't found, draw the "missing sprite" image and wash our hands of it
         if (!sprite) {
@@ -151,11 +152,10 @@ class SpriteDomEffectImpl implements SpriteDomEffect {
         }
 
         // Do everything else asynchronously
-        paint(canvas, sprite)
-            .catch((e) => {
-                console.warn(e);
-                paintMissing(canvas);
-            });
+        paint(canvas, sprite).catch((e) => {
+            console.warn(e);
+            paintMissing(canvas);
+        });
     }
 
     serialize(data: SpriteDomEffectData): string {
@@ -164,14 +164,13 @@ class SpriteDomEffectImpl implements SpriteDomEffect {
     }
 
     deserialize(data: string): SpriteDomEffectData {
-        const idx = data.indexOf(';');
+        const idx = data.indexOf(";");
         if (idx === -1) return { sprite: data };
         return {
             atlas: data.substring(0, idx),
-            sprite: data.substring(idx + 1)
+            sprite: data.substring(idx + 1),
         };
     }
-
 }
 
 //

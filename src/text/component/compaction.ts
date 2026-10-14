@@ -1,11 +1,12 @@
-import {Component} from "../component";
-import type {TextComponent} from "./text";
-import {Style} from "../style";
-import {ArrayUtil} from "../../util/array";
+import { ArrayUtil } from "../../util/array";
+import { Component } from "../component";
+import { Style } from "../style";
+import type { TextComponent } from "./text";
 
-/** @internal */
+/**
+ * @internal
+ */
 export namespace ComponentCompaction {
-
     function isText<C extends Component>(component: C): C extends TextComponent ? true : false {
         // @ts-ignore
         return component.type === "text";
@@ -65,7 +66,7 @@ export namespace ComponentCompaction {
             }
         }
 
-        for (let i = 0; i + 1 < childrenToAppend.length; ) {
+        for (let i = 0; i + 1 < childrenToAppend.length;) {
             const child = childrenToAppend[i];
             const neighbor = childrenToAppend[i + 1];
 
@@ -85,5 +86,4 @@ export namespace ComponentCompaction {
 
         return optimized.children(childrenToAppend);
     }
-
 }

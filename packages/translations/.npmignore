@@ -3,3 +3,4 @@ node_modules/
 buildSrc/
 .mc-version
 bun.lock
+bunfig.toml

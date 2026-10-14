@@ -12,7 +12,9 @@ const ulo = Character.LOWERCASE_A.value - Character.UPPERCASE_A.value;
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export interface LookupTable<K, V> {
     has(key: K): boolean;
     get(key: K): V | null;
@@ -21,7 +23,6 @@ export interface LookupTable<K, V> {
 //
 
 abstract class AbstractLookupTable<K, V> implements LookupTable<K, V> {
-
     private readonly _entries: Entries<K, V>;
 
     protected constructor(populate: PopulateFunction<K, V>) {
@@ -31,11 +32,11 @@ abstract class AbstractLookupTable<K, V> implements LookupTable<K, V> {
                 entries,
                 k,
                 () => {
-                    throw new Error(`duplicate entry: ${k}`)
+                    throw new Error(`duplicate entry: ${k}`);
                 },
                 (o) => {
-                    entries.splice(o, 0, k, v)
-                }
+                    entries.splice(o, 0, k, v);
+                },
             );
         });
         this._entries = entries;
@@ -48,7 +49,7 @@ abstract class AbstractLookupTable<K, V> implements LookupTable<K, V> {
             this._entries,
             key,
             () => true,
-            () => false
+            () => false,
         );
     }
 
@@ -57,18 +58,13 @@ abstract class AbstractLookupTable<K, V> implements LookupTable<K, V> {
             this._entries,
             key,
             (o) => this._entries[o | 1] as V,
-            () => null
+            () => null,
         );
     }
 
     protected abstract cmp(a: K, b: K): number;
 
-    private _search<R>(
-        haystack: Entries<K, V>,
-        needle: K,
-        hit: (offset: number) => R,
-        miss: (offset: number) => R
-    ): R {
+    private _search<R>(haystack: Entries<K, V>, needle: K, hit: (offset: number) => R, miss: (offset: number) => R): R {
         let len = haystack.length >>> 1;
         let off = 0;
         while (len > 0) {
@@ -85,11 +81,9 @@ abstract class AbstractLookupTable<K, V> implements LookupTable<K, V> {
         }
         return miss(off << 1);
     }
-
 }
 
 class NumberLookupTable<V> extends AbstractLookupTable<number, V> {
-
     constructor(populate: PopulateFunction<number, V>) {
         super(populate);
     }
@@ -99,11 +93,9 @@ class NumberLookupTable<V> extends AbstractLookupTable<number, V> {
     protected cmp(a: number, b: number): number {
         return a - b;
     }
-
 }
 
 class StringLookupTable<V> extends AbstractLookupTable<string, V> {
-
     private readonly _asciiCaseInsensitive: boolean;
 
     constructor(populate: PopulateFunction<string, V>, asciiCaseInsensitive: boolean = false) {
@@ -128,14 +120,14 @@ class StringLookupTable<V> extends AbstractLookupTable<string, V> {
         }
         return al - bl;
     }
-
 }
 
 //
 
-/** @internal */
+/**
+ * @internal
+ */
 export namespace LookupTable {
-
     export function number<T>(populate: PopulateFunction<number, T>): LookupTable<number, T> {
         return new NumberLookupTable<T>(populate);
     }
@@ -147,5 +139,4 @@ export namespace LookupTable {
     export function caseInsensitiveString<T>(populate: PopulateFunction<string, T>): LookupTable<string, T> {
         return new StringLookupTable<T>(populate, true);
     }
-
 }

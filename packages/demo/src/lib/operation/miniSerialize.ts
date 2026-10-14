@@ -1,14 +1,14 @@
-import type {Operation} from "../operation.ts";
-import {type ComponentUnit, type StringUnit, Unit} from "../unit.ts";
-import {type ArgumentMap} from "../argument.ts";
-import {MiniMessage} from "minimessage-js";
+import { MiniMessage } from "minimessage-js";
+
+import { type ArgumentMap } from "../argument.ts";
+import type { Operation } from "../operation.ts";
+import { type ComponentUnit, type StringUnit, Unit } from "../unit.ts";
 
 //
 
 type Args = {};
 
 class MiniSerializeOperationImpl implements MiniSerializeOperation {
-
     readonly id = MiniSerializeOperation.ID;
     readonly name = "MiniMessage Serialize";
     readonly accepts = "component";
@@ -22,7 +22,6 @@ class MiniSerializeOperationImpl implements MiniSerializeOperation {
     execute(unit: ComponentUnit): StringUnit {
         return Unit.string(MiniMessage.miniMessage().serialize(unit.value));
     }
-
 }
 
 //
